@@ -78,7 +78,7 @@ sealed interface HomeUiIntent {
         val isRoundUpEnabled: Boolean = true,
         val authMethod: String = "Biometrik / PIN 6-Digit"
     ) : HomeUiIntent
-    data class CreateNewPocket(val name: String, val initialBalance: Long, val type: PocketType, val tenorMonths: Int? = null) : HomeUiIntent
+    data class CreateNewPocket(val name: String, val initialBalance: Long, val type: PocketType, val tenorMonths: Int? = null, val targetAmount: Long? = null) : HomeUiIntent
     data class SetPaymentDialogVisibility(val isOpen: Boolean) : HomeUiIntent
     data class SetCreatePocketDialogVisibility(val isOpen: Boolean) : HomeUiIntent
     data class SetScannerVisibility(val isOpen: Boolean) : HomeUiIntent

@@ -27,6 +27,7 @@ class HomeViewModel @Inject constructor(
     val effect = _effect.receiveAsFlow()
 
     init {
+        viewModelScope.launch { repository.accrueInterest() }
         observeBankingData()
     }
 
@@ -81,7 +82,7 @@ class HomeViewModel @Inject constructor(
             }
 
             is HomeUiIntent.CreateNewPocket -> {
-                allocateNewPocket(intent.name, intent.initialBalance, intent.type, intent.tenorMonths)
+                allocateNewPocket(intent.name, intent.initialBalance, intent.type, intent.tenorMonths, intent.targetAmount)
             }
 
             is HomeUiIntent.SetPaymentDialogVisibility -> {
@@ -241,11 +242,11 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    private fun allocateNewPocket(name: String, balance: Long, type: PocketType, tenorMonths: Int?) {
+    private fun allocateNewPocket(name: String, balance: Long, type: PocketType, tenorMonths: Int?, targetAmount: Long?) {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
 
-            repository.createAndAllocatePocket(name, balance, type, tenorMonths)
+            repository.createAndAllocatePocket(name, balance, type, tenorMonths, targetAmount)
                 .onSuccess {
                     val alertData = SuccessAlertData(
                         title = "Kantong Berhasil Dibuat!",

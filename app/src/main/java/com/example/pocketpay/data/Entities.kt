@@ -29,7 +29,9 @@ data class PocketEntity(
     val pocketType: PocketType,
     val interestRatePercent: Double,
     val tenorMonths: Int? = null,           // Tenor duration in months (e.g., 1, 3, 6; null for SPENDING)
-    val maturityDate: Long? = null          // Epoch timestamp in milliseconds for maturity
+    val maturityDate: Long? = null,         // Epoch timestamp in milliseconds for maturity
+    val lastInterestAt: Long = System.currentTimeMillis(), // Last moment up to which interest was credited
+    val targetAmount: Long? = null          // Optional savings goal (SPENDING pockets only)
 )
 
 /**

@@ -5,6 +5,8 @@ import androidx.room.Room
 import com.example.pocketpay.data.AppDatabase
 import com.example.pocketpay.data.BankingDao
 import com.example.pocketpay.data.DatabaseCallback
+import com.example.pocketpay.data.MIGRATION_5_6
+import com.example.pocketpay.data.MIGRATION_6_7
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -29,7 +31,7 @@ object DatabaseModule {
             "pocketpay_database.db"
         )
             .addCallback(DatabaseCallback(databaseProvider))
-            .fallbackToDestructiveMigration()
+            .addMigrations(MIGRATION_5_6, MIGRATION_6_7)
             .build()
     }
 

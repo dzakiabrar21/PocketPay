@@ -673,8 +673,8 @@ fun HomeScreen(
             onDismiss = {
                 viewModel.processIntent(HomeUiIntent.SetCreatePocketDialogVisibility(false))
             },
-            onConfirm = { name, initialAmount, type, tenorMonths ->
-                viewModel.processIntent(HomeUiIntent.CreateNewPocket(name, initialAmount, type, tenorMonths))
+            onConfirm = { name, initialAmount, type, tenorMonths, targetAmount ->
+                viewModel.processIntent(HomeUiIntent.CreateNewPocket(name, initialAmount, type, tenorMonths, targetAmount))
             }
         )
     }
@@ -1869,7 +1869,7 @@ fun PocketCardItem(
     Card(
         modifier = Modifier
             .width(180.dp)
-            .height(145.dp)
+            .height(if (pocket.targetAmount != null) 168.dp else 145.dp)
             .clickable { onClick() },
         shape = RoundedCornerShape(18.dp),
         colors = CardDefaults.cardColors(
@@ -1927,6 +1927,24 @@ fun PocketCardItem(
                     fontWeight = FontWeight.ExtraBold,
                     color = Color(0xFF0F172A)
                 )
+
+                pocket.targetAmount?.let { target ->
+                    val progress = (pocket.balance.toFloat() / target.toFloat()).coerceIn(0f, 1f)
+                    Spacer(modifier = Modifier.height(4.dp))
+                    LinearProgressIndicator(
+                        progress = { progress },
+                        modifier = Modifier.fillMaxWidth().height(6.dp),
+                        color = Color(0xFF059669),
+                        trackColor = Color(0xFFD1FAE5)
+                    )
+                    Text(
+                        text = if (pocket.balance >= target) "Target tercapai \u2713"
+                        else if (isHidden) "Target ••••"
+                        else "${(progress * 100).toInt()}% dari ${target.toRupiah()}",
+                        fontSize = 10.sp,
+                        color = Color(0xFF047857)
+                    )
+                }
 
                 if (isLocked && pocket.maturityDate != null) {
                     Spacer(modifier = Modifier.height(2.dp))
@@ -2065,8 +2083,9 @@ fun ManagePocketBalanceDialog(
 @Composable
 fun CreatePocketDialog(
     onDismiss: () -> Unit,
-    onConfirm: (name: String, amount: Long, type: PocketType, tenorMonths: Int?) -> Unit
+    onConfirm: (name: String, amount: Long, type: PocketType, tenorMonths: Int?, targetAmount: Long?) -> Unit
 ) {
+    var targetText by remember { mutableStateOf("") }
     var pocketName by remember { mutableStateOf("") }
     var initialAmountText by remember { mutableStateOf("100000") }
     var selectedType by remember { mutableStateOf(PocketType.SPENDING) }
@@ -2114,6 +2133,16 @@ fun CreatePocketDialog(
                     Text("Deposito Terkunci (6.0%)")
                 }
 
+                if (selectedType == PocketType.SPENDING) {
+                    OutlinedTextField(
+                        value = targetText,
+                        onValueChange = { if (it.all { c -> c.isDigit() }) targetText = it },
+                        label = { Text("Target Tabungan (Rp, opsional)") },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+
                 if (selectedType == PocketType.LOCKED_DEPOSIT) {
                     Text(
                         text = "Pilih Tenor Deposito:",
@@ -2144,7 +2173,8 @@ fun CreatePocketDialog(
                             pocketName,
                             amount,
                             selectedType,
-                            if (selectedType == PocketType.LOCKED_DEPOSIT) selectedTenor else null
+                            if (selectedType == PocketType.LOCKED_DEPOSIT) selectedTenor else null,
+                            targetText.toLongOrNull()?.takeIf { it > 0 && selectedType == PocketType.SPENDING }
                         )
                     }
                 },

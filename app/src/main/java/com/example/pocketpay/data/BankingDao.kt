@@ -336,6 +336,50 @@ abstract class BankingDao {
         }
     }
 
+    /**
+     * Credits simple daily interest (balance x rate / 365) for every full day elapsed since the
+     * pocket was last credited. Only whole days are consumed, so the remainder carries over and
+     * calling this repeatedly never pays twice for the same day. Returns the number of pockets credited.
+     */
+    @Transaction
+    open suspend fun accrueInterest(now: Long): Int {
+        val dayMs = 24L * 60 * 60 * 1000
+        var credited = 0
+        for (pocket in getPocketsOnce()) {
+            if (pocket.lastInterestAt <= 0L) {
+                updatePocket(pocket.copy(lastInterestAt = now))
+                continue
+            }
+            val days = ((now - pocket.lastInterestAt) / dayMs).coerceAtMost(365L)
+            if (days < 1L) continue
+            val newMarker = pocket.lastInterestAt + ((now - pocket.lastInterestAt) / dayMs) * dayMs
+            // BigDecimal avoids floating-point drift (e.g. 29999.9999 instead of 30000) on money.
+            val interest = java.math.BigDecimal.valueOf(pocket.balance)
+                .multiply(java.math.BigDecimal.valueOf(pocket.interestRatePercent))
+                .multiply(java.math.BigDecimal.valueOf(days))
+                .divide(java.math.BigDecimal.valueOf(36_500L), 0, java.math.RoundingMode.DOWN)
+                .toLong()
+            if (interest > 0L) {
+                updatePocket(pocket.copy(balance = pocket.balance + interest, lastInterestAt = newMarker))
+                insertTransaction(
+                    TransactionEntity(
+                        id = "interest_${pocket.id}_$newMarker",
+                        title = "Bunga ${pocket.name} ($days hari)",
+                        amount = interest,
+                        sourceOfFund = "Bunga ${pocket.interestRatePercent}% p.a.",
+                        type = TxType.CREDIT,
+                        timestamp = now,
+                        authMethod = "Otomatis"
+                    )
+                )
+                credited++
+            } else {
+                updatePocket(pocket.copy(lastInterestAt = newMarker))
+            }
+        }
+        return credited
+    }
+
     @Query("SELECT * FROM pockets WHERE id = :id LIMIT 1")
     abstract suspend fun getPocketById(id: String): PocketEntity?
 

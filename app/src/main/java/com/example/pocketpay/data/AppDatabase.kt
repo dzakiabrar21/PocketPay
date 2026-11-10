@@ -7,11 +7,26 @@ import javax.inject.Provider
 
 @Database(
     entities = [AccountEntity::class, PocketEntity::class, TransactionEntity::class],
-    version = 5,
+    version = 7,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
     abstract fun bankingDao(): BankingDao
+}
+
+/** v5 -> v6: pockets gain `lastInterestAt` so interest can be accrued daily. Existing data is kept. */
+val MIGRATION_5_6 = object : androidx.room.migration.Migration(5, 6) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("ALTER TABLE pockets ADD COLUMN lastInterestAt INTEGER NOT NULL DEFAULT 0")
+        db.execSQL("UPDATE pockets SET lastInterestAt = ${System.currentTimeMillis()}")
+    }
+}
+
+/** v6 -> v7: optional savings goal per pocket. Existing data is kept (goal = NULL). */
+val MIGRATION_6_7 = object : androidx.room.migration.Migration(6, 7) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("ALTER TABLE pockets ADD COLUMN targetAmount INTEGER")
+    }
 }
 
 class DatabaseCallback(
@@ -45,8 +60,8 @@ class DatabaseCallback(
         // Seed Initial Spending Pocket
         db.execSQL(
             """
-            INSERT OR REPLACE INTO pockets (id, name, balance, pocketType, interestRatePercent, tenorMonths, maturityDate)
-            VALUES ('pocket_daily_01', 'Jajan Harian', 350000, 'SPENDING', 3.5, NULL, NULL)
+            INSERT OR REPLACE INTO pockets (id, name, balance, pocketType, interestRatePercent, tenorMonths, maturityDate, lastInterestAt)
+            VALUES ('pocket_daily_01', 'Jajan Harian', 350000, 'SPENDING', 3.5, NULL, NULL, ${System.currentTimeMillis()})
             """.trimIndent()
         )
 
@@ -56,8 +71,8 @@ class DatabaseCallback(
 
         db.execSQL(
             """
-            INSERT OR REPLACE INTO pockets (id, name, balance, pocketType, interestRatePercent, tenorMonths, maturityDate)
-            VALUES ('pocket_deposit_01', 'Deposito Darurat', 2000000, 'LOCKED_DEPOSIT', 6.0, 3, $defaultMaturity)
+            INSERT OR REPLACE INTO pockets (id, name, balance, pocketType, interestRatePercent, tenorMonths, maturityDate, lastInterestAt)
+            VALUES ('pocket_deposit_01', 'Deposito Darurat', 2000000, 'LOCKED_DEPOSIT', 6.0, 3, $defaultMaturity, ${System.currentTimeMillis()})
             """.trimIndent()
         )
     }

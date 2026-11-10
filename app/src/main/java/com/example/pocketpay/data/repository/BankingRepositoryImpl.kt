@@ -97,7 +97,8 @@ class BankingRepositoryImpl @Inject constructor(
         name: String,
         amount: Long,
         type: PocketType,
-        tenorMonths: Int?
+        tenorMonths: Int?,
+        targetAmount: Long?
     ): Result<Unit> = runCatching {
         val account = dao.getAccountOnce()
             ?: throw IllegalStateException("Rekening utama tidak ditemukan.")
@@ -118,7 +119,8 @@ class BankingRepositoryImpl @Inject constructor(
             pocketType = type,
             interestRatePercent = interestRate,
             tenorMonths = tenorMonths,
-            maturityDate = maturityDate
+            maturityDate = maturityDate,
+            targetAmount = targetAmount?.takeIf { it > 0 && type == PocketType.SPENDING }
         )
 
         dao.allocateToPocket(account, newPocket)
@@ -148,6 +150,10 @@ class BankingRepositoryImpl @Inject constructor(
         amount: Long
     ): Result<Unit> = runCatching {
         dao.transferBetweenPockets(fromPocket, toPocket, amount)
+    }
+
+    override suspend fun accrueInterest(): Result<Int> = runCatching {
+        dao.accrueInterest(System.currentTimeMillis())
     }
 
     override suspend fun closePocket(pocket: PocketEntity): Result<Unit> = runCatching {

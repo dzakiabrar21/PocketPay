@@ -233,4 +233,47 @@ class BankingDaoTest {
         assertEquals(200_000L, pocket("p_new")!!.balance)
         assertTrue(txCount() > 0)
     }
+
+    // ---------- Interest accrual ----------
+
+    private val day = 24L * 60 * 60 * 1000
+
+    @Test
+    fun interest_after30Days_creditsSimpleDailyInterest() {
+        val start = pocket("p_spend")!!.lastInterestAt
+        val credited = runBlocking { dao.accrueInterest(start + 30 * day) }
+        // 100_000 * 3.5% / 365 * 30 = 287.67 -> 287
+        assertEquals(100_287L, pocket("p_spend")!!.balance)
+        assertTrue(credited >= 1)
+    }
+
+    @Test
+    fun interest_lessThanOneDay_creditsNothing() {
+        val start = pocket("p_spend")!!.lastInterestAt
+        runBlocking { dao.accrueInterest(start + day / 2) }
+        assertEquals(100_000L, pocket("p_spend")!!.balance)
+    }
+
+    @Test
+    fun interest_calledTwiceForSamePeriod_paysOnlyOnce() {
+        val start = pocket("p_spend")!!.lastInterestAt
+        runBlocking { dao.accrueInterest(start + 30 * day) }
+        runBlocking { dao.accrueInterest(start + 30 * day) }
+        assertEquals(100_287L, pocket("p_spend")!!.balance)
+    }
+
+    @Test
+    fun interest_remainderOfPartialDayCarriesOver() {
+        val start = pocket("p_spend")!!.lastInterestAt
+        runBlocking { dao.accrueInterest(start + 10 * day + day / 2) }
+        assertEquals(start + 10 * day, pocket("p_spend")!!.lastInterestAt)
+    }
+
+    @Test
+    fun interest_usesPocketSpecificRate() {
+        val start = pocket("p_dep")!!.lastInterestAt
+        runBlocking { dao.accrueInterest(start + 365 * day) }
+        // 500_000 * 6% for a full year = 30_000
+        assertEquals(530_000L, pocket("p_dep")!!.balance)
+    }
 }
