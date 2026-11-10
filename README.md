@@ -35,7 +35,7 @@ Integrated micro-savings mechanism inspired by modern digital banking.
 * **Automated Deposit**: The Rp 1,500 change is automatically transferred from the Primary Account into a dedicated 3.5% p.a. high-yield "Celengan Receh" spending pocket.
 
 ### 3. 🛡️ Fintech App Hardening & Security Shield
-Comprehensive commercial banking security safeguards:
+On-device security measures (see [docs/SECURITY.md](docs/SECURITY.md) for what is and is not covered):
 * **Screenshot & Screen Recording Blocker (`FLAG_SECURE`)**: Prevents screen capturing, recording, and malware screen-scraping.
 * **Auto-Lock Shield**: The app starts locked and re-locks after 60 seconds in the background; unlocking needs the PIN or a biometric match.
 * **Encrypted at rest**: The Room database is encrypted with SQLCipher (AES-256). Its random passphrase is wrapped by an Android Keystore key and never stored in clear. Older plaintext databases are converted in place on first launch.
