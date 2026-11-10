@@ -108,10 +108,12 @@ private val NumberKeyboard = KeyboardOptions(keyboardType = KeyboardType.Number)
 
 @Composable
 fun CreatePocketSheet(
+    initialName: String = "",
+    initialAmount: String = "",
     onConfirm: (name: String, amount: Long, type: PocketType, tenorMonths: Int?, targetAmount: Long?) -> Unit
 ) {
-    var name by remember { mutableStateOf("") }
-    var amountText by remember { mutableStateOf("") }
+    var name by remember { mutableStateOf(initialName) }
+    var amountText by remember { mutableStateOf(initialAmount) }
     var targetText by remember { mutableStateOf("") }
     var type by remember { mutableStateOf(PocketType.SPENDING) }
     var tenor by remember { mutableIntStateOf(1) }
@@ -175,10 +177,11 @@ private fun TypeCard(selected: Boolean, icon: ImageVector, label: String, modifi
 fun ManagePocketSheet(
     pocket: PocketEntity,
     onExecute: (amount: Long, actionType: PocketActionType) -> Unit,
-    onClosePocket: () -> Unit
+    onClosePocket: () -> Unit,
+    initialAmount: String = ""
 ) {
     val c = PocketTheme.colors
-    var amountText by remember { mutableStateOf("") }
+    var amountText by remember { mutableStateOf(initialAmount) }
     var confirmClose by remember { mutableStateOf(false) }
     val amount = amountText.toLongOrNull() ?: 0L
     val locked = pocket.pocketType == PocketType.LOCKED_DEPOSIT && (pocket.maturityDate ?: 0L) > System.currentTimeMillis()
@@ -247,11 +250,12 @@ fun ManagePocketSheet(
 @Composable
 fun TransferSheet(
     pockets: List<PocketEntity>,
+    initialAmount: String = "",
     onConfirm: (fromPocketId: String, toPocketId: String, amount: Long) -> Unit
 ) {
     var fromId by remember { mutableStateOf(pockets.firstOrNull()?.id ?: "") }
     var toId by remember { mutableStateOf(pockets.getOrNull(1)?.id ?: "") }
-    var amountText by remember { mutableStateOf("") }
+    var amountText by remember { mutableStateOf(initialAmount) }
     val amount = amountText.toLongOrNull() ?: 0L
 
     SheetColumn(stringResource(R.string.pocket_transfer_antar_kantong)) {

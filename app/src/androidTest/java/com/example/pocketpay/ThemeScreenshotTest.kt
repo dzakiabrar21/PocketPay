@@ -1,7 +1,11 @@
 package com.example.pocketpay
 
 import android.graphics.Bitmap
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBarsPadding
@@ -177,15 +181,34 @@ class ThemeScreenshotTest {
     }
     @Test fun receive() = shotBoth("receive") { ReceiveQrScreen("9012839102", "Alex Morgan", {}) }
 
-    @Test fun sheets() = shotBoth("sheets") {
-        Box(Modifier.fillMaxSize().statusBarsPadding()) {
-            androidx.compose.foundation.layout.Column(Modifier.fillMaxSize()) {
-                CreatePocketSheet { _, _, _, _, _ -> }
+    /** A bottom sheet as the user sees it: the app dimmed behind, the sheet anchored at the bottom. */
+    @Composable
+    private fun SheetOverApp(content: @Composable () -> Unit) {
+        Box(Modifier.fillMaxSize()) {
+            Shell(0) { HomeTab(state, {}, {}, {}, {}, Modifier.fillMaxSize(), it) }
+            Box(Modifier.fillMaxSize().background(androidx.compose.ui.graphics.Color.Black.copy(alpha = 0.55f)))
+            androidx.compose.material3.Surface(
+                modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth(),
+                shape = androidx.compose.foundation.shape.RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp),
+                color = MaterialTheme.colorScheme.background
+            ) {
+                androidx.compose.foundation.layout.Column(Modifier.navigationBarsPadding()) {
+                    Box(
+                        Modifier.align(Alignment.CenterHorizontally).padding(vertical = 12.dp)
+                            .size(width = 36.dp, height = 4.dp)
+                            .background(MaterialTheme.colorScheme.outline, androidx.compose.foundation.shape.RoundedCornerShape(2.dp))
+                    )
+                    content()
+                }
             }
         }
     }
-    @Test fun manage() = shotBoth("manage") { Box(Modifier.fillMaxSize().statusBarsPadding()) { ManagePocketSheet(pockets[0], { _, _ -> }, {}) } }
-    @Test fun receipt() = shotBoth("receipt") { Box(Modifier.fillMaxSize().statusBarsPadding()) { ReceiptSheet(txs[0], {}) } }
-    @Test fun transfer() = shotBoth("transfer") { Box(Modifier.fillMaxSize().statusBarsPadding()) { TransferSheet(pockets.filter { it.pocketType == PocketType.SPENDING }) { _, _, _ -> } } }
-    @Test fun statement() = shotBoth("statement") { Box(Modifier.fillMaxSize().statusBarsPadding()) { EStatementSheet("9012839102", 4_998_500, txs) } }
+
+    @Test fun sheets() = shotBoth("sheets") { SheetOverApp { CreatePocketSheet("Liburan Bali", "500000") { _, _, _, _, _ -> } } }
+    @Test fun manage() = shotBoth("manage") { SheetOverApp { ManagePocketSheet(pockets[0], { _, _ -> }, {}, "100000") } }
+    @Test fun receipt() = shotBoth("receipt") { SheetOverApp { ReceiptSheet(txs[0], {}) } }
+    @Test fun transfer() = shotBoth("transfer") {
+        SheetOverApp { TransferSheet(pockets.filter { it.pocketType == PocketType.SPENDING }, "25000") { _, _, _ -> } }
+    }
+    @Test fun statement() = shotBoth("statement") { SheetOverApp { EStatementSheet("9012839102", 4_998_500, txs) } }
 }
