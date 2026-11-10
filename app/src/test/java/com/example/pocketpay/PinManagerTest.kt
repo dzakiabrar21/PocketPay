@@ -48,12 +48,12 @@ class PinManagerTest {
 
     @Test
     fun weakPinsAreRejected() {
-        assertNotNull(PinManager.validateNewPin("111111"))
-        assertNotNull(PinManager.validateNewPin("123456"))
-        assertNotNull(PinManager.validateNewPin("654321"))
-        assertNotNull(PinManager.validateNewPin("12345"))
-        assertNotNull(PinManager.validateNewPin("12ab56"))
-        assertNull(PinManager.validateNewPin("135790"))
+        assertNotNull(PinManager.validateNewPin(context, "111111"))
+        assertNotNull(PinManager.validateNewPin(context, "123456"))
+        assertNotNull(PinManager.validateNewPin(context, "654321"))
+        assertNotNull(PinManager.validateNewPin(context, "12345"))
+        assertNotNull(PinManager.validateNewPin(context, "12ab56"))
+        assertNull(PinManager.validateNewPin(context, "135790"))
     }
 
     @Test

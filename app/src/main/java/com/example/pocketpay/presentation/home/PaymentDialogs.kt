@@ -1,5 +1,7 @@
 package com.example.pocketpay.presentation.home
 
+import androidx.compose.ui.res.stringResource
+import com.example.pocketpay.R
 import com.example.pocketpay.ui.theme.PocketTheme
 import android.content.Intent
 import android.widget.Toast
@@ -98,20 +100,20 @@ fun PaymentQrisDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Konfirmasi Bayar QRIS") },
+        title = { Text(stringResource(R.string.pay_konfirmasi_bayar_qris)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 OutlinedTextField(
                     value = merchant,
                     onValueChange = { merchant = it },
-                    label = { Text("Nama Merchant") },
+                    label = { Text(stringResource(R.string.pay_nama_merchant)) },
                     modifier = Modifier.fillMaxWidth()
                 )
 
                 OutlinedTextField(
                     value = amountText,
                     onValueChange = { amountText = it },
-                    label = { Text("Nominal Pembayaran (Rp)") },
+                    label = { Text(stringResource(R.string.pay_nominal_pembayaran_rp)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -126,13 +128,13 @@ fun PaymentQrisDialog(
                 ) {
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = "Celengan Receh (Round-Up)",
+                            text = stringResource(R.string.home_celengan_receh_round_up),
                             style = MaterialTheme.typography.labelMedium,
                             fontWeight = FontWeight.Bold,
                             color = PocketTheme.colors.brandText
                         )
                         Text(
-                            text = if (roundUpDiff > 0) "Bulatkan Rp 5.000 (+ ${roundUpDiff.toRupiah()})" else "Nominal kelipatan Rp 5.000",
+                            text = if (roundUpDiff > 0) stringResource(R.string.pay_bulatkan_rp_5_000, roundUpDiff.toRupiah()) else stringResource(R.string.pay_nominal_kelipatan_rp_5_000),
                             style = MaterialTheme.typography.bodySmall,
                             fontSize = 11.sp,
                             color = PocketTheme.colors.accentText
@@ -168,13 +170,13 @@ fun PaymentQrisDialog(
                             Spacer(modifier = Modifier.width(8.dp))
                             Column {
                                 Text(
-                                    text = "Smart Cascading Active",
+                                    text = stringResource(R.string.pay_smart_cascading_active),
                                     style = MaterialTheme.typography.labelMedium,
                                     fontWeight = FontWeight.Bold,
                                     color = PocketTheme.colors.amberText
                                 )
                                 Text(
-                                    text = "Saldo ${targetP.name} kurang ${deficit.toRupiah()}. Sisa ${deficit.toRupiah()} ditalangi dari Rekening Utama.",
+                                    text = stringResource(R.string.pay_saldo_kurang_sisa_ditalangi_dari_rek, targetP.name, deficit.toRupiah(), deficit.toRupiah()),
                                     style = MaterialTheme.typography.bodySmall,
                                     fontSize = 11.sp,
                                     color = PocketTheme.colors.amberText
@@ -185,7 +187,7 @@ fun PaymentQrisDialog(
                 }
 
                 Text(
-                    text = "Pilih Sumber Dana (Source-of-Fund):",
+                    text = stringResource(R.string.pay_pilih_sumber_dana_source_of_fund),
                     style = MaterialTheme.typography.labelMedium,
                     fontWeight = FontWeight.SemiBold
                 )
@@ -198,7 +200,7 @@ fun PaymentQrisDialog(
                         selected = (selectedPocketId == null),
                         onClick = { selectedPocketId = null }
                     )
-                    Text(text = "Rekening Utama")
+                    Text(text = stringResource(R.string.pay_rekening_utama))
                 }
 
                 pockets.forEach { pocket ->
@@ -224,11 +226,11 @@ fun PaymentQrisDialog(
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
             ) {
-                Text("Konfirmasi & Bayar")
+                Text(stringResource(R.string.pay_konfirmasi_bayar))
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text("Batal") }
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.pay_batal)) }
         }
     )
 }
@@ -249,7 +251,7 @@ fun TransactionPinDialog(
         onDismissRequest = onDismiss,
         title = {
             Text(
-                text = "Masukkan PIN Transaksi",
+                text = stringResource(R.string.pay_masukkan_pin_transaksi),
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold
             )
@@ -261,7 +263,7 @@ fun TransactionPinDialog(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = "Verifikasi pembayaran ${amount.toRupiah()} ke $merchant",
+                    text = stringResource(R.string.pay_verifikasi_pembayaran_ke, amount.toRupiah(), merchant),
                     style = MaterialTheme.typography.bodyMedium,
                     textAlign = TextAlign.Center,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -275,7 +277,7 @@ fun TransactionPinDialog(
                             errorText = null
                         }
                     },
-                    label = { Text("6 Digit PIN") },
+                    label = { Text(stringResource(R.string.pay_6_digit_pin)) },
                     singleLine = true,
                     isError = isError,
                     visualTransformation = PasswordVisualTransformation(),
@@ -299,19 +301,19 @@ fun TransactionPinDialog(
                     if (result == PinResult.Success) {
                         onPinSuccess()
                     } else {
-                        errorText = PinManager.describe(result)
+                        errorText = PinManager.describe(pinContext, result)
                         pin = ""
                     }
                 },
                 enabled = pin.length == 6,
                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
             ) {
-                Text("Konfirmasi PIN")
+                Text(stringResource(R.string.pay_konfirmasi_pin))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Batal")
+                Text(stringResource(R.string.pay_batal))
             }
         }
     )
@@ -334,7 +336,7 @@ fun ReceiveQrDialog(
         onDismissRequest = onDismiss,
         title = {
             Text(
-                text = "QR Terima Transfer",
+                text = stringResource(R.string.pay_qr_terima_transfer),
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold
             )
@@ -346,7 +348,7 @@ fun ReceiveQrDialog(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 Text(
-                    text = "Tunjukkan QR ini ke pengirim untuk menerima transfer dana.",
+                    text = stringResource(R.string.pay_tunjukkan_qr_ini_ke_pengirim_untuk),
                     style = MaterialTheme.typography.bodySmall,
                     textAlign = TextAlign.Center,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -364,14 +366,14 @@ fun ReceiveQrDialog(
                 }
 
                 Text(
-                    text = "No. Rekening: $accountNumber",
+                    text = stringResource(R.string.pay_no_rekening, accountNumber),
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Bold
                 )
 
                 if (enteredAmount != null && enteredAmount > 0) {
                     Text(
-                        text = "Nominal: ${enteredAmount.toRupiah()}",
+                        text = stringResource(R.string.pay_nominal, enteredAmount.toRupiah()),
                         style = MaterialTheme.typography.titleSmall,
                         color = PocketTheme.colors.brandText,
                         fontWeight = FontWeight.Bold
@@ -381,7 +383,7 @@ fun ReceiveQrDialog(
                 OutlinedTextField(
                     value = amountText,
                     onValueChange = { amountText = it },
-                    label = { Text("Set Nominal Transfer (Opsional)") },
+                    label = { Text(stringResource(R.string.pay_set_nominal_transfer_opsional)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -401,18 +403,18 @@ fun ReceiveQrDialog(
                         putExtra(Intent.EXTRA_TEXT, shareText)
                         type = "text/plain"
                     }
-                    context.startActivity(Intent.createChooser(sendIntent, "Bagikan Informasi Transfer"))
+                    context.startActivity(Intent.createChooser(sendIntent, context.getString(R.string.pay_bagikan_informasi_transfer)))
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
             ) {
                 Icon(Icons.Default.Share, contentDescription = null, modifier = Modifier.size(16.dp))
                 Spacer(modifier = Modifier.width(6.dp))
-                Text("Bagikan QR / No. Rek")
+                Text(stringResource(R.string.pay_bagikan_qr_no_rek))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Tutup")
+                Text(stringResource(R.string.pay_tutup))
             }
         }
     )

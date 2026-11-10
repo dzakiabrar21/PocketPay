@@ -1,5 +1,6 @@
 package com.example.pocketpay.presentation.statement
 
+import com.example.pocketpay.R
 import android.content.Context
 import android.content.Intent
 import android.graphics.Canvas
@@ -96,7 +97,7 @@ object PdfStatementGenerator {
             c.save()
             c.rotate(-30f, pageWidth / 2f, pageHeight / 2f)
             c.drawText(
-                "POCKETPAY OFFICIAL E-STATEMENT",
+                context.getString(R.string.pdf_pocketpay_official_e_statement),
                 pageWidth / 2f - 190f,
                 pageHeight / 2f,
                 watermarkPaint
@@ -108,12 +109,12 @@ object PdfStatementGenerator {
             val footerY = pageHeight - 36f
             c.drawLine(32f, footerY - 10f, pageWidth - 32f, footerY - 10f, linePaint)
             c.drawText(
-                "Dokumen ini dicetak secara komputerisasi oleh sistem PocketPay dan sah tanpa tanda tangan basah.",
+                context.getString(R.string.pdf_dokumen_ini_dicetak_secara_komputeri),
                 32f,
                 footerY,
                 subTitlePaint
             )
-            c.drawText("Hal. $number", pageWidth - 32f - 30f, footerY + 12f, subTitlePaint)
+            c.drawText(context.getString(R.string.pdf_hal, number), pageWidth - 32f - 30f, footerY + 12f, subTitlePaint)
         }
 
         // 1. Background Watermark
@@ -123,9 +124,9 @@ object PdfStatementGenerator {
         val margin = 32f
         var currentY = 48f
 
-        canvas.drawText("POCKETPAY", margin, currentY, primaryPaint)
+        canvas.drawText(context.getString(R.string.pdf_pocketpay), margin, currentY, primaryPaint)
         currentY += 15f
-        canvas.drawText("REKENING KORAN / E-STATEMENT RESMI PERBANKAN DIGITAL", margin, currentY, subTitlePaint)
+        canvas.drawText(context.getString(R.string.pdf_rekening_koran_e_statement_resmi_per), margin, currentY, subTitlePaint)
         currentY += 14f
 
         canvas.drawLine(margin, currentY, pageWidth - margin, currentY, linePaint)
@@ -136,13 +137,13 @@ object PdfStatementGenerator {
         val totalDebit = transactions.filter { it.type == TxType.DEBIT }.sumOf { it.amount }
         val startingBalance = (currentBalance + totalDebit) - totalCredit
 
-        canvas.drawText("INFORMASI NASABAH & PERIODE", margin, currentY, boldTextPaint)
+        canvas.drawText(context.getString(R.string.pdf_informasi_nasabah_periode), margin, currentY, boldTextPaint)
         currentY += 14f
-        canvas.drawText("No. Rekening : $accountNumber", margin, currentY, regularTextPaint)
-        canvas.drawText("Periode : $periodLabel", margin + 230f, currentY, regularTextPaint)
+        canvas.drawText(context.getString(R.string.pdf_no_rekening, accountNumber), margin, currentY, regularTextPaint)
+        canvas.drawText(context.getString(R.string.pdf_periode, periodLabel), margin + 230f, currentY, regularTextPaint)
         currentY += 12f
-        canvas.drawText("Nama Nasabah : Nasabah Utama PocketPay", margin, currentY, regularTextPaint)
-        canvas.drawText("Tanggal Cetak : ${SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault()).format(Date())}", margin + 230f, currentY, regularTextPaint)
+        canvas.drawText(context.getString(R.string.pdf_nama_nasabah_nasabah_utama_pocketpay), margin, currentY, regularTextPaint)
+        canvas.drawText(context.getString(R.string.pdf_tanggal_cetak, SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault()).format(Date())), margin + 230f, currentY, regularTextPaint)
         currentY += 16f
 
         // Account Summary Card
@@ -154,15 +155,15 @@ object PdfStatementGenerator {
         canvas.drawRoundRect(boxRect, 6f, 6f, boxPaint)
 
         val boxY = currentY + 24f
-        canvas.drawText("Saldo Awal: ${formatRp(startingBalance)}", margin + 10f, boxY, regularTextPaint)
-        canvas.drawText("Total Masuk (+): ${formatRp(totalCredit)}", margin + 130f, boxY, regularTextPaint)
-        canvas.drawText("Total Keluar (-): ${formatRp(totalDebit)}", margin + 255f, boxY, regularTextPaint)
-        canvas.drawText("Saldo Akhir: ${formatRp(currentBalance)}", margin + 380f, boxY, boldTextPaint)
+        canvas.drawText(context.getString(R.string.pdf_saldo_awal, formatRp(startingBalance)), margin + 10f, boxY, regularTextPaint)
+        canvas.drawText(context.getString(R.string.pdf_total_masuk, formatRp(totalCredit)), margin + 130f, boxY, regularTextPaint)
+        canvas.drawText(context.getString(R.string.pdf_total_keluar, formatRp(totalDebit)), margin + 255f, boxY, regularTextPaint)
+        canvas.drawText(context.getString(R.string.pdf_saldo_akhir, formatRp(currentBalance)), margin + 380f, boxY, boldTextPaint)
 
         currentY += 52f
 
         // 4. Transaction Mutation Table
-        canvas.drawText("RINCIAN MUTASI TRANSAKSI (${transactions.size} Transaksi)", margin, currentY, boldTextPaint)
+        canvas.drawText(context.getString(R.string.pdf_rincian_mutasi_transaksi_transaksi, transactions.size), margin, currentY, boldTextPaint)
         currentY += 12f
 
         // Table Header
@@ -186,11 +187,11 @@ object PdfStatementGenerator {
         fun drawTableHeader(c: Canvas, y: Float) {
             c.drawRoundRect(RectF(margin, y, pageWidth - margin, y + 22f), 4f, 4f, headerBgPaint)
             val ty = y + 15f
-            c.drawText("TANGGAL", col1X, ty, headerTextPaint)
-            c.drawText("DESKRIPSI / MERCHANT", col2X, ty, headerTextPaint)
-            c.drawText("SUMBER DANA", col3X, ty, headerTextPaint)
-            c.drawText("TIPE", col4X, ty, headerTextPaint)
-            c.drawText("NOMINAL (RP)", col5X, ty, headerTextPaint)
+            c.drawText(context.getString(R.string.pdf_tanggal), col1X, ty, headerTextPaint)
+            c.drawText(context.getString(R.string.pdf_deskripsi_merchant), col2X, ty, headerTextPaint)
+            c.drawText(context.getString(R.string.pdf_sumber_dana), col3X, ty, headerTextPaint)
+            c.drawText(context.getString(R.string.pdf_tipe), col4X, ty, headerTextPaint)
+            c.drawText(context.getString(R.string.pdf_nominal_rp), col5X, ty, headerTextPaint)
         }
 
         drawTableHeader(canvas, currentY)
@@ -278,14 +279,14 @@ object PdfStatementGenerator {
             val shareIntent = Intent(Intent.ACTION_SEND).apply {
                 type = "application/pdf"
                 putExtra(Intent.EXTRA_STREAM, contentUri)
-                putExtra(Intent.EXTRA_SUBJECT, "E-Statement Rekening Koran PocketPay")
-                putExtra(Intent.EXTRA_TEXT, "Lampiran E-Statement Rekening Koran Resmi PocketPay.")
+                putExtra(Intent.EXTRA_SUBJECT, context.getString(R.string.pdf_e_statement_rekening_koran_pocketpay))
+                putExtra(Intent.EXTRA_TEXT, context.getString(R.string.pdf_lampiran_e_statement_rekening_koran_))
                 addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             }
 
-            context.startActivity(Intent.createChooser(shareIntent, "Bagikan E-Statement PDF"))
+            context.startActivity(Intent.createChooser(shareIntent, context.getString(R.string.pdf_bagikan_e_statement_pdf)))
         } catch (e: Exception) {
-            Toast.makeText(context, "Gagal membagikan PDF: ${e.localizedMessage}", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, context.getString(R.string.pdf_gagal_membagikan_pdf, e.localizedMessage), Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -302,9 +303,9 @@ object PdfStatementGenerator {
                 addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             }
 
-            context.startActivity(Intent.createChooser(viewIntent, "Buka E-Statement PDF"))
+            context.startActivity(Intent.createChooser(viewIntent, context.getString(R.string.pdf_buka_e_statement_pdf)))
         } catch (e: Exception) {
-            Toast.makeText(context, "Tidak ada aplikasi pembuka PDF di perangkat ini.", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, context.getString(R.string.pdf_tidak_ada_aplikasi_pembuka_pdf_di), Toast.LENGTH_SHORT).show()
         }
     }
 }

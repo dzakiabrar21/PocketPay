@@ -1,6 +1,7 @@
 package com.example.pocketpay.presentation.security
 
 import android.content.Context
+import com.example.pocketpay.R
 import android.os.Build
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyPermanentlyInvalidatedException
@@ -82,8 +83,8 @@ object BiometricHelper {
      */
     fun showBiometricPrompt(
         activity: FragmentActivity,
-        title: String = "Authentication Required",
-        subtitle: String = "Use fingerprint or Face ID",
+        title: String,
+        subtitle: String,
         onSuccess: () -> Unit,
         onFallbackToPin: () -> Unit,
         onError: (String) -> Unit
@@ -94,7 +95,7 @@ object BiometricHelper {
             }
         } catch (e: KeyPermanentlyInvalidatedException) {
             deleteKey() // biometrics changed: force PIN entry, which re-arms a fresh key
-            onError("Biometrik berubah. Masukkan PIN untuk mengaktifkan kembali.")
+            onError(activity.getString(R.string.bio_changed))
             onFallbackToPin()
             return
         } catch (e: Exception) {
@@ -107,7 +108,7 @@ object BiometricHelper {
             .setTitle(title)
             .setSubtitle(subtitle)
             .setAllowedAuthenticators(BIOMETRIC_STRONG)
-            .setNegativeButtonText("Use PIN")
+            .setNegativeButtonText(activity.getString(R.string.bio_use_pin))
             .build()
 
         val biometricPrompt = BiometricPrompt(
@@ -122,7 +123,7 @@ object BiometricHelper {
                     } catch (e: Exception) {
                         false
                     }
-                    if (proven) onSuccess() else onError("Verifikasi biometrik gagal.")
+                    if (proven) onSuccess() else onError(activity.getString(R.string.bio_failed))
                 }
 
                 override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
@@ -136,7 +137,7 @@ object BiometricHelper {
 
                 override fun onAuthenticationFailed() {
                     super.onAuthenticationFailed()
-                    onError("Biometric not recognized, please try again.")
+                    onError(activity.getString(R.string.bio_not_recognized))
                 }
             }
         )

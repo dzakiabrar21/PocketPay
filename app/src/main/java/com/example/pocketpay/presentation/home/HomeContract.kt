@@ -1,5 +1,7 @@
 package com.example.pocketpay.presentation.home
 
+import androidx.annotation.StringRes
+import com.example.pocketpay.R
 import com.example.pocketpay.data.AccountEntity
 import com.example.pocketpay.data.PocketEntity
 import com.example.pocketpay.data.PocketType
@@ -7,10 +9,10 @@ import com.example.pocketpay.data.TransactionEntity
 import com.example.pocketpay.data.TxType
 
 enum class PocketActionType { TOP_UP, WITHDRAW }
-enum class DateRangeFilter(val label: String) {
-    ALL("Semua Waktu"),
-    LAST_7_DAYS("7 Hari"),
-    LAST_30_DAYS("30 Hari")
+enum class DateRangeFilter(@StringRes val labelRes: Int) {
+    ALL(R.string.filter_all_time),
+    LAST_7_DAYS(R.string.filter_7_days),
+    LAST_30_DAYS(R.string.filter_30_days)
 }
 
 data class SuccessAlertData(

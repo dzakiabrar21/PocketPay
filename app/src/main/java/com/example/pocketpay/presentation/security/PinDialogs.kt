@@ -1,5 +1,7 @@
 package com.example.pocketpay.presentation.security
 
+import androidx.compose.ui.res.stringResource
+import com.example.pocketpay.R
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -48,15 +50,15 @@ fun PinSetupDialog(onDone: () -> Unit) {
 
     AlertDialog(
         onDismissRequest = {},
-        title = { Text("Buat PIN Keamanan", fontWeight = FontWeight.Bold) },
+        title = { Text(stringResource(R.string.pin_buat_pin_keamanan), fontWeight = FontWeight.Bold) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 Text(
-                    "PIN 6 digit ini dipakai untuk membuka kunci aplikasi dan mengonfirmasi pembayaran.",
+                    stringResource(R.string.pin_pin_6_digit_ini_dipakai_untuk),
                     style = MaterialTheme.typography.bodyMedium
                 )
-                PinField("PIN Baru", pin, error != null) { pin = it; error = null }
-                PinField("Ulangi PIN", confirm, error != null) { confirm = it; error = null }
+                PinField(stringResource(R.string.pin_pin_baru), pin, error != null) { pin = it; error = null }
+                PinField(stringResource(R.string.pin_ulangi_pin), confirm, error != null) { confirm = it; error = null }
                 error?.let { Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall) }
             }
         },
@@ -66,13 +68,13 @@ fun PinSetupDialog(onDone: () -> Unit) {
                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                 onClick = {
                     if (pin != confirm) {
-                        error = "Konfirmasi PIN tidak cocok."
+                        error = context.getString(R.string.pin_konfirmasi_pin_tidak_cocok)
                     } else {
                         val msg = PinManager.setInitialPin(context, pin)
                         if (msg == null) onDone() else error = msg
                     }
                 }
-            ) { Text("Simpan PIN") }
+            ) { Text(stringResource(R.string.pin_simpan_pin)) }
         }
     )
 }
@@ -88,12 +90,12 @@ fun ChangePinDialog(onDismiss: () -> Unit, onChanged: () -> Unit) {
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Ganti PIN", fontWeight = FontWeight.Bold) },
+        title = { Text(stringResource(R.string.profile_ganti_pin), fontWeight = FontWeight.Bold) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                PinField("PIN Lama", oldPin, error != null) { oldPin = it; error = null }
-                PinField("PIN Baru", pin, error != null) { pin = it; error = null }
-                PinField("Ulangi PIN Baru", confirm, error != null) { confirm = it; error = null }
+                PinField(stringResource(R.string.pin_pin_lama), oldPin, error != null) { oldPin = it; error = null }
+                PinField(stringResource(R.string.pin_pin_baru), pin, error != null) { pin = it; error = null }
+                PinField(stringResource(R.string.pin_ulangi_pin_baru), confirm, error != null) { confirm = it; error = null }
                 error?.let { Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall) }
             }
         },
@@ -103,14 +105,14 @@ fun ChangePinDialog(onDismiss: () -> Unit, onChanged: () -> Unit) {
                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                 onClick = {
                     if (pin != confirm) {
-                        error = "Konfirmasi PIN baru tidak cocok."
+                        error = context.getString(R.string.pin_konfirmasi_pin_baru_tidak_cocok)
                     } else {
                         val msg = PinManager.changePin(context, oldPin, pin)
                         if (msg == null) onChanged() else { error = msg; oldPin = "" }
                     }
                 }
-            ) { Text("Ganti PIN") }
+            ) { Text(stringResource(R.string.profile_ganti_pin)) }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Batal") } }
+        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.pay_batal)) } }
     )
 }

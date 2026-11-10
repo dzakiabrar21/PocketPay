@@ -1,5 +1,7 @@
 package com.example.pocketpay.presentation.home
 
+import androidx.compose.ui.res.stringResource
+import com.example.pocketpay.R
 import android.content.Intent
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
@@ -105,20 +107,20 @@ fun SplashScreen(
             ) {
                 androidx.compose.foundation.Image(
                     painter = androidx.compose.ui.res.painterResource(id = com.example.pocketpay.R.drawable.ic_launcher_foreground),
-                    contentDescription = "PocketPay Logo",
+                    contentDescription = stringResource(R.string.lock_pocketpay_logo),
                     modifier = Modifier.size(76.dp)
                 )
             }
 
             Text(
-                text = "PocketPay",
+                text = stringResource(R.string.lock_pocketpay),
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.ExtraBold,
                 color = Color.White
             )
 
             Text(
-                text = "Next-Gen Digital Banking & Micro-Savings",
+                text = stringResource(R.string.lock_next_gen_digital_banking_micro_savin),
                 style = MaterialTheme.typography.bodyMedium,
                 color = Color.White.copy(alpha = 0.8f)
             )
@@ -179,14 +181,14 @@ fun AppLockOverlay(
             }
 
             Text(
-                text = "PocketPay Shield",
+                text = stringResource(R.string.lock_pocketpay_shield),
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold,
                 color = Color.White
             )
 
             Text(
-                text = "Sesi aplikasi terkunci otomatis untuk keamanan finansial Anda. Buka kunci untuk kembali ke dashboard.",
+                text = stringResource(R.string.lock_sesi_aplikasi_terkunci_otomatis_untu),
                 style = MaterialTheme.typography.bodyMedium,
                 textAlign = TextAlign.Center,
                 color = Color.White.copy(alpha = 0.85f)
@@ -202,7 +204,7 @@ fun AppLockOverlay(
                         errorText = null
                     }
                 },
-                label = { Text("PIN 6 Digit") },
+                label = { Text(stringResource(R.string.lock_pin_6_digit)) },
                 singleLine = true,
                 isError = errorText != null,
                 visualTransformation = PasswordVisualTransformation(),
@@ -229,7 +231,7 @@ fun AppLockOverlay(
                     if (result == PinResult.Success) {
                         onUnlocked()
                     } else {
-                        errorText = PinManager.describe(result)
+                        errorText = PinManager.describe(lockContext, result)
                         pin = ""
                     }
                 },
@@ -240,12 +242,12 @@ fun AppLockOverlay(
             ) {
                 Icon(Icons.Default.Lock, contentDescription = null, modifier = Modifier.size(18.dp))
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("Buka Kunci dengan PIN", fontWeight = FontWeight.Bold)
+                Text(stringResource(R.string.lock_buka_kunci_dengan_pin), fontWeight = FontWeight.Bold)
             }
 
             if (biometricAvailable) {
                 TextButton(onClick = onBiometricRequest) {
-                    Text("Gunakan Biometrik", color = Color.White)
+                    Text(stringResource(R.string.lock_gunakan_biometrik), color = Color.White)
                 }
             }
         }

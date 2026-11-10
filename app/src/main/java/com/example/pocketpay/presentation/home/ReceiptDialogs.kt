@@ -1,5 +1,7 @@
 package com.example.pocketpay.presentation.home
 
+import androidx.compose.ui.res.stringResource
+import com.example.pocketpay.R
 import com.example.pocketpay.ui.theme.PocketTheme
 import android.content.Intent
 import android.widget.Toast
@@ -133,7 +135,7 @@ fun AnimatedSuccessPaymentDialog(
                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                 shape = RoundedCornerShape(12.dp)
             ) {
-                Text("Mantap! OK", fontWeight = FontWeight.Bold)
+                Text(stringResource(R.string.receipt_mantap_ok), fontWeight = FontWeight.Bold)
             }
         }
     )
@@ -177,7 +179,7 @@ fun EStatementPdfDialog(
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = "Export E-Statement PDF",
+                    text = stringResource(R.string.home_export_e_statement_pdf),
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold
                 )
@@ -189,13 +191,13 @@ fun EStatementPdfDialog(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 Text(
-                    text = "Cetak Rekening Koran resmi berformat PDF lengkap dengan Kop Surat PocketPay, Watermark, & Rincian Mutasi.",
+                    text = stringResource(R.string.receipt_cetak_rekening_koran_resmi_berformat),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
 
                 Text(
-                    text = "Pilih Periode Laporan:",
+                    text = stringResource(R.string.receipt_pilih_periode_laporan),
                     style = MaterialTheme.typography.labelMedium,
                     fontWeight = FontWeight.Bold
                 )
@@ -208,7 +210,7 @@ fun EStatementPdfDialog(
                         FilterChip(
                             selected = selectedPeriod == period,
                             onClick = { selectedPeriod = period },
-                            label = { Text(period.label) }
+                            label = { Text(stringResource(period.labelRes)) }
                         )
                     }
                 }
@@ -223,11 +225,11 @@ fun EStatementPdfDialog(
                         modifier = Modifier.padding(12.dp),
                         verticalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
-                        Text(text = "Ringkasan Dokumen:", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold, color = PocketTheme.colors.brandText)
-                        Text(text = "• No. Rekening: $accountNumber", style = MaterialTheme.typography.bodySmall, color = PocketTheme.colors.accentText)
-                        Text(text = "• Periode: ${selectedPeriod.label}", style = MaterialTheme.typography.bodySmall, color = PocketTheme.colors.accentText)
-                        Text(text = "• Total Transaksi: ${filteredTxs.size} Mutasi", style = MaterialTheme.typography.bodySmall, color = PocketTheme.colors.accentText)
-                        Text(text = "• Saldo Akhir: ${currentBalance.toRupiah()}", style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Bold, color = PocketTheme.colors.brandText)
+                        Text(text = stringResource(R.string.receipt_ringkasan_dokumen), style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold, color = PocketTheme.colors.brandText)
+                        Text(text = stringResource(R.string.receipt_no_rekening, accountNumber), style = MaterialTheme.typography.bodySmall, color = PocketTheme.colors.accentText)
+                        Text(text = stringResource(R.string.receipt_periode, stringResource(selectedPeriod.labelRes)), style = MaterialTheme.typography.bodySmall, color = PocketTheme.colors.accentText)
+                        Text(text = stringResource(R.string.receipt_total_transaksi_mutasi, filteredTxs.size), style = MaterialTheme.typography.bodySmall, color = PocketTheme.colors.accentText)
+                        Text(text = stringResource(R.string.receipt_saldo_akhir, currentBalance.toRupiah()), style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Bold, color = PocketTheme.colors.brandText)
                     }
                 }
             }
@@ -239,18 +241,18 @@ fun EStatementPdfDialog(
                         val pdfFile = PdfStatementGenerator.generateEStatementPdf(
                             context = context,
                             accountNumber = accountNumber,
-                            periodLabel = selectedPeriod.label,
+                            periodLabel = context.getString(selectedPeriod.labelRes),
                             transactions = filteredTxs,
                             currentBalance = currentBalance
                         )
                         if (pdfFile != null) {
                             PdfStatementGenerator.openEStatementPdf(context, pdfFile)
                         } else {
-                            Toast.makeText(context, "Gagal membuat PDF", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, context.getString(R.string.receipt_gagal_membuat_pdf), Toast.LENGTH_SHORT).show()
                         }
                     }
                 ) {
-                    Text("Buka PDF")
+                    Text(stringResource(R.string.receipt_buka_pdf))
                 }
 
                 Button(
@@ -258,27 +260,27 @@ fun EStatementPdfDialog(
                         val pdfFile = PdfStatementGenerator.generateEStatementPdf(
                             context = context,
                             accountNumber = accountNumber,
-                            periodLabel = selectedPeriod.label,
+                            periodLabel = context.getString(selectedPeriod.labelRes),
                             transactions = filteredTxs,
                             currentBalance = currentBalance
                         )
                         if (pdfFile != null) {
                             PdfStatementGenerator.shareEStatementPdf(context, pdfFile)
                         } else {
-                            Toast.makeText(context, "Gagal membuat PDF", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, context.getString(R.string.receipt_gagal_membuat_pdf), Toast.LENGTH_SHORT).show()
                         }
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
                 ) {
                     Icon(Icons.Default.Share, contentDescription = null, modifier = Modifier.size(16.dp))
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text("Bagikan PDF")
+                    Text(stringResource(R.string.receipt_bagikan_pdf))
                 }
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Tutup")
+                Text(stringResource(R.string.pay_tutup))
             }
         }
     )
@@ -320,7 +322,7 @@ fun TransactionDetailReceiptDialog(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = "Struk Transaksi Digital",
+                        text = stringResource(R.string.receipt_struk_transaksi_digital),
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold
                     )
@@ -375,13 +377,13 @@ fun TransactionDetailReceiptDialog(
 
                     HorizontalDivider()
 
-                    ReceiptRowItem(label = "Nama / Merchant", value = transaction.title)
-                    ReceiptRowItem(label = "No. Referensi", value = transaction.referenceNo)
-                    ReceiptRowItem(label = "Tipe Mutasi", value = transaction.type.name)
-                    ReceiptRowItem(label = "Sumber Dana", value = transaction.sourceOfFund)
-                    ReceiptRowItem(label = "Waktu", value = transaction.timestamp.toFullDateTimeFormatted())
-                    ReceiptRowItem(label = "Metode Otentikasi", value = transaction.authMethod)
-                    ReceiptRowItem(label = "Idempotency Key", value = transaction.idempotencyKey.take(12) + "...")
+                    ReceiptRowItem(label = stringResource(R.string.receipt_nama_merchant), value = transaction.title)
+                    ReceiptRowItem(label = stringResource(R.string.receipt_no_referensi), value = transaction.referenceNo)
+                    ReceiptRowItem(label = stringResource(R.string.receipt_tipe_mutasi), value = transaction.type.name)
+                    ReceiptRowItem(label = stringResource(R.string.receipt_sumber_dana), value = transaction.sourceOfFund)
+                    ReceiptRowItem(label = stringResource(R.string.receipt_waktu), value = transaction.timestamp.toFullDateTimeFormatted())
+                    ReceiptRowItem(label = stringResource(R.string.receipt_metode_otentikasi), value = transaction.authMethod)
+                    ReceiptRowItem(label = stringResource(R.string.receipt_idempotency_key), value = transaction.idempotencyKey.take(12) + "...")
                 }
             }
         },
@@ -393,18 +395,18 @@ fun TransactionDetailReceiptDialog(
                         putExtra(Intent.EXTRA_TEXT, receiptSummary)
                         type = "text/plain"
                     }
-                    context.startActivity(Intent.createChooser(sendIntent, "Bagikan Struk Digital"))
+                    context.startActivity(Intent.createChooser(sendIntent, context.getString(R.string.receipt_bagikan_struk_digital)))
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
             ) {
                 Icon(Icons.Default.Share, contentDescription = null, modifier = Modifier.size(16.dp))
                 Spacer(modifier = Modifier.width(6.dp))
-                Text("Bagikan Struk")
+                Text(stringResource(R.string.receipt_bagikan_struk))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Tutup")
+                Text(stringResource(R.string.pay_tutup))
             }
         }
     )

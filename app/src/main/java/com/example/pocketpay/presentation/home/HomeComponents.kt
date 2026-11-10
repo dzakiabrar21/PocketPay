@@ -1,5 +1,7 @@
 package com.example.pocketpay.presentation.home
 
+import androidx.compose.ui.res.stringResource
+import com.example.pocketpay.R
 import com.example.pocketpay.ui.theme.PocketTheme
 import android.content.Intent
 import android.widget.Toast
@@ -128,7 +130,7 @@ fun PocketCardItem(
                     )
                 }
                 Text(
-                    text = "${pocket.interestRatePercent}% p.a.",
+                    text = stringResource(R.string.comp_p_a, pocket.interestRatePercent),
                     fontSize = 11.sp,
                     fontWeight = FontWeight.Bold,
                     color = if (isLocked) PocketTheme.colors.warnText else PocketTheme.colors.accentText
@@ -161,9 +163,9 @@ fun PocketCardItem(
                         trackColor = MaterialTheme.colorScheme.secondaryContainer
                     )
                     Text(
-                        text = if (pocket.balance >= target) "Target tercapai \u2713"
-                        else if (isHidden) "Target ••••"
-                        else "${(progress * 100).toInt()}% dari ${target.toRupiah()}",
+                        text = if (pocket.balance >= target) stringResource(R.string.comp_target_tercapai_u2713)
+                        else if (isHidden) stringResource(R.string.comp_target)
+                        else stringResource(R.string.comp_dari, (progress * 100).toInt(), target.toRupiah()),
                         fontSize = 10.sp,
                         color = PocketTheme.colors.accentText
                     )
@@ -172,7 +174,7 @@ fun PocketCardItem(
                 if (isLocked && pocket.maturityDate != null) {
                     Spacer(modifier = Modifier.height(2.dp))
                     Text(
-                        text = if (isMatured) "Jatuh Tempo" else "s/d ${pocket.maturityDate.toDateFormatted()}",
+                        text = if (isMatured) stringResource(R.string.comp_jatuh_tempo) else stringResource(R.string.comp_s_d, pocket.maturityDate.toDateFormatted()),
                         fontSize = 10.sp,
                         color = if (isMatured) PocketTheme.colors.successText else PocketTheme.colors.warnText
                     )
@@ -243,7 +245,7 @@ fun TransactionItemRow(
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
-                    text = "Sumber: ${tx.sourceOfFund}",
+                    text = stringResource(R.string.comp_sumber, tx.sourceOfFund),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )

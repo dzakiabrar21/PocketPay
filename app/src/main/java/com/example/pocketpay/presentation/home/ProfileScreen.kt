@@ -1,5 +1,7 @@
 package com.example.pocketpay.presentation.home
 
+import androidx.compose.ui.res.stringResource
+import com.example.pocketpay.R
 import com.example.pocketpay.ui.theme.PocketTheme
 import android.content.Intent
 import android.widget.Toast
@@ -101,7 +103,7 @@ fun AccountProfileScreen(
             onDismiss = { isChangePinOpen = false },
             onChanged = {
                 isChangePinOpen = false
-                Toast.makeText(profileContext, "PIN berhasil diganti.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(profileContext, profileContext.getString(R.string.profile_pin_berhasil_diganti), Toast.LENGTH_SHORT).show()
             }
         )
     }
@@ -109,10 +111,10 @@ fun AccountProfileScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Kelola Akun Nasabah", fontWeight = FontWeight.Bold) },
+                title = { Text(stringResource(R.string.profile_kelola_akun_nasabah), fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onDismiss) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Kembali")
+                        Icon(Icons.Default.ArrowBack, contentDescription = stringResource(R.string.profile_kembali))
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface)
@@ -193,7 +195,7 @@ fun AccountProfileScreen(
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         Text(
-                            text = "Informasi Diri & Kontak",
+                            text = stringResource(R.string.profile_informasi_diri_kontak),
                             style = MaterialTheme.typography.titleSmall,
                             fontWeight = FontWeight.Bold,
                             color = PocketTheme.colors.brandText
@@ -202,7 +204,7 @@ fun AccountProfileScreen(
                         OutlinedTextField(
                             value = name,
                             onValueChange = { name = it },
-                            label = { Text("Nama Lengkap Nasabah") },
+                            label = { Text(stringResource(R.string.profile_nama_lengkap_nasabah)) },
                             leadingIcon = { Icon(Icons.Default.Person, contentDescription = null) },
                             modifier = Modifier.fillMaxWidth()
                         )
@@ -210,7 +212,7 @@ fun AccountProfileScreen(
                         OutlinedTextField(
                             value = phone,
                             onValueChange = { phone = it },
-                            label = { Text("Nomor Telepon") },
+                            label = { Text(stringResource(R.string.profile_nomor_telepon)) },
                             leadingIcon = { Icon(Icons.Default.Phone, contentDescription = null) },
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
                             modifier = Modifier.fillMaxWidth()
@@ -219,7 +221,7 @@ fun AccountProfileScreen(
                         OutlinedTextField(
                             value = email,
                             onValueChange = { email = it },
-                            label = { Text("Email Perbankan") },
+                            label = { Text(stringResource(R.string.profile_email_perbankan)) },
                             leadingIcon = { Icon(Icons.Default.Email, contentDescription = null) },
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                             modifier = Modifier.fillMaxWidth()
@@ -235,7 +237,7 @@ fun AccountProfileScreen(
                             shape = RoundedCornerShape(12.dp),
                             modifier = Modifier.fillMaxWidth()
                         ) {
-                            Text("Simpan Perubahan", fontWeight = FontWeight.Bold)
+                            Text(stringResource(R.string.profile_simpan_perubahan), fontWeight = FontWeight.Bold)
                         }
                     }
                 }
@@ -253,16 +255,16 @@ fun AccountProfileScreen(
                         verticalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
                         Text(
-                            text = "Status Keamanan & Proteksi",
+                            text = stringResource(R.string.profile_status_keamanan_proteksi),
                             style = MaterialTheme.typography.titleSmall,
                             fontWeight = FontWeight.Bold,
                             color = PocketTheme.colors.brandText
                         )
 
-                        SecurityStatusRow(label = "PIN Transaksi", value = "6-Digit PIN Transaksi (Aktif)")
-                        SecurityStatusRow(label = "Biometrik", value = "Fingerprint / Face ID (Aktif)")
-                        SecurityStatusRow(label = "Anti-Screenshot", value = "FLAG_SECURE Active (Aktif)")
-                        SecurityStatusRow(label = "Session Timeout", value = "Inactivity Auto-Lock 60 Detik")
+                        SecurityStatusRow(label = stringResource(R.string.profile_pin_transaksi), value = stringResource(R.string.profile_6_digit_pin_transaksi_aktif))
+                        SecurityStatusRow(label = stringResource(R.string.profile_biometrik), value = stringResource(R.string.profile_fingerprint_face_id_aktif))
+                        SecurityStatusRow(label = stringResource(R.string.profile_anti_screenshot), value = stringResource(R.string.profile_flag_secure_active_aktif))
+                        SecurityStatusRow(label = stringResource(R.string.profile_session_timeout), value = stringResource(R.string.profile_inactivity_auto_lock_60_detik))
 
                         OutlinedButton(
                             onClick = { isChangePinOpen = true },
@@ -271,7 +273,7 @@ fun AccountProfileScreen(
                         ) {
                             Icon(Icons.Default.Lock, contentDescription = null, modifier = Modifier.size(18.dp))
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text("Ganti PIN")
+                            Text(stringResource(R.string.profile_ganti_pin))
                         }
                     }
                 }
@@ -288,10 +290,10 @@ fun AccountProfileScreen(
                         modifier = Modifier.padding(16.dp),
                         verticalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
-                        Text("Informasi Rekening Perbankan", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold, color = PocketTheme.colors.brandText)
-                        Text("• No. Rekening Utama: $accountNumber", style = MaterialTheme.typography.bodySmall, color = PocketTheme.colors.accentText)
-                        Text("• Tipe Rekening: Super Deposito PocketPay", style = MaterialTheme.typography.bodySmall, color = PocketTheme.colors.accentText)
-                        Text("• Status Rekening: Aktif & Terverifikasi", style = MaterialTheme.typography.bodySmall, color = PocketTheme.colors.accentText, fontWeight = FontWeight.Bold)
+                        Text(stringResource(R.string.profile_informasi_rekening_perbankan), style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold, color = PocketTheme.colors.brandText)
+                        Text(stringResource(R.string.profile_no_rekening_utama, accountNumber), style = MaterialTheme.typography.bodySmall, color = PocketTheme.colors.accentText)
+                        Text(stringResource(R.string.profile_tipe_rekening_super_deposito_pocketp), style = MaterialTheme.typography.bodySmall, color = PocketTheme.colors.accentText)
+                        Text(stringResource(R.string.profile_status_rekening_aktif_terverifikasi), style = MaterialTheme.typography.bodySmall, color = PocketTheme.colors.accentText, fontWeight = FontWeight.Bold)
                     }
                 }
             }

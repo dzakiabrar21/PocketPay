@@ -1,5 +1,6 @@
 package com.example.pocketpay.presentation.home
 
+import com.example.pocketpay.R
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.pocketpay.data.PocketEntity
@@ -7,7 +8,9 @@ import com.example.pocketpay.data.ProfileStore
 import com.example.pocketpay.data.UserProfile
 import com.example.pocketpay.data.PocketType
 import com.example.pocketpay.domain.repository.BankingRepository
+import android.content.Context
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -20,7 +23,8 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val repository: BankingRepository,
-    private val profileStore: ProfileStore
+    private val profileStore: ProfileStore,
+    @ApplicationContext private val appContext: Context
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(HomeUiState())
@@ -126,7 +130,7 @@ class HomeViewModel @Inject constructor(
                     )
                 }
                 viewModelScope.launch {
-                    _effect.send(HomeUiEffect.ShowToast("Profil nasabah berhasil diperbarui!"))
+                    _effect.send(HomeUiEffect.ShowToast(appContext.getString(R.string.vm_profil_nasabah_berhasil_diperbarui)))
                 }
             }
 
@@ -220,12 +224,12 @@ class HomeViewModel @Inject constructor(
 
             result.onSuccess {
                 val roundUpMsg = if (roundUpAmount > 0) {
-                    "\n(${roundUpAmount.toRupiah()} otomatis dialokasikan ke Celengan Receh)"
+                    appContext.getString(R.string.vm_n_otomatis_dialokasikan_ke_celengan_, roundUpAmount.toRupiah())
                 } else ""
 
                 val alertData = SuccessAlertData(
-                    title = "Pembayaran QRIS Berhasil!",
-                    message = "Pembayaran ${amount.toRupiah()} ke $merchant telah sukses diproses.$roundUpMsg\n[Idempotency Key: ${idempotencyKey.take(8)}...]"
+                    title = appContext.getString(R.string.vm_pembayaran_qris_berhasil),
+                    message = appContext.getString(R.string.vm_pembayaran_ke_telah_sukses_diproses_, amount.toRupiah(), merchant, roundUpMsg, idempotencyKey.take(8))
                 )
 
                 _uiState.update {
@@ -241,10 +245,10 @@ class HomeViewModel @Inject constructor(
                 _uiState.update {
                     it.copy(
                         isLoading = false,
-                        errorMessage = throwable.localizedMessage ?: "Terjadi kesalahan pembayaran."
+                        errorMessage = throwable.localizedMessage ?: appContext.getString(R.string.vm_terjadi_kesalahan_pembayaran)
                     )
                 }
-                _effect.send(HomeUiEffect.ShowToast(throwable.localizedMessage ?: "Gagal memproses transaksi"))
+                _effect.send(HomeUiEffect.ShowToast(throwable.localizedMessage ?: appContext.getString(R.string.vm_gagal_memproses_transaksi)))
             }
         }
     }
@@ -256,8 +260,8 @@ class HomeViewModel @Inject constructor(
             repository.createAndAllocatePocket(name, balance, type, tenorMonths, targetAmount)
                 .onSuccess {
                     val alertData = SuccessAlertData(
-                        title = "Kantong Berhasil Dibuat!",
-                        message = "Kantong '$name' berhasil dibuat dengan alokasi awal ${balance.toRupiah()}."
+                        title = appContext.getString(R.string.vm_kantong_berhasil_dibuat),
+                        message = appContext.getString(R.string.vm_kantong_berhasil_dibuat_dengan_aloka, name, balance.toRupiah())
                     )
                     _uiState.update {
                         it.copy(
@@ -272,10 +276,10 @@ class HomeViewModel @Inject constructor(
                     _uiState.update {
                         it.copy(
                             isLoading = false,
-                            errorMessage = throwable.localizedMessage ?: "Gagal membuat kantong."
+                            errorMessage = throwable.localizedMessage ?: appContext.getString(R.string.vm_gagal_membuat_kantong)
                         )
                     }
-                    _effect.send(HomeUiEffect.ShowToast(throwable.localizedMessage ?: "Gagal membuat kantong"))
+                    _effect.send(HomeUiEffect.ShowToast(throwable.localizedMessage ?: appContext.getString(R.string.vm_gagal_membuat_kantong_2)))
                 }
         }
     }
@@ -290,10 +294,12 @@ class HomeViewModel @Inject constructor(
             }
 
             result.onSuccess {
-                val label = if (actionType == PocketActionType.TOP_UP) "Top-Up" else "Penarikan Saldo"
+                val label = appContext.getString(
+                    if (actionType == PocketActionType.TOP_UP) R.string.vm_label_top_up else R.string.vm_label_withdraw
+                )
                 val alertData = SuccessAlertData(
-                    title = "$label Berhasil!",
-                    message = "$label sebesar ${amount.toRupiah()} pada kantong '${pocket.name}' telah sukses."
+                    title = appContext.getString(R.string.vm_berhasil, label),
+                    message = appContext.getString(R.string.vm_sebesar_pada_kantong_telah_sukses, label, amount.toRupiah(), pocket.name)
                 )
                 _uiState.update {
                     it.copy(
@@ -305,7 +311,7 @@ class HomeViewModel @Inject constructor(
                 _effect.send(HomeUiEffect.ShowSuccessAlert(alertData.title, alertData.message))
             }.onFailure { throwable ->
                 _uiState.update { it.copy(isLoading = false) }
-                _effect.send(HomeUiEffect.ShowToast(throwable.localizedMessage ?: "Gagal memproses saldo"))
+                _effect.send(HomeUiEffect.ShowToast(throwable.localizedMessage ?: appContext.getString(R.string.vm_gagal_memproses_saldo)))
             }
         }
     }
@@ -319,15 +325,15 @@ class HomeViewModel @Inject constructor(
 
             if (fromPocket == null || toPocket == null) {
                 _uiState.update { it.copy(isLoading = false) }
-                _effect.send(HomeUiEffect.ShowToast("Kantong asal atau tujuan tidak ditemukan."))
+                _effect.send(HomeUiEffect.ShowToast(appContext.getString(R.string.vm_kantong_asal_atau_tujuan_tidak_ditem)))
                 return@launch
             }
 
             repository.transferBetweenPockets(fromPocket, toPocket, amount)
                 .onSuccess {
                     val alertData = SuccessAlertData(
-                        title = "Transfer Antar-Kantong Sukses!",
-                        message = "Berhasil memindahkan ${amount.toRupiah()} dari kantong '${fromPocket.name}' ke '${toPocket.name}'."
+                        title = appContext.getString(R.string.vm_transfer_antar_kantong_sukses),
+                        message = appContext.getString(R.string.vm_berhasil_memindahkan_dari_kantong_ke, amount.toRupiah(), fromPocket.name, toPocket.name)
                     )
                     _uiState.update {
                         it.copy(
@@ -340,7 +346,7 @@ class HomeViewModel @Inject constructor(
                 }
                 .onFailure { throwable ->
                     _uiState.update { it.copy(isLoading = false) }
-                    _effect.send(HomeUiEffect.ShowToast(throwable.localizedMessage ?: "Gagal mentransfer saldo."))
+                    _effect.send(HomeUiEffect.ShowToast(throwable.localizedMessage ?: appContext.getString(R.string.vm_gagal_mentransfer_saldo)))
                 }
         }
     }
@@ -352,8 +358,8 @@ class HomeViewModel @Inject constructor(
             repository.closePocket(pocket)
                 .onSuccess {
                     val alertData = SuccessAlertData(
-                        title = "Kantong Ditutup",
-                        message = "Kantong '${pocket.name}' berhasil ditutup dan seluruh sisa saldonya telah dikembalikan ke Rekening Utama."
+                        title = appContext.getString(R.string.vm_kantong_ditutup),
+                        message = appContext.getString(R.string.vm_kantong_berhasil_ditutup_dan_seluruh, pocket.name)
                     )
                     _uiState.update {
                         it.copy(
@@ -366,7 +372,7 @@ class HomeViewModel @Inject constructor(
                 }
                 .onFailure { throwable ->
                     _uiState.update { it.copy(isLoading = false) }
-                    _effect.send(HomeUiEffect.ShowToast(throwable.localizedMessage ?: "Gagal menutup kantong."))
+                    _effect.send(HomeUiEffect.ShowToast(throwable.localizedMessage ?: appContext.getString(R.string.vm_gagal_menutup_kantong)))
                 }
         }
     }

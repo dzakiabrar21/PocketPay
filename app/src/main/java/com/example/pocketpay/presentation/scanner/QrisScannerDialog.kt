@@ -1,5 +1,7 @@
 package com.example.pocketpay.presentation.scanner
 
+import androidx.compose.ui.res.stringResource
+import com.example.pocketpay.R
 import android.Manifest
 import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -43,7 +45,7 @@ fun QrisScannerDialog(
     val mainHandler = remember { android.os.Handler(android.os.Looper.getMainLooper()) }
     fun invalidQr() {
         mainHandler.post {
-            android.widget.Toast.makeText(context, "QR bukan kode QRIS yang valid.", android.widget.Toast.LENGTH_SHORT).show()
+            android.widget.Toast.makeText(context, context.getString(R.string.scan_qr_bukan_kode_qris_yang_valid), android.widget.Toast.LENGTH_SHORT).show()
         }
     }
     fun handleRaw(raw: String) {
@@ -128,7 +130,7 @@ fun QrisScannerDialog(
                 )
             } else {
                 Text(
-                    text = "Izin akses kamera dibutuhkan untuk memindai QRIS.",
+                    text = stringResource(R.string.scan_izin_akses_kamera_dibutuhkan_untuk_m),
                     color = Color.White,
                     modifier = Modifier.align(Alignment.Center)
                 )
@@ -171,7 +173,7 @@ fun QrisScannerDialog(
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary),
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text("Pilih Gambar QR dari Galeri")
+                    Text(stringResource(R.string.scan_pilih_gambar_qr_dari_galeri))
                 }
 
                 OutlinedButton(
@@ -179,14 +181,14 @@ fun QrisScannerDialog(
                     colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.White),
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text("Input Merchant Manual (Emulator)")
+                    Text(stringResource(R.string.scan_input_merchant_manual_emulator))
                 }
 
                 TextButton(
                     onClick = onDismiss,
                     colors = ButtonDefaults.textButtonColors(contentColor = Color.White)
                 ) {
-                    Text("Tutup Scanner")
+                    Text(stringResource(R.string.scan_tutup_scanner))
                 }
             }
         }

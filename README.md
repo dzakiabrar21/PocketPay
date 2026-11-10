@@ -50,6 +50,7 @@ Comprehensive commercial banking security safeguards:
 
 ### 8. 🔲 Dynamic Receive QR Generator
 * **QRIS (EMVCo) QR**: Receive-QR codes are real, scannable QR codes carrying a CRC-checked QRIS payload; the scanner parses/validates QRIS (CRC16, IDR, merchant, amount) and rejects anything else. PocketPay is not a registered QRIS issuer, so third-party wallets will not settle against it.
+* **Localization & theming**: all UI text lives in `strings.xml` (Indonesian default) with a full English translation in `values-en`, kept in sync by a unit test. Light and dark themes follow the system setting.
 
 ### 9. 👤 User Account Profile Management
 * **Dedicated Account Page**: Dedicated full-screen page to view and update user profile information (Name, Phone, Email) and monitor security configuration.

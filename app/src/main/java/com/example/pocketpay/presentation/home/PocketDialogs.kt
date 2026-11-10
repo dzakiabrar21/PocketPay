@@ -1,5 +1,7 @@
 package com.example.pocketpay.presentation.home
 
+import androidx.compose.ui.res.stringResource
+import com.example.pocketpay.R
 import android.content.Intent
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
@@ -92,7 +94,7 @@ fun PocketToPocketTransferDialog(
         onDismissRequest = onDismiss,
         title = {
             Text(
-                text = "Transfer Antar-Kantong",
+                text = stringResource(R.string.pocket_transfer_antar_kantong),
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold
             )
@@ -100,13 +102,13 @@ fun PocketToPocketTransferDialog(
         text = {
             if (pockets.size < 2) {
                 Text(
-                    text = "Anda membutuhkan minimal 2 Kantong Belanja (SPENDING) untuk mentransfer antar kantong.",
+                    text = stringResource(R.string.pocket_anda_membutuhkan_minimal_2_kantong_b),
                     color = MaterialTheme.colorScheme.error
                 )
             } else {
                 Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                     Text(
-                        text = "Pilih Kantong Asal:",
+                        text = stringResource(R.string.pocket_pilih_kantong_asal),
                         style = MaterialTheme.typography.labelMedium,
                         fontWeight = FontWeight.SemiBold
                     )
@@ -128,7 +130,7 @@ fun PocketToPocketTransferDialog(
                     Spacer(modifier = Modifier.height(4.dp))
 
                     Text(
-                        text = "Pilih Kantong Tujuan:",
+                        text = stringResource(R.string.pocket_pilih_kantong_tujuan),
                         style = MaterialTheme.typography.labelMedium,
                         fontWeight = FontWeight.SemiBold
                     )
@@ -145,7 +147,7 @@ fun PocketToPocketTransferDialog(
                     OutlinedTextField(
                         value = amountText,
                         onValueChange = { amountText = it },
-                        label = { Text("Nominal Transfer (Rp)") },
+                        label = { Text(stringResource(R.string.pocket_nominal_transfer_rp)) },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         modifier = Modifier.fillMaxWidth()
                     )
@@ -163,13 +165,13 @@ fun PocketToPocketTransferDialog(
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
                 ) {
-                    Text("Transfer Sekarang")
+                    Text(stringResource(R.string.pocket_transfer_sekarang))
                 }
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Batal")
+                Text(stringResource(R.string.pay_batal))
             }
         }
     )
@@ -191,11 +193,11 @@ fun ManagePocketBalanceDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Kelola Saldo: ${pocket.name}") },
+        title = { Text(stringResource(R.string.pocket_kelola_saldo, pocket.name)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Text(
-                    text = "Saldo Saat Ini: ${pocket.balance.toRupiah()}",
+                    text = stringResource(R.string.pocket_saldo_saat_ini, pocket.balance.toRupiah()),
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.SemiBold
                 )
@@ -211,7 +213,7 @@ fun ManagePocketBalanceDialog(
                     FilterChip(
                         selected = (selectedAction == PocketActionType.WITHDRAW),
                         onClick = { selectedAction = PocketActionType.WITHDRAW },
-                        label = { Text("Tarik Saldo") },
+                        label = { Text(stringResource(R.string.pocket_tarik_saldo)) },
                         enabled = !isDepositLocked,
                         modifier = Modifier.weight(1f)
                     )
@@ -219,7 +221,7 @@ fun ManagePocketBalanceDialog(
 
                 if (isDepositLocked) {
                     Text(
-                        text = "Kantong Deposito belum jatuh tempo (${pocket.maturityDate?.toDateFormatted() ?: "-"}). Saldo belum dapat ditarik atau ditutup.",
+                        text = stringResource(R.string.pocket_kantong_deposito_belum_jatuh_tempo_s, pocket.maturityDate?.toDateFormatted() ?: "-"),
                         color = MaterialTheme.colorScheme.error,
                         style = MaterialTheme.typography.bodySmall
                     )
@@ -228,7 +230,7 @@ fun ManagePocketBalanceDialog(
                 OutlinedTextField(
                     value = amountText,
                     onValueChange = { amountText = it },
-                    label = { Text("Nominal (Rp)") },
+                    label = { Text(stringResource(R.string.pocket_nominal_rp)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -243,7 +245,7 @@ fun ManagePocketBalanceDialog(
                     ),
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text("Tutup Kantong Ini")
+                    Text(stringResource(R.string.pocket_tutup_kantong_ini))
                 }
             }
         },
@@ -257,21 +259,21 @@ fun ManagePocketBalanceDialog(
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
             ) {
-                Text(if (selectedAction == PocketActionType.TOP_UP) "Top-Up Sekarang" else "Tarik Saldo")
+                Text(if (selectedAction == PocketActionType.TOP_UP) stringResource(R.string.pocket_top_up_sekarang) else stringResource(R.string.pocket_tarik_saldo))
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text("Batal") }
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.pay_batal)) }
         }
     )
 
     if (showConfirmCloseDialog) {
         AlertDialog(
             onDismissRequest = { showConfirmCloseDialog = false },
-            title = { Text("Tutup Kantong?") },
+            title = { Text(stringResource(R.string.pocket_tutup_kantong)) },
             text = {
                 Text(
-                    "Seluruh sisa saldo sebesar ${pocket.balance.toRupiah()} akan otomatis dikembalikan ke Rekening Utama."
+                    stringResource(R.string.pocket_seluruh_sisa_saldo_sebesar_akan_otom, pocket.balance.toRupiah())
                 )
             },
             confirmButton = {
@@ -284,12 +286,12 @@ fun ManagePocketBalanceDialog(
                         containerColor = MaterialTheme.colorScheme.error
                     )
                 ) {
-                    Text("Ya, Tutup Kantong")
+                    Text(stringResource(R.string.pocket_ya_tutup_kantong))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showConfirmCloseDialog = false }) {
-                    Text("Batal")
+                    Text(stringResource(R.string.pay_batal))
                 }
             }
         )
@@ -309,26 +311,26 @@ fun CreatePocketDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Alokasi Kantong Baru") },
+        title = { Text(stringResource(R.string.pocket_alokasi_kantong_baru)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 OutlinedTextField(
                     value = pocketName,
                     onValueChange = { pocketName = it },
-                    label = { Text("Nama Kantong") },
+                    label = { Text(stringResource(R.string.pocket_nama_kantong)) },
                     modifier = Modifier.fillMaxWidth()
                 )
 
                 OutlinedTextField(
                     value = initialAmountText,
                     onValueChange = { initialAmountText = it },
-                    label = { Text("Saldo Awal Dialokasikan (Rp)") },
+                    label = { Text(stringResource(R.string.pocket_saldo_awal_dialokasikan_rp)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     modifier = Modifier.fillMaxWidth()
                 )
 
                 Text(
-                    text = "Tipe Kantong:",
+                    text = stringResource(R.string.pocket_tipe_kantong),
                     style = MaterialTheme.typography.labelMedium,
                     fontWeight = FontWeight.SemiBold
                 )
@@ -338,7 +340,7 @@ fun CreatePocketDialog(
                         selected = (selectedType == PocketType.SPENDING),
                         onClick = { selectedType = PocketType.SPENDING }
                     )
-                    Text("Kantong Belanja (3.5%)")
+                    Text(stringResource(R.string.pocket_kantong_belanja_3_5))
                 }
 
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -346,14 +348,14 @@ fun CreatePocketDialog(
                         selected = (selectedType == PocketType.LOCKED_DEPOSIT),
                         onClick = { selectedType = PocketType.LOCKED_DEPOSIT }
                     )
-                    Text("Deposito Terkunci (6.0%)")
+                    Text(stringResource(R.string.pocket_deposito_terkunci_6_0))
                 }
 
                 if (selectedType == PocketType.SPENDING) {
                     OutlinedTextField(
                         value = targetText,
                         onValueChange = { if (it.all { c -> c.isDigit() }) targetText = it },
-                        label = { Text("Target Tabungan (Rp, opsional)") },
+                        label = { Text(stringResource(R.string.pocket_target_tabungan_rp_opsional)) },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         modifier = Modifier.fillMaxWidth()
                     )
@@ -361,7 +363,7 @@ fun CreatePocketDialog(
 
                 if (selectedType == PocketType.LOCKED_DEPOSIT) {
                     Text(
-                        text = "Pilih Tenor Deposito:",
+                        text = stringResource(R.string.pocket_pilih_tenor_deposito),
                         style = MaterialTheme.typography.labelMedium,
                         fontWeight = FontWeight.SemiBold
                     )
@@ -373,7 +375,7 @@ fun CreatePocketDialog(
                             FilterChip(
                                 selected = (selectedTenor == tenor),
                                 onClick = { selectedTenor = tenor },
-                                label = { Text("$tenor Bln") }
+                                label = { Text(stringResource(R.string.pocket_bln, tenor)) }
                             )
                         }
                     }
@@ -396,11 +398,11 @@ fun CreatePocketDialog(
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
             ) {
-                Text("Simpan & Potong Rekening")
+                Text(stringResource(R.string.pocket_simpan_potong_rekening))
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text("Batal") }
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.pay_batal)) }
         }
     )
 }

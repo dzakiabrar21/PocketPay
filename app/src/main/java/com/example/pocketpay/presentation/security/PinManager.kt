@@ -1,6 +1,7 @@
 package com.example.pocketpay.presentation.security
 
 import android.content.Context
+import com.example.pocketpay.R
 import java.security.MessageDigest
 import java.security.SecureRandom
 import javax.crypto.SecretKeyFactory
@@ -53,19 +54,19 @@ object PinManager {
     fun isPinSet(context: Context): Boolean = readSecrets(context) != null
 
     /** Returns an error message if the PIN is unacceptable, or null if it is fine. */
-    fun validateNewPin(pin: String): String? {
-        if (pin.length != 6 || !pin.all { it.isDigit() }) return "PIN harus 6 digit angka."
-        if (pin.all { it == pin[0] }) return "PIN tidak boleh angka yang sama semua."
+    fun validateNewPin(context: Context, pin: String): String? {
+        if (pin.length != 6 || !pin.all { it.isDigit() }) return context.getString(R.string.pinmgr_err_digits)
+        if (pin.all { it == pin[0] }) return context.getString(R.string.pinmgr_err_same)
         val asc = "0123456789"
-        if (asc.contains(pin) || asc.reversed().contains(pin)) return "PIN tidak boleh berurutan."
+        if (asc.contains(pin) || asc.reversed().contains(pin)) return context.getString(R.string.pinmgr_err_sequential)
         return null
     }
 
     /** Sets the PIN for the first time. Returns an error message or null on success. */
     @Synchronized
     fun setInitialPin(context: Context, pin: String): String? {
-        if (isPinSet(context)) return "PIN sudah pernah dibuat."
-        validateNewPin(pin)?.let { return it }
+        if (isPinSet(context)) return context.getString(R.string.pinmgr_err_exists)
+        validateNewPin(context, pin)?.let { return it }
         storePin(context, pin)
         runCatching { BiometricHelper.arm() }
         return null
@@ -75,9 +76,9 @@ object PinManager {
     @Synchronized
     fun changePin(context: Context, oldPin: String, newPin: String): String? {
         val result = verify(context, oldPin)
-        if (result != PinResult.Success) return describe(result)
-        validateNewPin(newPin)?.let { return it }
-        if (oldPin == newPin) return "PIN baru harus berbeda dari PIN lama."
+        if (result != PinResult.Success) return describe(context, result)
+        validateNewPin(context, newPin)?.let { return it }
+        if (oldPin == newPin) return context.getString(R.string.pinmgr_err_same_as_old)
         storePin(context, newPin)
         return null
     }
@@ -122,10 +123,10 @@ object PinManager {
         }
     }
 
-    fun describe(result: PinResult): String? = when (result) {
+    fun describe(context: Context, result: PinResult): String? = when (result) {
         PinResult.Success -> null
-        PinResult.NotSet -> "PIN belum dibuat."
-        is PinResult.Wrong -> "PIN salah. Sisa percobaan: ${result.attemptsLeft}"
-        is PinResult.LockedOut -> "Terlalu banyak percobaan. Coba lagi dalam ${result.secondsLeft} detik."
+        PinResult.NotSet -> context.getString(R.string.pinmgr_not_set)
+        is PinResult.Wrong -> context.getString(R.string.pinmgr_wrong, result.attemptsLeft)
+        is PinResult.LockedOut -> context.getString(R.string.pinmgr_locked_out, result.secondsLeft)
     }
 }

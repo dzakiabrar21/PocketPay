@@ -1,5 +1,7 @@
 package com.example.pocketpay.presentation.home
 
+import androidx.compose.ui.res.stringResource
+import com.example.pocketpay.R
 import com.example.pocketpay.ui.theme.PocketTheme
 import android.content.Intent
 import android.widget.Toast
@@ -205,7 +207,7 @@ fun HomeScreen(
                                     color = MaterialTheme.colorScheme.onSurface
                                 )
                                 Text(
-                                    text = "Ketuk untuk Kelola Akun",
+                                    text = stringResource(R.string.home_ketuk_untuk_kelola_akun),
                                     style = MaterialTheme.typography.bodySmall,
                                     fontSize = 11.sp,
                                     color = PocketTheme.colors.accent
@@ -221,7 +223,7 @@ fun HomeScreen(
                         ) {
                             Icon(
                                 imageVector = if (uiState.isBalanceHidden) Icons.Default.VisibilityOff else Icons.Default.Visibility,
-                                contentDescription = "Samarkan Saldo",
+                                contentDescription = stringResource(R.string.home_samarkan_saldo),
                                 tint = PocketTheme.colors.brandText
                             )
                         }
@@ -232,7 +234,7 @@ fun HomeScreen(
                         ) {
                             Icon(
                                 imageVector = Icons.Default.PictureAsPdf,
-                                contentDescription = "Export E-Statement PDF",
+                                contentDescription = stringResource(R.string.home_export_e_statement_pdf),
                                 tint = PocketTheme.colors.brandText
                             )
                         }
@@ -243,7 +245,7 @@ fun HomeScreen(
                         ) {
                             Icon(
                                 imageVector = Icons.Default.QrCode,
-                                contentDescription = "QR Saya / Terima Transfer",
+                                contentDescription = stringResource(R.string.home_qr_saya_terima_transfer),
                                 tint = PocketTheme.colors.brandText
                             )
                         }
@@ -265,7 +267,7 @@ fun HomeScreen(
                 ) {
                     Icon(
                         imageVector = Icons.Default.QrCodeScanner,
-                        contentDescription = "Scan QRIS",
+                        contentDescription = stringResource(R.string.home_scan_qris),
                         modifier = Modifier.size(28.dp)
                     )
                 }
@@ -303,7 +305,7 @@ fun HomeScreen(
                         ) {
                             Column {
                                 Text(
-                                    text = "Rekening Utama (Super Deposito)",
+                                    text = stringResource(R.string.home_rekening_utama_super_deposito),
                                     style = MaterialTheme.typography.labelMedium,
                                     color = Color.White.copy(alpha = 0.85f)
                                 )
@@ -317,7 +319,7 @@ fun HomeScreen(
                                 )
                                 Spacer(modifier = Modifier.height(4.dp))
                                 Text(
-                                    text = "No. Rek: ${uiState.account?.accountNumber ?: "-"}",
+                                    text = stringResource(R.string.home_no_rek, uiState.account?.accountNumber ?: "-"),
                                     style = MaterialTheme.typography.bodySmall,
                                     color = Color.White.copy(alpha = 0.75f)
                                 )
@@ -342,7 +344,7 @@ fun HomeScreen(
                                     ) {
                                         Icon(Icons.Default.Payment, contentDescription = null, modifier = Modifier.size(14.dp))
                                         Spacer(modifier = Modifier.width(2.dp))
-                                        Text("Bayar QRIS", fontSize = 11.sp, fontWeight = FontWeight.Bold, maxLines = 1, softWrap = false)
+                                        Text(stringResource(R.string.home_bayar_qris), fontSize = 11.sp, fontWeight = FontWeight.Bold, maxLines = 1, softWrap = false)
                                     }
 
                                     FilledTonalButton(
@@ -359,7 +361,7 @@ fun HomeScreen(
                                     ) {
                                         Icon(Icons.Default.SwapHoriz, contentDescription = null, modifier = Modifier.size(14.dp))
                                         Spacer(modifier = Modifier.width(2.dp))
-                                        Text("Antar Kantong", fontSize = 10.5.sp, fontWeight = FontWeight.Bold, maxLines = 1, softWrap = false)
+                                        Text(stringResource(R.string.home_antar_kantong), fontSize = 10.5.sp, fontWeight = FontWeight.Bold, maxLines = 1, softWrap = false)
                                     }
 
                                     OutlinedButton(
@@ -375,7 +377,7 @@ fun HomeScreen(
                                     ) {
                                         Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(14.dp))
                                         Spacer(modifier = Modifier.width(2.dp))
-                                        Text("Kantong", fontSize = 11.sp, maxLines = 1, softWrap = false)
+                                        Text(stringResource(R.string.home_kantong), fontSize = 11.sp, maxLines = 1, softWrap = false)
                                     }
                                 }
                             }
@@ -410,13 +412,13 @@ fun HomeScreen(
                             Spacer(modifier = Modifier.width(12.dp))
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(
-                                    text = "Celengan Receh (Round-Up)",
+                                    text = stringResource(R.string.home_celengan_receh_round_up),
                                     style = MaterialTheme.typography.titleSmall,
                                     fontWeight = FontWeight.Bold,
                                     color = PocketTheme.colors.brandText
                                 )
                                 Text(
-                                    text = "Pembulatan transaksi QRIS otomatis ditabung ke Celengan Receh 3.5% p.a.",
+                                    text = stringResource(R.string.home_pembulatan_transaksi_qris_otomatis_d),
                                     style = MaterialTheme.typography.bodySmall,
                                     fontSize = 11.sp,
                                     color = PocketTheme.colors.accentText
@@ -435,7 +437,7 @@ fun HomeScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                text = "Kantong Finansial",
+                                text = stringResource(R.string.home_kantong_finansial),
                                 style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.onSurface
@@ -447,7 +449,7 @@ fun HomeScreen(
                             ) {
                                 Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(16.dp))
                                 Spacer(modifier = Modifier.width(4.dp))
-                                Text("Buat Kantong", fontWeight = FontWeight.Bold, color = PocketTheme.colors.accentText)
+                                Text(stringResource(R.string.home_buat_kantong), fontWeight = FontWeight.Bold, color = PocketTheme.colors.accentText)
                             }
                         }
 
@@ -474,7 +476,7 @@ fun HomeScreen(
                 item {
                     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                         Text(
-                            text = "Mutasi Transaksi",
+                            text = stringResource(R.string.home_mutasi_transaksi),
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onSurface
@@ -483,12 +485,12 @@ fun HomeScreen(
                         OutlinedTextField(
                             value = uiState.searchQuery,
                             onValueChange = { viewModel.processIntent(HomeUiIntent.SetSearchQuery(it)) },
-                            placeholder = { Text("Cari merchant, ref, atau sumber dana...") },
+                            placeholder = { Text(stringResource(R.string.home_cari_merchant_ref_atau_sumber_dana)) },
                             leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
                             trailingIcon = {
                                 if (uiState.searchQuery.isNotEmpty()) {
                                     IconButton(onClick = { viewModel.processIntent(HomeUiIntent.SetSearchQuery("")) }) {
-                                        Icon(Icons.Default.Clear, contentDescription = "Clear")
+                                        Icon(Icons.Default.Clear, contentDescription = stringResource(R.string.home_clear))
                                     }
                                 }
                             },
@@ -506,7 +508,7 @@ fun HomeScreen(
                                 FilterChip(
                                     selected = uiState.selectedTxTypeFilter == null,
                                     onClick = { viewModel.processIntent(HomeUiIntent.SetTxTypeFilter(null)) },
-                                    label = { Text("Semua Tipe") }
+                                    label = { Text(stringResource(R.string.home_semua_tipe)) }
                                 )
                             }
                             items(TxType.entries.toTypedArray()) { type ->
@@ -523,7 +525,7 @@ fun HomeScreen(
                                 FilterChip(
                                     selected = uiState.dateRangeFilter == filter,
                                     onClick = { viewModel.processIntent(HomeUiIntent.SetDateRangeFilter(filter)) },
-                                    label = { Text(filter.label) }
+                                    label = { Text(stringResource(filter.labelRes)) }
                                 )
                             }
                         }
@@ -535,8 +537,8 @@ fun HomeScreen(
                     item {
                         Text(
                             text = if (uiState.searchQuery.isNotEmpty() || uiState.selectedTxTypeFilter != null || uiState.dateRangeFilter != DateRangeFilter.ALL)
-                                "Tidak ada transaksi yang cocok dengan filter."
-                            else "Belum ada riwayat transaksi.",
+                                stringResource(R.string.home_tidak_ada_transaksi_yang_cocok_denga)
+                            else stringResource(R.string.home_belum_ada_riwayat_transaksi),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.padding(vertical = 12.dp)
@@ -570,8 +572,8 @@ fun HomeScreen(
                     if (activity != null) {
                         BiometricHelper.showBiometricPrompt(
                             activity = activity,
-                            title = "Buka Kunci PocketPay",
-                            subtitle = "Verifikasi biometrik untuk melanjutkan",
+                            title = context.getString(R.string.home_buka_kunci_pocketpay),
+                            subtitle = context.getString(R.string.home_verifikasi_biometrik_untuk_melanjutk),
                             onSuccess = { viewModel.processIntent(HomeUiIntent.UnlockApp) },
                             onFallbackToPin = { /* user stays on lock screen and enters PIN */ },
                             onError = { errorMsg ->
@@ -618,8 +620,8 @@ fun HomeScreen(
                 if (activity != null && BiometricHelper.isBiometricAvailable(activity)) {
                     BiometricHelper.showBiometricPrompt(
                         activity = activity,
-                        title = "Verifikasi Pembayaran",
-                        subtitle = "Konfirmasi transaksi ${amount.toRupiah()} ke $merchant",
+                        title = context.getString(R.string.home_verifikasi_pembayaran),
+                        subtitle = context.getString(R.string.home_konfirmasi_transaksi_ke, amount.toRupiah(), merchant),
                         onSuccess = {
                             viewModel.processIntent(
                                 HomeUiIntent.OpenQrisPayment(
