@@ -225,13 +225,26 @@ class HomeViewModel @Inject constructor(
             )
 
             result.onSuccess {
-                val roundUpMsg = if (roundUpAmount > 0) {
-                    appContext.getString(R.string.vm_n_otomatis_dialokasikan_ke_celengan_, roundUpAmount.toRupiah())
-                } else ""
-
+                val mainAccount = appContext.getString(R.string.pay_rekening_utama)
+                val sourceLabel = when {
+                    targetPocket == null -> mainAccount
+                    amount > targetPocket.balance -> "${targetPocket.name} + $mainAccount"
+                    else -> targetPocket.name
+                }
+                val rows = buildList {
+                    add(appContext.getString(R.string.success_row_merchant) to merchant)
+                    add(appContext.getString(R.string.success_row_source) to sourceLabel)
+                    if (roundUpAmount > 0) {
+                        add(appContext.getString(R.string.home_celengan_receh_round_up) to roundUpAmount.toRupiah())
+                    }
+                    add(appContext.getString(R.string.success_row_ref) to idempotencyKey.take(8).uppercase())
+                    add(appContext.getString(R.string.success_row_time) to System.currentTimeMillis().toFullDateTimeFormatted())
+                }
                 val alertData = SuccessAlertData(
-                    title = appContext.getString(R.string.vm_pembayaran_qris_berhasil),
-                    message = appContext.getString(R.string.vm_pembayaran_ke_telah_sukses_diproses_, amount.toRupiah(), merchant, roundUpMsg, idempotencyKey.take(8))
+                    title = appContext.getString(R.string.success_payment_title),
+                    message = "",
+                    amount = amount,
+                    rows = rows
                 )
 
                 _uiState.update {

@@ -1,85 +1,55 @@
 package com.example.pocketpay.presentation.home
 
-import androidx.compose.ui.res.stringResource
-import com.example.pocketpay.R
-import com.example.pocketpay.ui.theme.PocketTheme
-import android.content.Intent
+import android.Manifest
+import android.content.Context
+import android.os.Build
 import android.widget.Toast
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.scaleIn
-import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowDownward
-import androidx.compose.material.icons.filled.ArrowUpward
-import androidx.compose.material.icons.filled.AutoAwesome
-import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material.icons.filled.Email
-import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.Payment
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Phone
-import androidx.compose.material.icons.filled.PictureAsPdf
-import androidx.compose.material.icons.filled.QrCode
-import androidx.compose.material.icons.filled.QrCodeScanner
-import androidx.compose.material.icons.filled.ReceiptLong
-import androidx.compose.material.icons.filled.Savings
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.Security
-import androidx.compose.material.icons.filled.Share
-import androidx.compose.material.icons.filled.Shield
-import androidx.compose.material.icons.filled.SwapHoriz
-import androidx.compose.material.icons.filled.Visibility
-import androidx.compose.material.icons.filled.VisibilityOff
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.rounded.BarChart
+import androidx.compose.material.icons.rounded.Fingerprint
+import androidx.compose.material.icons.rounded.Home
+import androidx.compose.material.icons.rounded.Person
+import androidx.compose.material.icons.rounded.Savings
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.fragment.app.FragmentActivity
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.pocketpay.data.PocketEntity
+import com.example.pocketpay.R
 import com.example.pocketpay.data.PocketType
-import com.example.pocketpay.data.TransactionEntity
-import com.example.pocketpay.data.TxType
 import com.example.pocketpay.presentation.scanner.QrisScannerDialog
 import com.example.pocketpay.presentation.security.BiometricHelper
-import com.example.pocketpay.presentation.security.ChangePinDialog
 import com.example.pocketpay.presentation.security.PinManager
-import com.example.pocketpay.presentation.security.PinSetupDialog
 import com.example.pocketpay.presentation.security.PinResult
-import com.example.pocketpay.presentation.statement.PdfStatementGenerator
-import kotlinx.coroutines.delay
+import com.example.pocketpay.ui.components.CircleIcon
+import com.example.pocketpay.ui.components.FloatingBottomBar
+import com.example.pocketpay.ui.components.NavItem
+import com.example.pocketpay.ui.components.hideIf
+import com.example.pocketpay.ui.components.PocketBackground
+import com.example.pocketpay.ui.theme.PocketTheme
+import com.example.pocketpay.work.PocketNotifier
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import kotlin.math.abs
 
 fun Long.toRupiah(): String {
     val localeId = Locale.Builder().setLanguage("in").setRegion("ID").build()
@@ -109,674 +79,273 @@ data class PendingTransaction(
     val isRoundUpEnabled: Boolean
 )
 
-@OptIn(ExperimentalMaterial3Api::class)
+private const val TAB_HOME = 0
+private const val TAB_STATS = 1
+private const val TAB_POCKETS = 2
+private const val TAB_PROFILE = 3
+
+/**
+ * App shell: splash, PIN setup, the four tabs with the floating bottom bar, and every flow
+ * (scan, pay, PIN, success, sheets) layered on top. All screens below are stateless; this
+ * composable only wires them to [HomeViewModel].
+ */
 @Composable
 fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsState()
+    val onIntent: (HomeUiIntent) -> Unit = viewModel::processIntent
 
-    var showSplash by remember { mutableStateOf(true) }
+    var showSplash by rememberSaveable { mutableStateOf(true) }
+    var isPinSet by remember { mutableStateOf(PinManager.isPinSet(context)) }
+    var selectedTab by rememberSaveable { mutableIntStateOf(TAB_HOME) }
+    var showHistory by rememberSaveable { mutableStateOf(false) }
+    var isChangePinOpen by remember { mutableStateOf(false) }
     var pendingTx by remember { mutableStateOf<PendingTransaction?>(null) }
-    var isPinDialogOpen by remember { mutableStateOf(false) }
+    var isPinConfirmOpen by remember { mutableStateOf(false) }
+    var payPinError by remember { mutableStateOf<String?>(null) }
+    var payPinAttempt by remember { mutableIntStateOf(0) }
 
     LaunchedEffect(Unit) {
         viewModel.effect.collect { effect ->
             when (effect) {
-                is HomeUiEffect.ShowToast -> {
-                    Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
-                }
+                is HomeUiEffect.ShowToast -> Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
                 is HomeUiEffect.ShowSuccessAlert -> {}
                 HomeUiEffect.PaymentSuccess -> {}
             }
         }
     }
 
-    // 1. SPLASH SCREEN TRANSITION
-    if (showSplash) {
-        SplashScreen(
-            onSplashFinished = { showSplash = false }
-        )
-        return
-    }
-
-    // 1b. FIRST-LAUNCH PIN SETUP (mandatory before anything else is shown)
-    var isPinSet by remember { mutableStateOf(PinManager.isPinSet(context)) }
-    if (!isPinSet) {
-        Box(modifier = Modifier.fillMaxSize().background(Color(0xFF064E3B)))
-        PinSetupDialog(onDone = {
-            isPinSet = true
-            viewModel.processIntent(HomeUiIntent.UnlockApp) // user just created the PIN
-        })
-        return
-    }
-
-    // 1c. ASK FOR NOTIFICATION PERMISSION ONCE (Android 13+), after the app is unlocked
-    val notificationPermission = androidx.activity.compose.rememberLauncherForActivityResult(
-        androidx.activity.result.contract.ActivityResultContracts.RequestPermission()
-    ) { }
-    LaunchedEffect(uiState.isAppLocked) {
-        if (!uiState.isAppLocked && android.os.Build.VERSION.SDK_INT >= 33) {
-            val prefs = context.getSharedPreferences("pocketpay_notified", android.content.Context.MODE_PRIVATE)
-            if (!prefs.getBoolean("asked", false) && !com.example.pocketpay.work.PocketNotifier(context).canNotify()) {
+    // Ask for notification permission once (Android 13+), after the app is unlocked.
+    val notificationPermission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { }
+    LaunchedEffect(uiState.isAppLocked, showSplash, isPinSet) {
+        if (!uiState.isAppLocked && !showSplash && isPinSet && Build.VERSION.SDK_INT >= 33) {
+            val prefs = context.getSharedPreferences("pocketpay_notified", Context.MODE_PRIVATE)
+            if (!prefs.getBoolean("asked", false) && !PocketNotifier(context).canNotify()) {
                 prefs.edit().putBoolean("asked", true).apply()
-                notificationPermission.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+                notificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
             }
         }
     }
 
-    // 2. FULL SCREEN KELOLA AKUN (PAGE BARU AKUN NASABAH)
-    if (uiState.isAccountProfileOpen) {
-        AccountProfileScreen(
-            currentName = uiState.userName,
-            currentPhone = uiState.userPhone,
-            currentEmail = uiState.userEmail,
-            userTier = uiState.userTier,
-            accountNumber = uiState.account?.accountNumber ?: "9012839102",
-            onDismiss = {
-                viewModel.processIntent(HomeUiIntent.SetAccountProfileVisibility(false))
-            },
-            onSave = { newName, newPhone, newEmail ->
-                viewModel.processIntent(HomeUiIntent.UpdateUserProfile(newName, newPhone, newEmail))
-            }
+    val activity = context as? FragmentActivity
+    val biometricAvailable = activity != null && BiometricHelper.isBiometricAvailable(activity)
+
+    fun requestBiometricUnlock() {
+        if (activity == null) return
+        BiometricHelper.showBiometricPrompt(
+            activity = activity,
+            title = context.getString(R.string.home_buka_kunci_pocketpay),
+            subtitle = context.getString(R.string.home_verifikasi_biometrik_untuk_melanjutk),
+            onSuccess = { onIntent(HomeUiIntent.UnlockApp) },
+            onFallbackToPin = { /* stay on the lock screen and use the keypad */ },
+            onError = { Toast.makeText(context, it, Toast.LENGTH_SHORT).show() }
         )
-        return
     }
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-    ) {
-        Scaffold(
-            topBar = {
-                TopAppBar(
-                    title = {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(10.dp),
-                            modifier = Modifier.clickable {
-                                viewModel.processIntent(HomeUiIntent.SetAccountProfileVisibility(true))
-                            }
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .size(38.dp)
-                                    .background(Color(0xFF064E3B), CircleShape),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Text(
-                                    text = uiState.userName.take(1),
-                                    style = MaterialTheme.typography.titleMedium,
-                                    fontWeight = FontWeight.Bold,
-                                    color = Color.White
-                                )
-                            }
-                            Column {
-                                Text(
-                                    text = uiState.userName,
-                                    style = MaterialTheme.typography.titleMedium,
-                                    fontWeight = FontWeight.Bold,
-                                    color = MaterialTheme.colorScheme.onSurface
-                                )
-                                Text(
-                                    text = stringResource(R.string.home_ketuk_untuk_kelola_akun),
-                                    style = MaterialTheme.typography.bodySmall,
-                                    fontSize = 11.sp,
-                                    color = PocketTheme.colors.accent
-                                )
-                            }
-                        }
-                    },
-                    actions = {
-                        IconButton(
-                            onClick = {
-                                viewModel.processIntent(HomeUiIntent.ToggleBalanceVisibility)
-                            }
-                        ) {
-                            Icon(
-                                imageVector = if (uiState.isBalanceHidden) Icons.Default.VisibilityOff else Icons.Default.Visibility,
-                                contentDescription = stringResource(R.string.home_samarkan_saldo),
-                                tint = PocketTheme.colors.brandText
-                            )
-                        }
-                        IconButton(
-                            onClick = {
-                                viewModel.processIntent(HomeUiIntent.SetEStatementDialogVisibility(true))
-                            }
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.PictureAsPdf,
-                                contentDescription = stringResource(R.string.home_export_e_statement_pdf),
-                                tint = PocketTheme.colors.brandText
-                            )
-                        }
-                        IconButton(
-                            onClick = {
-                                viewModel.processIntent(HomeUiIntent.SetReceiveQrDialogVisibility(true))
-                            }
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.QrCode,
-                                contentDescription = stringResource(R.string.home_qr_saya_terima_transfer),
-                                tint = PocketTheme.colors.brandText
-                            )
-                        }
-                    },
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.surface
-                    )
-                )
-            },
-            floatingActionButton = {
-                FloatingActionButton(
-                    onClick = {
-                        viewModel.processIntent(HomeUiIntent.SetScannerVisibility(true))
-                    },
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    contentColor = Color.White,
-                    shape = CircleShape,
-                    modifier = Modifier.size(60.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.QrCodeScanner,
-                        contentDescription = stringResource(R.string.home_scan_qris),
-                        modifier = Modifier.size(28.dp)
-                    )
-                }
-            },
-            containerColor = MaterialTheme.colorScheme.background
-        ) { innerPadding ->
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding)
-                    .padding(horizontal = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(18.dp)
-            ) {
-                // 1. REKENING UTAMA CARD (EMERALD GREEN CONTAINER)
-                item {
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(22.dp),
-                        colors = CardDefaults.cardColors(containerColor = Color(0xFF064E3B)),
-                        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .background(
-                                    brush = Brush.horizontalGradient(
-                                        colors = listOf(
-                                            Color(0xFF064E3B),
-                                            Color(0xFF047857),
-                                            Color(0xFF059669)
-                                        )
-                                    )
-                                )
-                                .padding(20.dp)
-                        ) {
-                            Column {
-                                Text(
-                                    text = stringResource(R.string.home_rekening_utama_super_deposito),
-                                    style = MaterialTheme.typography.labelMedium,
-                                    color = Color.White.copy(alpha = 0.85f)
-                                )
-                                Spacer(modifier = Modifier.height(6.dp))
-                                Text(
-                                    text = formatAmount(uiState.account?.balance ?: 0L, uiState.isBalanceHidden),
-                                    style = MaterialTheme.typography.headlineMedium,
-                                    fontWeight = FontWeight.ExtraBold,
-                                    fontSize = 30.sp,
-                                    color = Color.White
-                                )
-                                Spacer(modifier = Modifier.height(4.dp))
-                                Text(
-                                    text = stringResource(R.string.home_no_rek, uiState.account?.accountNumber ?: "-"),
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = Color.White.copy(alpha = 0.75f)
-                                )
-
-                                Spacer(modifier = Modifier.height(18.dp))
-
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.spacedBy(6.dp)
-                                ) {
-                                    Button(
-                                        onClick = {
-                                            viewModel.processIntent(HomeUiIntent.SetScannerVisibility(true))
-                                        },
-                                        modifier = Modifier.weight(1f),
-                                        contentPadding = PaddingValues(horizontal = 2.dp, vertical = 8.dp),
-                                        colors = ButtonDefaults.buttonColors(
-                                            containerColor = Color.White,
-                                            contentColor = Color(0xFF064E3B)
-                                        ),
-                                        shape = RoundedCornerShape(12.dp)
-                                    ) {
-                                        Icon(Icons.Default.Payment, contentDescription = null, modifier = Modifier.size(14.dp))
-                                        Spacer(modifier = Modifier.width(2.dp))
-                                        Text(stringResource(R.string.home_bayar_qris), fontSize = 11.sp, fontWeight = FontWeight.Bold, maxLines = 1, softWrap = false)
-                                    }
-
-                                    FilledTonalButton(
-                                        onClick = {
-                                            viewModel.processIntent(HomeUiIntent.SetPocketTransferDialogVisibility(true))
-                                        },
-                                        modifier = Modifier.weight(1.1f),
-                                        contentPadding = PaddingValues(horizontal = 2.dp, vertical = 8.dp),
-                                        colors = ButtonDefaults.filledTonalButtonColors(
-                                            containerColor = Color(0xFFD1FAE5),
-                                            contentColor = Color(0xFF064E3B)
-                                        ),
-                                        shape = RoundedCornerShape(12.dp)
-                                    ) {
-                                        Icon(Icons.Default.SwapHoriz, contentDescription = null, modifier = Modifier.size(14.dp))
-                                        Spacer(modifier = Modifier.width(2.dp))
-                                        Text(stringResource(R.string.home_antar_kantong), fontSize = 10.5.sp, fontWeight = FontWeight.Bold, maxLines = 1, softWrap = false)
-                                    }
-
-                                    OutlinedButton(
-                                        onClick = {
-                                            viewModel.processIntent(HomeUiIntent.SetCreatePocketDialogVisibility(true))
-                                        },
-                                        modifier = Modifier.weight(0.9f),
-                                        contentPadding = PaddingValues(horizontal = 2.dp, vertical = 8.dp),
-                                        colors = ButtonDefaults.outlinedButtonColors(
-                                            contentColor = Color.White
-                                        ),
-                                        shape = RoundedCornerShape(12.dp)
-                                    ) {
-                                        Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(14.dp))
-                                        Spacer(modifier = Modifier.width(2.dp))
-                                        Text(stringResource(R.string.home_kantong), fontSize = 11.sp, maxLines = 1, softWrap = false)
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-
-                // 2. FEATURE BANNER (CELENGAN RECEH ROUND-UP)
-                item {
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(16.dp),
-                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
-                    ) {
-                        Row(
-                            modifier = Modifier.padding(14.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .size(42.dp)
-                                    .background(Color(0xFF059669), RoundedCornerShape(12.dp)),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.AutoAwesome,
-                                    contentDescription = null,
-                                    tint = Color.White,
-                                    modifier = Modifier.size(22.dp)
-                                )
-                            }
-                            Spacer(modifier = Modifier.width(12.dp))
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    text = stringResource(R.string.home_celengan_receh_round_up),
-                                    style = MaterialTheme.typography.titleSmall,
-                                    fontWeight = FontWeight.Bold,
-                                    color = PocketTheme.colors.brandText
-                                )
-                                Text(
-                                    text = stringResource(R.string.home_pembulatan_transaksi_qris_otomatis_d),
-                                    style = MaterialTheme.typography.bodySmall,
-                                    fontSize = 11.sp,
-                                    color = PocketTheme.colors.accentText
-                                )
-                            }
-                        }
-                    }
-                }
-
-                // 3. KANTONG FINANSIAL
-                item {
-                    Column {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                text = stringResource(R.string.home_kantong_finansial),
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.onSurface
-                            )
-                            TextButton(
-                                onClick = {
-                                    viewModel.processIntent(HomeUiIntent.SetCreatePocketDialogVisibility(true))
-                                }
-                            ) {
-                                Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(16.dp))
-                                Spacer(modifier = Modifier.width(4.dp))
-                                Text(stringResource(R.string.home_buat_kantong), fontWeight = FontWeight.Bold, color = PocketTheme.colors.accentText)
-                            }
-                        }
-
-                        Spacer(modifier = Modifier.height(8.dp))
-
-                        LazyRow(
-                            horizontalArrangement = Arrangement.spacedBy(12.dp),
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            items(uiState.pockets, key = { it.id }) { pocket ->
-                                PocketCardItem(
-                                    pocket = pocket,
-                                    isHidden = uiState.isBalanceHidden,
-                                    onClick = {
-                                        viewModel.processIntent(HomeUiIntent.SelectPocketForAction(pocket))
-                                    }
-                                )
-                            }
-                        }
-                    }
-                }
-
-                // 4. MUTASI TRANSAKSI + FILTER & SEARCH
-                item {
-                    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                        Text(
-                            text = stringResource(R.string.home_mutasi_transaksi),
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-
-                        OutlinedTextField(
-                            value = uiState.searchQuery,
-                            onValueChange = { viewModel.processIntent(HomeUiIntent.SetSearchQuery(it)) },
-                            placeholder = { Text(stringResource(R.string.home_cari_merchant_ref_atau_sumber_dana)) },
-                            leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
-                            trailingIcon = {
-                                if (uiState.searchQuery.isNotEmpty()) {
-                                    IconButton(onClick = { viewModel.processIntent(HomeUiIntent.SetSearchQuery("")) }) {
-                                        Icon(Icons.Default.Clear, contentDescription = stringResource(R.string.home_clear))
-                                    }
-                                }
-                            },
-                            singleLine = true,
-                            shape = RoundedCornerShape(14.dp),
-                            colors = OutlinedTextFieldDefaults.colors(
-                                focusedContainerColor = MaterialTheme.colorScheme.surface,
-                                unfocusedContainerColor = MaterialTheme.colorScheme.surface
-                            ),
-                            modifier = Modifier.fillMaxWidth()
-                        )
-
-                        LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            item {
-                                FilterChip(
-                                    selected = uiState.selectedTxTypeFilter == null,
-                                    onClick = { viewModel.processIntent(HomeUiIntent.SetTxTypeFilter(null)) },
-                                    label = { Text(stringResource(R.string.home_semua_tipe)) }
-                                )
-                            }
-                            items(TxType.entries.toTypedArray()) { type ->
-                                FilterChip(
-                                    selected = uiState.selectedTxTypeFilter == type,
-                                    onClick = { viewModel.processIntent(HomeUiIntent.SetTxTypeFilter(type)) },
-                                    label = { Text(type.name) }
-                                )
-                            }
-                        }
-
-                        LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            items(DateRangeFilter.entries.toTypedArray()) { filter ->
-                                FilterChip(
-                                    selected = uiState.dateRangeFilter == filter,
-                                    onClick = { viewModel.processIntent(HomeUiIntent.SetDateRangeFilter(filter)) },
-                                    label = { Text(stringResource(filter.labelRes)) }
-                                )
-                            }
-                        }
-                    }
-                }
-
-                val displayedTxs = uiState.filteredTransactions
-                if (displayedTxs.isEmpty()) {
-                    item {
-                        Text(
-                            text = if (uiState.searchQuery.isNotEmpty() || uiState.selectedTxTypeFilter != null || uiState.dateRangeFilter != DateRangeFilter.ALL)
-                                stringResource(R.string.home_tidak_ada_transaksi_yang_cocok_denga)
-                            else stringResource(R.string.home_belum_ada_riwayat_transaksi),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.padding(vertical = 12.dp)
-                        )
-                    }
-                } else {
-                    items(displayedTxs, key = { it.id }) { tx ->
-                        TransactionItemRow(
-                            tx = tx,
-                            isHidden = uiState.isBalanceHidden,
-                            onClick = {
-                                viewModel.processIntent(HomeUiIntent.SelectTransactionForDetail(tx))
-                            }
-                        )
-                    }
-                }
-
-                item {
-                    Spacer(modifier = Modifier.height(72.dp))
-                }
-            }
-        }
-
-        // AUTO-LOCK SECURITY SHIELD OVERLAY
-        if (uiState.isAppLocked) {
-            val activity = context as? FragmentActivity
-            val biometricAvailable = activity != null && BiometricHelper.isBiometricAvailable(activity)
-            AppLockOverlay(
-                biometricAvailable = biometricAvailable,
-                onBiometricRequest = {
-                    if (activity != null) {
-                        BiometricHelper.showBiometricPrompt(
-                            activity = activity,
-                            title = context.getString(R.string.home_buka_kunci_pocketpay),
-                            subtitle = context.getString(R.string.home_verifikasi_biometrik_untuk_melanjutk),
-                            onSuccess = { viewModel.processIntent(HomeUiIntent.UnlockApp) },
-                            onFallbackToPin = { /* user stays on lock screen and enters PIN */ },
-                            onError = { errorMsg ->
-                                Toast.makeText(context, errorMsg, Toast.LENGTH_SHORT).show()
-                            }
-                        )
-                    }
-                },
-                onUnlocked = { viewModel.processIntent(HomeUiIntent.UnlockApp) }
+    fun submitPayment(tx: PendingTransaction, authMethod: String) {
+        onIntent(
+            HomeUiIntent.OpenQrisPayment(
+                merchant = tx.merchant, amount = tx.amount, pocketId = tx.pocketId,
+                isRoundUpEnabled = tx.isRoundUpEnabled, authMethod = authMethod
             )
+        )
+    }
+
+    fun confirmPayment(tx: PendingTransaction) {
+        pendingTx = tx
+        if (activity != null && BiometricHelper.isBiometricAvailable(activity)) {
+            BiometricHelper.showBiometricPrompt(
+                activity = activity,
+                title = context.getString(R.string.home_verifikasi_pembayaran),
+                subtitle = context.getString(R.string.home_konfirmasi_transaksi_ke, tx.amount.toRupiah(), tx.merchant),
+                onSuccess = { submitPayment(tx, "Biometrik (Sidik Jari / Face ID)"); pendingTx = null },
+                onFallbackToPin = { isPinConfirmOpen = true },
+                onError = { Toast.makeText(context, it, Toast.LENGTH_SHORT).show() }
+            )
+        } else {
+            isPinConfirmOpen = true
         }
     }
 
-    // DIALOG 1: SCANNER KAMERA & GALERI
-    if (uiState.isScannerOpen) {
-        QrisScannerDialog(
-            onDismiss = {
-                viewModel.processIntent(HomeUiIntent.SetScannerVisibility(false))
-            },
-            onQrScanned = { merchant, amount ->
-                viewModel.processIntent(HomeUiIntent.OnQrScannedSuccess(merchant, amount))
-            },
-            onManualInputFallback = {
-                viewModel.processIntent(HomeUiIntent.SetScannerVisibility(false))
-                viewModel.processIntent(HomeUiIntent.SetPaymentDialogVisibility(true))
-            }
-        )
-    }
+    val tx0 = pendingTx
+    val pinOverlay = isPinConfirmOpen && tx0 != null
+    val successOverlay = uiState.successAlert != null
+    val lockOverlay = uiState.isAppLocked
+    val topOverlay = pinOverlay || successOverlay || lockOverlay || isChangePinOpen
+    val anyOverlay = topOverlay || showHistory || uiState.isTransferDialogOpen || uiState.isReceiveQrDialogOpen || uiState.isScannerOpen
 
-    // DIALOG 2: PEMBAYARAN QRIS
-    if (uiState.isTransferDialogOpen) {
-        val activity = context as? FragmentActivity
+    Box(Modifier.fillMaxSize()) {
+        when {
+            showSplash -> SplashScreen(onSplashFinished = { showSplash = false })
 
-        PaymentQrisDialog(
-            initialMerchant = uiState.prefilledMerchant,
-            initialAmount = uiState.prefilledAmount,
-            pockets = uiState.pockets.filter { it.pocketType == PocketType.SPENDING },
-            onDismiss = {
-                viewModel.processIntent(HomeUiIntent.SetPaymentDialogVisibility(false))
-            },
-            onConfirmPayment = { merchant, amount, pocketId, isRoundUp ->
-                pendingTx = PendingTransaction(merchant, amount, pocketId, isRoundUp)
+            !isPinSet -> PinSetupScreen(onDone = { isPinSet = true; onIntent(HomeUiIntent.UnlockApp) })
 
-                if (activity != null && BiometricHelper.isBiometricAvailable(activity)) {
-                    BiometricHelper.showBiometricPrompt(
-                        activity = activity,
-                        title = context.getString(R.string.home_verifikasi_pembayaran),
-                        subtitle = context.getString(R.string.home_konfirmasi_transaksi_ke, amount.toRupiah(), merchant),
-                        onSuccess = {
-                            viewModel.processIntent(
-                                HomeUiIntent.OpenQrisPayment(
-                                    merchant = merchant,
-                                    amount = amount,
-                                    pocketId = pocketId,
-                                    isRoundUpEnabled = isRoundUp,
-                                    authMethod = "Biometrik (Sidik Jari / Face ID)"
-                                )
+            else -> {
+                // ---- main tabs ----
+                PocketBackground(Modifier.hideIf(anyOverlay)) {
+                    val tabs = listOf(
+                        NavItem(stringResource(R.string.nav_home), Icons.Rounded.Home),
+                        NavItem(stringResource(R.string.nav_stats), Icons.Rounded.BarChart),
+                        NavItem(stringResource(R.string.nav_pockets), Icons.Rounded.Savings),
+                        NavItem(stringResource(R.string.nav_profile), Icons.Rounded.Person)
+                    )
+                    val barPadding = PaddingValues(bottom = 104.dp)
+                    Box(Modifier.fillMaxSize().statusBarsPadding()) {
+                        when (selectedTab) {
+                            TAB_HOME -> HomeTab(
+                                uiState, onIntent,
+                                onViewAllPockets = { selectedTab = TAB_POCKETS },
+                                onViewAllHistory = { showHistory = true },
+                                onOpenProfile = { selectedTab = TAB_PROFILE },
+                                modifier = Modifier.fillMaxSize(), contentPadding = barPadding
                             )
-                        },
-                        onFallbackToPin = {
-                            isPinDialogOpen = true
-                        },
-                        onError = { errorMsg ->
-                            Toast.makeText(context, errorMsg, Toast.LENGTH_SHORT).show()
+                            TAB_STATS -> StatsTab(uiState, onIntent, Modifier.fillMaxSize(), barPadding)
+                            TAB_POCKETS -> PocketsTab(uiState, onIntent, Modifier.fillMaxSize(), barPadding)
+                            else -> ProfileTab(
+                                name = uiState.userName, phone = uiState.userPhone, email = uiState.userEmail,
+                                tier = uiState.userTier, accountNumber = uiState.account?.accountNumber ?: "-",
+                                biometricAvailable = biometricAvailable,
+                                onSave = { n, p, e -> onIntent(HomeUiIntent.UpdateUserProfile(n, p, e)) },
+                                onChangePin = { isChangePinOpen = true },
+                                modifier = Modifier.fillMaxSize(), contentPadding = barPadding
+                            )
+                        }
+                        FloatingBottomBar(
+                            tabs, selectedTab, { selectedTab = it },
+                            modifier = Modifier.align(Alignment.BottomCenter).navigationBarsPadding()
+                        )
+                    }
+                }
+
+                // ---- full-screen flows ----
+                if (showHistory) HistoryScreen(uiState, onIntent, onBack = { showHistory = false }, modifier = Modifier.hideIf(topOverlay))
+
+                if (uiState.isScannerOpen) {
+                    QrisScannerDialog(
+                        onDismiss = { onIntent(HomeUiIntent.SetScannerVisibility(false)) },
+                        onQrScanned = { merchant, amount -> onIntent(HomeUiIntent.OnQrScannedSuccess(merchant, amount)) },
+                        onManualInputFallback = {
+                            onIntent(HomeUiIntent.SetScannerVisibility(false))
+                            onIntent(HomeUiIntent.SetPaymentDialogVisibility(true))
                         }
                     )
-                } else {
-                    isPinDialogOpen = true
+                }
+
+                if (uiState.isTransferDialogOpen) {
+                    QrisPaymentScreen(
+                        initialMerchant = uiState.prefilledMerchant,
+                        initialAmount = uiState.prefilledAmount,
+                        pockets = uiState.pockets.filter { it.pocketType == PocketType.SPENDING },
+                        mainBalance = uiState.account?.balance ?: 0L,
+                        onBack = { onIntent(HomeUiIntent.SetPaymentDialogVisibility(false)) },
+                        onConfirm = { merchant, amount, pocketId, roundUp ->
+                            confirmPayment(PendingTransaction(merchant, amount, pocketId, roundUp))
+                        },
+                        modifier = Modifier.hideIf(topOverlay)
+                    )
+                }
+
+                val tx = pendingTx
+                if (isPinConfirmOpen && tx != null) {
+                    PinEntryScreen(
+                        title = stringResource(R.string.pin_pay_title),
+                        subtitle = stringResource(R.string.pin_pay_subtitle, tx.amount.toRupiah(), tx.merchant),
+                        error = payPinError,
+                        resetKey = payPinAttempt,
+                        onBack = { isPinConfirmOpen = false; pendingTx = null; payPinError = null },
+                        leading = if (biometricAvailable) {
+                            {
+                                CircleIcon(
+                                    Icons.Rounded.Fingerprint, stringResource(R.string.pin_use_biometric),
+                                    container = PocketTheme.colors.heroChip, tint = PocketTheme.colors.lime, size = 72.dp,
+                                    onClick = { isPinConfirmOpen = false; confirmPayment(tx) }
+                                )
+                            }
+                        } else null,
+                        onComplete = { pin ->
+                            val result = PinManager.verify(context, pin)
+                            if (result == PinResult.Success) {
+                                isPinConfirmOpen = false; payPinError = null
+                                submitPayment(tx, "PIN 6-Digit")
+                                pendingTx = null
+                            } else {
+                                payPinError = PinManager.describe(context, result); payPinAttempt++
+                            }
+                        }
+                    )
+                }
+
+                if (uiState.isReceiveQrDialogOpen) {
+                    ReceiveQrScreen(
+                        accountNumber = uiState.account?.accountNumber ?: "-",
+                        name = uiState.userName,
+                        onBack = { onIntent(HomeUiIntent.SetReceiveQrDialogVisibility(false)) },
+                        modifier = Modifier.hideIf(topOverlay)
+                    )
+                }
+
+                if (isChangePinOpen) {
+                    ChangePinScreen(
+                        onBack = { isChangePinOpen = false },
+                        onChanged = {
+                            isChangePinOpen = false
+                            Toast.makeText(context, context.getString(R.string.profile_pin_berhasil_diganti), Toast.LENGTH_SHORT).show()
+                        }
+                    )
+                }
+
+                uiState.successAlert?.let { SuccessScreen(it, onDone = { onIntent(HomeUiIntent.DismissSuccessAlert) }) }
+
+                // ---- sheets ----
+                if (uiState.isCreatePocketDialogOpen) {
+                    PocketSheet(onDismiss = { onIntent(HomeUiIntent.SetCreatePocketDialogVisibility(false)) }) {
+                        CreatePocketSheet { name, amount, type, tenor, target ->
+                            onIntent(HomeUiIntent.CreateNewPocket(name, amount, type, tenor, target))
+                        }
+                    }
+                }
+                uiState.selectedPocketForAction?.let { pocket ->
+                    PocketSheet(onDismiss = { onIntent(HomeUiIntent.SelectPocketForAction(null)) }) {
+                        ManagePocketSheet(
+                            pocket = pocket,
+                            onExecute = { amount, type -> onIntent(HomeUiIntent.ExecutePocketAction(pocket, amount, type)) },
+                            onClosePocket = { onIntent(HomeUiIntent.ClosePocket(pocket)) }
+                        )
+                    }
+                }
+                uiState.selectedTransactionForDetail?.let { selected ->
+                    PocketSheet(onDismiss = { onIntent(HomeUiIntent.SelectTransactionForDetail(null)) }) {
+                        ReceiptSheet(selected, onRefund = { onIntent(HomeUiIntent.RefundTransaction(selected)) })
+                    }
+                }
+                if (uiState.isPocketTransferDialogOpen) {
+                    PocketSheet(onDismiss = { onIntent(HomeUiIntent.SetPocketTransferDialogVisibility(false)) }) {
+                        TransferSheet(uiState.pockets.filter { it.pocketType == PocketType.SPENDING }) { from, to, amount ->
+                            onIntent(HomeUiIntent.ExecutePocketToPocketTransfer(from, to, amount))
+                        }
+                    }
+                }
+                if (uiState.isEStatementDialogOpen) {
+                    PocketSheet(onDismiss = { onIntent(HomeUiIntent.SetEStatementDialogVisibility(false)) }) {
+                        EStatementSheet(
+                            accountNumber = uiState.account?.accountNumber ?: "-",
+                            currentBalance = uiState.account?.balance ?: 0L,
+                            transactions = uiState.recentTransactions
+                        )
+                    }
+                }
+
+                // ---- lock screen sits above everything ----
+                if (uiState.isAppLocked) {
+                    LockScreen(
+                        biometricAvailable = biometricAvailable,
+                        onBiometricRequest = ::requestBiometricUnlock,
+                        onUnlocked = { onIntent(HomeUiIntent.UnlockApp) }
+                    )
                 }
             }
-        )
-    }
-
-    // DIALOG 3: FALLBACK PIN TRANSAKSI
-    if (isPinDialogOpen && pendingTx != null) {
-        val tx = pendingTx!!
-        TransactionPinDialog(
-            merchant = tx.merchant,
-            amount = tx.amount,
-            onDismiss = {
-                isPinDialogOpen = false
-                pendingTx = null
-            },
-            onPinSuccess = {
-                isPinDialogOpen = false
-                viewModel.processIntent(
-                    HomeUiIntent.OpenQrisPayment(
-                        merchant = tx.merchant,
-                        amount = tx.amount,
-                        pocketId = tx.pocketId,
-                        isRoundUpEnabled = tx.isRoundUpEnabled,
-                        authMethod = "PIN 6-Digit"
-                    )
-                )
-                pendingTx = null
-            }
-        )
-    }
-
-    // DIALOG 4: BUAT KANTONG BARU
-    if (uiState.isCreatePocketDialogOpen) {
-        CreatePocketDialog(
-            onDismiss = {
-                viewModel.processIntent(HomeUiIntent.SetCreatePocketDialogVisibility(false))
-            },
-            onConfirm = { name, initialAmount, type, tenorMonths, targetAmount ->
-                viewModel.processIntent(HomeUiIntent.CreateNewPocket(name, initialAmount, type, tenorMonths, targetAmount))
-            }
-        )
-    }
-
-    // DIALOG 5: KELOLA SALDO KANTONG
-    uiState.selectedPocketForAction?.let { pocket ->
-        ManagePocketBalanceDialog(
-            pocket = pocket,
-            onDismiss = {
-                viewModel.processIntent(HomeUiIntent.SelectPocketForAction(null))
-            },
-            onExecute = { amount, actionType ->
-                viewModel.processIntent(
-                    HomeUiIntent.ExecutePocketAction(pocket, amount, actionType)
-                )
-            },
-            onClosePocket = {
-                viewModel.processIntent(HomeUiIntent.ClosePocket(pocket))
-            }
-        )
-    }
-
-    // DIALOG 6: DETAIL & STRUK MUTASI DIGITAL
-    uiState.selectedTransactionForDetail?.let { tx ->
-        TransactionDetailReceiptDialog(
-            transaction = tx,
-            onRefund = { viewModel.processIntent(HomeUiIntent.RefundTransaction(tx)) },
-            onDismiss = {
-                viewModel.processIntent(HomeUiIntent.SelectTransactionForDetail(null))
-            }
-        )
-    }
-
-    // DIALOG 7: TRANSFER ANTAR-KANTONG
-    if (uiState.isPocketTransferDialogOpen) {
-        PocketToPocketTransferDialog(
-            pockets = uiState.pockets.filter { it.pocketType == PocketType.SPENDING },
-            onDismiss = {
-                viewModel.processIntent(HomeUiIntent.SetPocketTransferDialogVisibility(false))
-            },
-            onConfirmTransfer = { fromId, toId, amount ->
-                viewModel.processIntent(
-                    HomeUiIntent.ExecutePocketToPocketTransfer(fromId, toId, amount)
-                )
-            }
-        )
-    }
-
-    // DIALOG 8: GENERATE QR TERIMA TRANSFER
-    if (uiState.isReceiveQrDialogOpen) {
-        ReceiveQrDialog(
-            accountNumber = uiState.account?.accountNumber ?: "9012839102",
-            onDismiss = {
-                viewModel.processIntent(HomeUiIntent.SetReceiveQrDialogVisibility(false))
-            }
-        )
-    }
-
-    // DIALOG 9: EXPORT E-STATEMENT PDF
-    if (uiState.isEStatementDialogOpen) {
-        EStatementPdfDialog(
-            accountNumber = uiState.account?.accountNumber ?: "9012839102",
-            currentBalance = uiState.account?.balance ?: 0L,
-            transactions = uiState.recentTransactions,
-            onDismiss = {
-                viewModel.processIntent(HomeUiIntent.SetEStatementDialogVisibility(false))
-            }
-        )
-    }
-
-    // DIALOG 11: ANIMATED SWEET ALERT (M-BANKING MODERN POPUP)
-    uiState.successAlert?.let { alert ->
-        AnimatedSuccessPaymentDialog(
-            title = alert.title,
-            message = alert.message,
-            onDismiss = {
-                viewModel.processIntent(HomeUiIntent.DismissSuccessAlert)
-            }
-        )
+        }
     }
 }
-
-// -----------------------------------------------------------------------------
-// HALAMAN BARU: KELOLA AKUN NASABAH (FULL-SCREEN SCREEN)
-// -----------------------------------------------------------------------------

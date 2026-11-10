@@ -15,9 +15,12 @@ enum class DateRangeFilter(@StringRes val labelRes: Int) {
     LAST_30_DAYS(R.string.filter_30_days)
 }
 
+/** Content of the full-screen success page: optional amount and receipt-style detail rows. */
 data class SuccessAlertData(
     val title: String,
-    val message: String
+    val message: String,
+    val amount: Long? = null,
+    val rows: List<Pair<String, String>> = emptyList()
 )
 
 data class HomeUiState(

@@ -7,12 +7,24 @@ import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 
 /**
- * Semantic colours that Material's colour scheme has no slot for. Every screen asks for a role
- * ("warning chip", "danger text") instead of a hex value, so light and dark both stay legible.
+ * Semantic colours that Material's colour scheme has no slot for. Screens ask for a role
+ * ("hero card", "danger text") instead of a hex value, so light and dark stay legible.
  */
 @Immutable
 data class PocketColors(
-    /** Brand green used for text/icons that sit on a surface (not on the green hero). */
+    // Dark "hero" surfaces (balance card, scanner, success header) and what sits on them
+    val hero: Color,
+    val heroAlt: Color,
+    val onHero: Color,
+    val onHeroMuted: Color,
+    val heroChip: Color,
+    // Signature lime accent
+    val lime: Color,
+    val onLime: Color,
+    // Neutral soft tile behind icons and charts
+    val soft: Color,
+    val border: Color,
+    // Text/icon roles on normal surfaces
     val brandText: Color,
     val accentText: Color,
     val accent: Color,
@@ -28,33 +40,51 @@ data class PocketColors(
 )
 
 val LightPocketColors = PocketColors(
-    brandText = Color(0xFF064E3B),
-    accentText = Color(0xFF047857),
-    accent = Color(0xFF059669),
-    successText = Color(0xFF15803D),
-    warnContainer = Color(0xFFFFF7ED),
-    warnChip = Color(0xFFFFEDD5),
-    warnText = Color(0xFFC2410C),
+    hero = Color(0xFF0E1A2B),
+    heroAlt = Color(0xFF1A2E4D),
+    onHero = Color.White,
+    onHeroMuted = Color(0xFFA3B3CC),
+    heroChip = Color(0xFF1F3049),
+    lime = Color(0xFF8CD63F),
+    onLime = Color(0xFF0E1A2B),
+    soft = Color(0xFFEBF2E4),
+    border = Color(0xFFE1E8DA),
+    brandText = Color(0xFF0E1A2B),
+    accentText = Color(0xFF3F7F12),
+    accent = Color(0xFF2F9E44),
+    successText = Color(0xFF2F9E44),
+    warnContainer = Color(0xFFFFF4E5),
+    warnChip = Color(0xFFFFE4BF),
+    warnText = Color(0xFFB45309),
     amberContainer = Color(0xFFFEF3C7),
     amberIcon = Color(0xFFD97706),
     amberText = Color(0xFF92400E),
-    dangerContainer = Color(0xFFFEE2E2),
-    danger = Color(0xFFDC2626)
+    dangerContainer = Color(0xFFFDE8E8),
+    danger = Color(0xFFE5484D)
 )
 
 val DarkPocketColors = PocketColors(
-    brandText = Color(0xFFA7F3D0),
-    accentText = Color(0xFF6EE7B7),
-    accent = Color(0xFF34D399),
-    successText = Color(0xFF4ADE80),
-    warnContainer = Color(0xFF2B1B10),
-    warnChip = Color(0xFF4A2A12),
+    hero = Color(0xFF16253D),
+    heroAlt = Color(0xFF22406B),
+    onHero = Color.White,
+    onHeroMuted = Color(0xFF9FB1CD),
+    heroChip = Color(0xFF263A59),
+    lime = Color(0xFF9BE34B),
+    onLime = Color(0xFF0A1220),
+    soft = Color(0xFF18263C),
+    border = Color(0xFF22324C),
+    brandText = Color(0xFFE7ECF5),
+    accentText = Color(0xFFA5E86B),
+    accent = Color(0xFF5ED67A),
+    successText = Color(0xFF5ED67A),
+    warnContainer = Color(0xFF2B1D0E),
+    warnChip = Color(0xFF4A2F12),
     warnText = Color(0xFFFDBA74),
     amberContainer = Color(0xFF3A2C0A),
     amberIcon = Color(0xFFFBBF24),
     amberText = Color(0xFFFCD34D),
-    dangerContainer = Color(0xFF3F1517),
-    danger = Color(0xFFF87171)
+    dangerContainer = Color(0xFF3A1719),
+    danger = Color(0xFFFF7B7F)
 )
 
 val LocalPocketColors = staticCompositionLocalOf { LightPocketColors }

@@ -51,6 +51,7 @@ Comprehensive commercial banking security safeguards:
 ### 8. 🔲 Dynamic Receive QR Generator
 * **QRIS (EMVCo) QR**: Receive-QR codes are real, scannable QR codes carrying a CRC-checked QRIS payload; the scanner parses/validates QRIS (CRC16, IDR, merchant, amount) and rejects anything else. PocketPay is not a registered QRIS issuer, so third-party wallets will not settle against it.
 * **Localization & theming**: all UI text lives in `strings.xml` (Indonesian default) with a full English translation in `values-en`, kept in sync by a unit test. Light and dark themes follow the system setting.
+* **Fintech design system**: deep-navy hero card with a lime accent, floating bottom navigation (Home, Statistics, Pockets, Profile), a PIN keypad for lock/setup/payment, full-screen payment flow (scan, confirm, PIN, receipt-style success page), "Scan me" receive screen, bottom sheets for secondary actions, and real statistics (weekly/monthly) computed from your transactions. Light and dark themes share one semantic token set (`ui/theme`, `ui/components`).
 
 ### 9. 👤 User Account Profile Management
 * **Dedicated Account Page**: Dedicated full-screen page to view and update user profile information (Name, Phone, Email) and monitor security configuration.

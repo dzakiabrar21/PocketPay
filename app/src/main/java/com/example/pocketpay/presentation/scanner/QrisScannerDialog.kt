@@ -1,5 +1,8 @@
 package com.example.pocketpay.presentation.scanner
 
+import androidx.compose.material.icons.automirrored.rounded.ArrowBack
+import androidx.compose.material.icons.rounded.Edit
+import androidx.compose.material.icons.rounded.PhotoLibrary
 import androidx.compose.ui.res.stringResource
 import com.example.pocketpay.R
 import android.Manifest
@@ -75,15 +78,33 @@ fun QrisScannerDialog(
         }
     }
 
+    val galleryLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri ->
+        if (uri != null) {
+            try {
+                val inputImage = InputImage.fromFilePath(context, uri)
+                val scanner = BarcodeScanning.getClient(
+                    BarcodeScannerOptions.Builder().setBarcodeFormats(Barcode.FORMAT_QR_CODE).build()
+                )
+                scanner.process(inputImage)
+                    .addOnSuccessListener { barcodes ->
+                        val rawValue: String? = barcodes.firstOrNull()?.rawValue
+                        if (!rawValue.isNullOrEmpty()) handleRaw(rawValue) else invalidQr()
+                    }
+                    .addOnFailureListener { invalidQr() }
+            } catch (_: Exception) {
+                invalidQr()
+            }
+        }
+    }
+    val lime = com.example.pocketpay.ui.theme.PocketTheme.colors.lime
+
     Dialog(
         onDismissRequest = onDismiss,
-        properties = DialogProperties(usePlatformDefaultWidth = false)
+        properties = DialogProperties(usePlatformDefaultWidth = false, decorFitsSystemWindows = false)
     ) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Color.Black)
-        ) {
+        Box(modifier = Modifier.fillMaxSize().background(Color.Black)) {
             if (hasCameraPermission) {
                 AndroidView(
                     factory = { ctx ->
@@ -95,24 +116,16 @@ fun QrisScannerDialog(
                             val preview = Preview.Builder().build().also {
                                 it.surfaceProvider = previewView.surfaceProvider
                             }
-
                             val imageAnalysis = ImageAnalysis.Builder()
                                 .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                                 .build()
-
                             imageAnalysis.setAnalyzer(
                                 Executors.newSingleThreadExecutor(),
                                 QrCodeAnalyzer { qrText -> handleRaw(qrText) }
                             )
-
                             try {
                                 cameraProvider.unbindAll()
-                                cameraProvider.bindToLifecycle(
-                                    lifecycleOwner,
-                                    CameraSelector.DEFAULT_BACK_CAMERA,
-                                    preview,
-                                    imageAnalysis
-                                )
+                                cameraProvider.bindToLifecycle(lifecycleOwner, CameraSelector.DEFAULT_BACK_CAMERA, preview, imageAnalysis)
                             } catch (_: Exception) {}
                         }, ContextCompat.getMainExecutor(ctx))
 
@@ -120,76 +133,79 @@ fun QrisScannerDialog(
                     },
                     modifier = Modifier.fillMaxSize()
                 )
+            }
 
-                // Kotak Bidik Scanner
-                Box(
-                    modifier = Modifier
-                        .size(240.dp)
-                        .border(3.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(16.dp))
-                        .align(Alignment.Center)
+            // Soft scrims keep the controls readable over any camera image.
+            Box(
+                Modifier.fillMaxWidth().height(180.dp).align(Alignment.TopCenter)
+                    .background(androidx.compose.ui.graphics.Brush.verticalGradient(listOf(Color.Black.copy(alpha = 0.65f), Color.Transparent)))
+            )
+            Box(
+                Modifier.fillMaxWidth().height(260.dp).align(Alignment.BottomCenter)
+                    .background(androidx.compose.ui.graphics.Brush.verticalGradient(listOf(Color.Transparent, Color.Black.copy(alpha = 0.75f))))
+            )
+
+            // Top bar
+            Row(
+                Modifier.fillMaxWidth().statusBarsPadding().padding(horizontal = 20.dp, vertical = 12.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                com.example.pocketpay.ui.components.CircleIcon(
+                    androidx.compose.material.icons.Icons.AutoMirrored.Rounded.ArrowBack,
+                    stringResource(R.string.profile_kembali),
+                    container = Color.White.copy(alpha = 0.18f), tint = Color.White, onClick = onDismiss
+                )
+                Spacer(Modifier.width(14.dp))
+                Text(
+                    stringResource(R.string.scan_title), color = Color.White,
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+                )
+            }
+
+            if (hasCameraPermission) {
+                // Viewfinder: four lime corner brackets
+                androidx.compose.foundation.Canvas(Modifier.size(260.dp).align(Alignment.Center)) {
+                    val len = 56.dp.toPx(); val w = 6.dp.toPx(); val r = 22.dp.toPx()
+                    val stroke = androidx.compose.ui.graphics.drawscope.Stroke(width = w, cap = androidx.compose.ui.graphics.StrokeCap.Round)
+                    fun corner(x: Float, y: Float, dx: Float, dy: Float) {
+                        val path = androidx.compose.ui.graphics.Path().apply {
+                            moveTo(x, y + dy * len); lineTo(x, y + dy * r)
+                            quadraticTo(x, y, x + dx * r, y); lineTo(x + dx * len, y)
+                        }
+                        drawPath(path, lime, style = stroke)
+                    }
+                    corner(0f, 0f, 1f, 1f); corner(size.width, 0f, -1f, 1f)
+                    corner(0f, size.height, 1f, -1f); corner(size.width, size.height, -1f, -1f)
+                }
+                Text(
+                    stringResource(R.string.scan_hint), color = Color.White.copy(alpha = 0.9f),
+                    style = MaterialTheme.typography.bodyMedium,
+                    textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                    modifier = Modifier.align(Alignment.Center).padding(top = 320.dp).padding(horizontal = 40.dp)
                 )
             } else {
                 Text(
                     text = stringResource(R.string.scan_izin_akses_kamera_dibutuhkan_untuk_m),
-                    color = Color.White,
-                    modifier = Modifier.align(Alignment.Center)
+                    color = Color.White, textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                    modifier = Modifier.align(Alignment.Center).padding(32.dp)
                 )
             }
 
-            // Tombol Kontrol Bawah
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .align(Alignment.BottomCenter)
-                    .padding(24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+            // Bottom actions
+            Row(
+                Modifier.fillMaxWidth().align(Alignment.BottomCenter).navigationBarsPadding().padding(20.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                val galleryLauncher = rememberLauncherForActivityResult(
-                    contract = ActivityResultContracts.GetContent()
-                ) { uri ->
-                    if (uri != null) {
-                        try {
-                            val inputImage = InputImage.fromFilePath(context, uri)
-                            val scanner = BarcodeScanning.getClient(
-                                BarcodeScannerOptions.Builder()
-                                    .setBarcodeFormats(Barcode.FORMAT_QR_CODE)
-                                    .build()
-                            )
-                            scanner.process(inputImage)
-                                .addOnSuccessListener { barcodes ->
-                                    val rawValue: String? = barcodes.firstOrNull()?.rawValue
-                                    if (!rawValue.isNullOrEmpty()) handleRaw(rawValue) else invalidQr()
-                                }
-                                .addOnFailureListener { invalidQr() }
-                        } catch (_: Exception) {
-                            invalidQr()
-                        }
-                    }
-                }
-
-                Button(
-                    onClick = { galleryLauncher.launch("image/*") },
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text(stringResource(R.string.scan_pilih_gambar_qr_dari_galeri))
-                }
-
-                OutlinedButton(
-                    onClick = onManualInputFallback,
-                    colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.White),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text(stringResource(R.string.scan_input_merchant_manual_emulator))
-                }
-
-                TextButton(
-                    onClick = onDismiss,
-                    colors = ButtonDefaults.textButtonColors(contentColor = Color.White)
-                ) {
-                    Text(stringResource(R.string.scan_tutup_scanner))
-                }
+                com.example.pocketpay.ui.components.PillButton(
+                    stringResource(R.string.scan_pilih_gambar_qr_dari_galeri), { galleryLauncher.launch("image/*") },
+                    modifier = Modifier.weight(1f), icon = androidx.compose.material.icons.Icons.Rounded.PhotoLibrary,
+                    style = com.example.pocketpay.ui.components.PillStyle.SOFT_ON_HERO, height = 54.dp
+                )
+                com.example.pocketpay.ui.components.PillButton(
+                    stringResource(R.string.scan_input_merchant_manual_emulator), onManualInputFallback,
+                    modifier = Modifier.weight(1f), icon = androidx.compose.material.icons.Icons.Rounded.Edit, height = 54.dp
+                )
             }
         }
     }
