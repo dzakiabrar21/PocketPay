@@ -187,6 +187,7 @@ class HomeViewModel @Inject constructor(
         isRoundUpEnabled: Boolean,
         authMethod: String
     ) {
+        if (_uiState.value.isLoading) return
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
 

@@ -111,7 +111,7 @@ com.example.pocketpay/
 ---
 
 ## 🔐 Security & Testing Credentials
-* **Default Security PIN**: `123456`
+* **Security PIN**: created by the user on first launch (6 digits, no repeated/sequential digits); can be changed from Account Profile → "Ganti PIN"
 * **Default Primary Account Number**: `9012839102`
 * **Initial Seed Balance**: `Rp 5,000,000`
 

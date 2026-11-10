@@ -10,6 +10,7 @@ import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 import java.util.UUID
 
+@Suppress("NAME_SHADOWING")
 @Dao
 abstract class BankingDao {
 
@@ -49,6 +50,9 @@ abstract class BankingDao {
         paymentAmount: Long,
         transactionRecord: TransactionEntity
     ) {
+        require(paymentAmount > 0) { "Nominal harus lebih dari nol." }
+        val pocket = getPocketById(pocket.id)
+            ?: throw IllegalStateException("Kantong tidak ditemukan.")
         if (pocket.pocketType == PocketType.LOCKED_DEPOSIT) {
             throw IllegalStateException("Locked deposit pockets cannot be used for QRIS payments.")
         }
@@ -70,6 +74,9 @@ abstract class BankingDao {
         paymentAmount: Long,
         transactionRecord: TransactionEntity
     ) {
+        require(paymentAmount > 0) { "Nominal harus lebih dari nol." }
+        val account = getAccountOnce()
+            ?: throw IllegalStateException("Rekening utama tidak ditemukan.")
         if (account.balance < paymentAmount) {
             throw IllegalStateException("Insufficient primary account balance.")
         }
@@ -87,6 +94,9 @@ abstract class BankingDao {
         currentAccount: AccountEntity,
         newPocket: PocketEntity
     ) {
+        require(newPocket.balance > 0) { "Nominal harus lebih dari nol." }
+        val account = getAccountOnce()
+            ?: throw IllegalStateException("Rekening utama tidak ditemukan.")
         if (currentAccount.balance < newPocket.balance) {
             throw IllegalStateException("Insufficient primary account balance.")
         }
@@ -113,6 +123,11 @@ abstract class BankingDao {
         amount: Long,
         account: AccountEntity
     ) {
+        require(amount > 0) { "Nominal harus lebih dari nol." }
+        val account = getAccountOnce()
+            ?: throw IllegalStateException("Rekening utama tidak ditemukan.")
+        val pocket = getPocketById(pocket.id)
+            ?: throw IllegalStateException("Kantong tidak ditemukan.")
         if (account.balance < amount) {
             throw IllegalStateException("Insufficient primary account balance for top-up.")
         }
@@ -139,6 +154,11 @@ abstract class BankingDao {
         amount: Long,
         account: AccountEntity
     ) {
+        require(amount > 0) { "Nominal harus lebih dari nol." }
+        val account = getAccountOnce()
+            ?: throw IllegalStateException("Rekening utama tidak ditemukan.")
+        val pocket = getPocketById(pocket.id)
+            ?: throw IllegalStateException("Kantong tidak ditemukan.")
         val currentTime = System.currentTimeMillis()
 
         if (pocket.pocketType == PocketType.LOCKED_DEPOSIT && (pocket.maturityDate ?: 0L) > currentTime) {
@@ -173,6 +193,10 @@ abstract class BankingDao {
         pocket: PocketEntity,
         account: AccountEntity
     ) {
+        val account = getAccountOnce()
+            ?: throw IllegalStateException("Rekening utama tidak ditemukan.")
+        val pocket = getPocketById(pocket.id)
+            ?: throw IllegalStateException("Kantong tidak ditemukan.")
         val currentTime = System.currentTimeMillis()
 
         if (pocket.pocketType == PocketType.LOCKED_DEPOSIT && (pocket.maturityDate ?: 0L) > currentTime) {
@@ -204,6 +228,14 @@ abstract class BankingDao {
         toPocket: PocketEntity,
         amount: Long
     ) {
+        require(amount > 0) { "Nominal harus lebih dari nol." }
+        if (fromPocket.id == toPocket.id) {
+            throw IllegalStateException("Kantong asal dan tujuan tidak boleh sama.")
+        }
+        val fromPocket = getPocketById(fromPocket.id)
+            ?: throw IllegalStateException("Kantong asal tidak ditemukan.")
+        val toPocket = getPocketById(toPocket.id)
+            ?: throw IllegalStateException("Kantong tujuan tidak ditemukan.")
         if (fromPocket.pocketType == PocketType.LOCKED_DEPOSIT) {
             throw IllegalStateException("Source pocket is locked and cannot transfer funds.")
         }
@@ -241,6 +273,9 @@ abstract class BankingDao {
         roundUpAmount: Long,
         paymentTxRecord: TransactionEntity
     ) {
+        require(paymentAmount > 0) { "Nominal harus lebih dari nol." }
+        val account = account?.let { getAccountOnce() ?: throw IllegalStateException("Rekening utama tidak ditemukan.") }
+        val pocket = pocket?.let { getPocketById(it.id) ?: throw IllegalStateException("Kantong tidak ditemukan.") }
         if (pocket != null) {
             if (pocket.pocketType == PocketType.LOCKED_DEPOSIT) {
                 throw IllegalStateException("Locked deposit pockets cannot be used for QRIS payments.")
@@ -301,6 +336,9 @@ abstract class BankingDao {
         }
     }
 
+    @Query("SELECT * FROM pockets WHERE id = :id LIMIT 1")
+    abstract suspend fun getPocketById(id: String): PocketEntity?
+
     @Query("SELECT * FROM transactions WHERE id = :id LIMIT 1")
     abstract suspend fun getTransactionById(id: String): TransactionEntity?
 
@@ -317,6 +355,10 @@ abstract class BankingDao {
         authMethod: String,
         idempotencyKey: String
     ) {
+        require(paymentAmount > 0) { "Nominal harus lebih dari nol." }
+        val account = getAccountOnce()
+            ?: throw IllegalStateException("Rekening utama tidak ditemukan.")
+        val pocket = pocket?.let { getPocketById(it.id) ?: throw IllegalStateException("Kantong tidak ditemukan.") }
         val existingTx = getTransactionById(idempotencyKey)
         if (existingTx != null) {
             throw IllegalStateException("Duplicate transaction detected (Idempotency Key: $idempotencyKey). Payment rejected.")

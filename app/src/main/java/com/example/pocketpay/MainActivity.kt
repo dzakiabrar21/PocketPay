@@ -3,6 +3,7 @@ package com.example.pocketpay
 import android.os.Bundle
 import android.view.WindowManager
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -12,11 +13,14 @@ import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ProcessLifecycleOwner
 import com.example.pocketpay.presentation.home.HomeScreen
+import com.example.pocketpay.presentation.home.HomeUiIntent
+import com.example.pocketpay.presentation.home.HomeViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : FragmentActivity() {
 
+    private val homeViewModel: HomeViewModel by viewModels()
     private var backgroundTimestamp = 0L
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -38,8 +42,9 @@ class MainActivity : FragmentActivity() {
                 if (backgroundTimestamp > 0L) {
                     val timeInBackground = System.currentTimeMillis() - backgroundTimestamp
                     if (timeInBackground >= 60_000L) {
-                        backgroundTimestamp = System.currentTimeMillis()
+                        homeViewModel.processIntent(HomeUiIntent.LockApp)
                     }
+                    backgroundTimestamp = 0L
                 }
             }
         })

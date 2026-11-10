@@ -66,6 +66,10 @@ import com.example.pocketpay.data.TransactionEntity
 import com.example.pocketpay.data.TxType
 import com.example.pocketpay.presentation.scanner.QrisScannerDialog
 import com.example.pocketpay.presentation.security.BiometricHelper
+import com.example.pocketpay.presentation.security.ChangePinDialog
+import com.example.pocketpay.presentation.security.PinManager
+import com.example.pocketpay.presentation.security.PinSetupDialog
+import com.example.pocketpay.presentation.security.PinResult
 import com.example.pocketpay.presentation.statement.PdfStatementGenerator
 import kotlinx.coroutines.delay
 import java.text.NumberFormat
@@ -131,6 +135,14 @@ fun HomeScreen(
         SplashScreen(
             onSplashFinished = { showSplash = false }
         )
+        return
+    }
+
+    // 1b. FIRST-LAUNCH PIN SETUP (mandatory before anything else is shown)
+    var isPinSet by remember { mutableStateOf(PinManager.isPinSet(context)) }
+    if (!isPinSet) {
+        Box(modifier = Modifier.fillMaxSize().background(Color(0xFF064E3B)))
+        PinSetupDialog(onDone = { isPinSet = true })
         return
     }
 
@@ -547,27 +559,24 @@ fun HomeScreen(
         // AUTO-LOCK SECURITY SHIELD OVERLAY
         if (uiState.isAppLocked) {
             val activity = context as? FragmentActivity
+            val biometricAvailable = activity != null && BiometricHelper.isBiometricAvailable(activity)
             AppLockOverlay(
-                onUnlockRequest = {
-                    if (activity != null && BiometricHelper.isBiometricAvailable(activity)) {
+                biometricAvailable = biometricAvailable,
+                onBiometricRequest = {
+                    if (activity != null) {
                         BiometricHelper.showBiometricPrompt(
                             activity = activity,
                             title = "Buka Kunci PocketPay",
                             subtitle = "Verifikasi biometrik untuk melanjutkan",
-                            onSuccess = {
-                                viewModel.processIntent(HomeUiIntent.UnlockApp)
-                            },
-                            onFallbackToPin = {
-                                viewModel.processIntent(HomeUiIntent.UnlockApp)
-                            },
+                            onSuccess = { viewModel.processIntent(HomeUiIntent.UnlockApp) },
+                            onFallbackToPin = { /* user stays on lock screen and enters PIN */ },
                             onError = { errorMsg ->
                                 Toast.makeText(context, errorMsg, Toast.LENGTH_SHORT).show()
                             }
                         )
-                    } else {
-                        viewModel.processIntent(HomeUiIntent.UnlockApp)
                     }
-                }
+                },
+                onUnlocked = { viewModel.processIntent(HomeUiIntent.UnlockApp) }
             )
         }
     }
@@ -765,6 +774,18 @@ fun AccountProfileScreen(
     var name by remember { mutableStateOf(currentName) }
     var phone by remember { mutableStateOf(currentPhone) }
     var email by remember { mutableStateOf(currentEmail) }
+    var isChangePinOpen by remember { mutableStateOf(false) }
+    val profileContext = LocalContext.current
+
+    if (isChangePinOpen) {
+        ChangePinDialog(
+            onDismiss = { isChangePinOpen = false },
+            onChanged = {
+                isChangePinOpen = false
+                Toast.makeText(profileContext, "PIN berhasil diganti.", Toast.LENGTH_SHORT).show()
+            }
+        )
+    }
 
     Scaffold(
         topBar = {
@@ -923,6 +944,16 @@ fun AccountProfileScreen(
                         SecurityStatusRow(label = "Biometrik", value = "Fingerprint / Face ID (Aktif)")
                         SecurityStatusRow(label = "Anti-Screenshot", value = "FLAG_SECURE Active (Aktif)")
                         SecurityStatusRow(label = "Session Timeout", value = "Inactivity Auto-Lock 60 Detik")
+
+                        OutlinedButton(
+                            onClick = { isChangePinOpen = true },
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            Icon(Icons.Default.Lock, contentDescription = null, modifier = Modifier.size(18.dp))
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text("Ganti PIN")
+                        }
                     }
                 }
             }
@@ -1236,8 +1267,18 @@ fun EStatementPdfDialog(
 
 @Composable
 fun AppLockOverlay(
-    onUnlockRequest: () -> Unit
+    biometricAvailable: Boolean,
+    onBiometricRequest: () -> Unit,
+    onUnlocked: () -> Unit
 ) {
+    val lockContext = LocalContext.current
+    var pin by remember { mutableStateOf("") }
+    var errorText by remember { mutableStateOf<String?>(null) }
+
+    LaunchedEffect(Unit) {
+        if (biometricAvailable) onBiometricRequest()
+    }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -1280,15 +1321,59 @@ fun AppLockOverlay(
 
             Spacer(modifier = Modifier.height(8.dp))
 
+            OutlinedTextField(
+                value = pin,
+                onValueChange = {
+                    if (it.length <= 6 && it.all { c -> c.isDigit() }) {
+                        pin = it
+                        errorText = null
+                    }
+                },
+                label = { Text("PIN 6 Digit") },
+                singleLine = true,
+                isError = errorText != null,
+                visualTransformation = PasswordVisualTransformation(),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedTextColor = Color.White,
+                    unfocusedTextColor = Color.White,
+                    focusedBorderColor = Color.White,
+                    unfocusedBorderColor = Color.White.copy(alpha = 0.6f),
+                    focusedLabelColor = Color.White,
+                    unfocusedLabelColor = Color.White.copy(alpha = 0.7f),
+                    cursorColor = Color.White
+                ),
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            errorText?.let {
+                Text(text = it, color = Color(0xFFFCA5A5), style = MaterialTheme.typography.bodySmall)
+            }
+
             Button(
-                onClick = onUnlockRequest,
+                onClick = {
+                    val result = PinManager.verify(lockContext, pin)
+                    if (result == PinResult.Success) {
+                        onUnlocked()
+                    } else {
+                        errorText = PinManager.describe(result)
+                        pin = ""
+                    }
+                },
+                enabled = pin.length == 6,
                 colors = ButtonDefaults.buttonColors(containerColor = Color.White, contentColor = Color(0xFF064E3B)),
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp)
             ) {
                 Icon(Icons.Default.Lock, contentDescription = null, modifier = Modifier.size(18.dp))
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("Buka Kunci Sesi", fontWeight = FontWeight.Bold)
+                Text("Buka Kunci dengan PIN", fontWeight = FontWeight.Bold)
+            }
+
+            if (biometricAvailable) {
+                TextButton(onClick = onBiometricRequest) {
+                    Text("Gunakan Biometrik", color = Color.White)
+                }
             }
         }
     }
@@ -1694,8 +1779,10 @@ fun TransactionPinDialog(
     onDismiss: () -> Unit,
     onPinSuccess: () -> Unit
 ) {
+    val pinContext = LocalContext.current
     var pin by remember { mutableStateOf("") }
-    var isError by remember { mutableStateOf(false) }
+    var errorText by remember { mutableStateOf<String?>(null) }
+    val isError = errorText != null
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -1724,7 +1811,7 @@ fun TransactionPinDialog(
                     onValueChange = {
                         if (it.length <= 6 && it.all { char -> char.isDigit() }) {
                             pin = it
-                            isError = false
+                            errorText = null
                         }
                     },
                     label = { Text("6 Digit PIN") },
@@ -1735,17 +1822,11 @@ fun TransactionPinDialog(
                     modifier = Modifier.fillMaxWidth()
                 )
 
-                if (isError) {
+                errorText?.let {
                     Text(
-                        text = "PIN salah. Coba default PIN: 123456",
+                        text = it,
                         color = MaterialTheme.colorScheme.error,
                         style = MaterialTheme.typography.bodySmall
-                    )
-                } else {
-                    Text(
-                        text = "Default PIN: 123456",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.outline
                     )
                 }
             }
@@ -1753,10 +1834,12 @@ fun TransactionPinDialog(
         confirmButton = {
             Button(
                 onClick = {
-                    if (pin == "123456") {
+                    val result = PinManager.verify(pinContext, pin)
+                    if (result == PinResult.Success) {
                         onPinSuccess()
                     } else {
-                        isError = true
+                        errorText = PinManager.describe(result)
+                        pin = ""
                     }
                 },
                 enabled = pin.length == 6,
@@ -2312,5 +2395,25 @@ fun PaymentQrisDialog(
         dismissButton = {
             TextButton(onClick = onDismiss) { Text("Batal") }
         }
+    )
+}
+
+@androidx.compose.ui.tooling.preview.Preview(showBackground = true, widthDp = 360, heightDp = 740)
+@Composable
+fun SplashScreenPreview() {
+    SplashScreen(onSplashFinished = {})
+}
+
+@androidx.compose.ui.tooling.preview.Preview(showBackground = true, widthDp = 360, heightDp = 740)
+@Composable
+fun AccountProfileScreenPreview() {
+    AccountProfileScreen(
+        currentName = "Nasabah Utama",
+        currentPhone = "0812-3456-7890",
+        currentEmail = "nasabah@pocketpay.com",
+        userTier = "Gold Premier Member",
+        accountNumber = "9012839102",
+        onDismiss = {},
+        onSave = { _, _, _ -> }
     )
 }
