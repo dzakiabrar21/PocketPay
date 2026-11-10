@@ -392,11 +392,12 @@ fun ReceiveQrDialog(
         confirmButton = {
             Button(
                 onClick = {
-                    val shareText = """
-                        Transfer ke Rekening PocketPay:
-                        No. Rekening: $accountNumber
-                        ${if (enteredAmount != null && enteredAmount > 0) "Nominal: ${enteredAmount.toRupiah()}" else ""}
-                    """.trimIndent()
+                    val shareText = buildString {
+                        append(context.getString(R.string.pay_share_transfer, accountNumber))
+                        if (enteredAmount != null && enteredAmount > 0) {
+                            append('\n').append(context.getString(R.string.pay_nominal, enteredAmount.toRupiah()))
+                        }
+                    }
 
                     val sendIntent = Intent().apply {
                         action = Intent.ACTION_SEND

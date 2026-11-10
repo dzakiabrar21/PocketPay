@@ -245,10 +245,10 @@ class HomeViewModel @Inject constructor(
                 _uiState.update {
                     it.copy(
                         isLoading = false,
-                        errorMessage = throwable.localizedMessage ?: appContext.getString(R.string.vm_terjadi_kesalahan_pembayaran)
+                        errorMessage = throwable.userMessage(appContext, R.string.vm_terjadi_kesalahan_pembayaran)
                     )
                 }
-                _effect.send(HomeUiEffect.ShowToast(throwable.localizedMessage ?: appContext.getString(R.string.vm_gagal_memproses_transaksi)))
+                _effect.send(HomeUiEffect.ShowToast(throwable.userMessage(appContext, R.string.vm_gagal_memproses_transaksi)))
             }
         }
     }
@@ -276,10 +276,10 @@ class HomeViewModel @Inject constructor(
                     _uiState.update {
                         it.copy(
                             isLoading = false,
-                            errorMessage = throwable.localizedMessage ?: appContext.getString(R.string.vm_gagal_membuat_kantong)
+                            errorMessage = throwable.userMessage(appContext, R.string.vm_gagal_membuat_kantong)
                         )
                     }
-                    _effect.send(HomeUiEffect.ShowToast(throwable.localizedMessage ?: appContext.getString(R.string.vm_gagal_membuat_kantong_2)))
+                    _effect.send(HomeUiEffect.ShowToast(throwable.userMessage(appContext, R.string.vm_gagal_membuat_kantong_2)))
                 }
         }
     }
@@ -311,7 +311,7 @@ class HomeViewModel @Inject constructor(
                 _effect.send(HomeUiEffect.ShowSuccessAlert(alertData.title, alertData.message))
             }.onFailure { throwable ->
                 _uiState.update { it.copy(isLoading = false) }
-                _effect.send(HomeUiEffect.ShowToast(throwable.localizedMessage ?: appContext.getString(R.string.vm_gagal_memproses_saldo)))
+                _effect.send(HomeUiEffect.ShowToast(throwable.userMessage(appContext, R.string.vm_gagal_memproses_saldo)))
             }
         }
     }
@@ -346,7 +346,7 @@ class HomeViewModel @Inject constructor(
                 }
                 .onFailure { throwable ->
                     _uiState.update { it.copy(isLoading = false) }
-                    _effect.send(HomeUiEffect.ShowToast(throwable.localizedMessage ?: appContext.getString(R.string.vm_gagal_mentransfer_saldo)))
+                    _effect.send(HomeUiEffect.ShowToast(throwable.userMessage(appContext, R.string.vm_gagal_mentransfer_saldo)))
                 }
         }
     }
@@ -372,7 +372,7 @@ class HomeViewModel @Inject constructor(
                 }
                 .onFailure { throwable ->
                     _uiState.update { it.copy(isLoading = false) }
-                    _effect.send(HomeUiEffect.ShowToast(throwable.localizedMessage ?: appContext.getString(R.string.vm_gagal_menutup_kantong)))
+                    _effect.send(HomeUiEffect.ShowToast(throwable.userMessage(appContext, R.string.vm_gagal_menutup_kantong)))
                 }
         }
     }

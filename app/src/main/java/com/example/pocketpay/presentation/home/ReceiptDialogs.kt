@@ -293,19 +293,18 @@ fun TransactionDetailReceiptDialog(
 ) {
     val context = LocalContext.current
 
-    val receiptSummary = """
-        === STRUK MUTASI DIGITAL POCKETPAY ===
-        Status        : ${transaction.status.name}
-        No. Referensi : ${transaction.referenceNo}
-        Judul         : ${transaction.title}
-        Nominal       : ${transaction.amount.toRupiah()}
-        Tipe          : ${transaction.type.name}
-        Sumber Dana   : ${transaction.sourceOfFund}
-        Waktu         : ${transaction.timestamp.toFullDateTimeFormatted()}
-        Otentikasi    : ${transaction.authMethod}
-        Idempotency   : ${transaction.idempotencyKey}
-        =====================================
-    """.trimIndent()
+    val receiptSummary = stringResource(
+        R.string.receipt_share_text,
+        transaction.status.name,
+        transaction.referenceNo,
+        transaction.title,
+        transaction.amount.toRupiah(),
+        transaction.type.name,
+        transaction.sourceOfFund,
+        transaction.timestamp.toFullDateTimeFormatted(),
+        authMethodLabel(transaction.authMethod),
+        transaction.idempotencyKey
+    )
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -382,7 +381,7 @@ fun TransactionDetailReceiptDialog(
                     ReceiptRowItem(label = stringResource(R.string.receipt_tipe_mutasi), value = transaction.type.name)
                     ReceiptRowItem(label = stringResource(R.string.receipt_sumber_dana), value = transaction.sourceOfFund)
                     ReceiptRowItem(label = stringResource(R.string.receipt_waktu), value = transaction.timestamp.toFullDateTimeFormatted())
-                    ReceiptRowItem(label = stringResource(R.string.receipt_metode_otentikasi), value = transaction.authMethod)
+                    ReceiptRowItem(label = stringResource(R.string.receipt_metode_otentikasi), value = authMethodLabel(transaction.authMethod))
                     ReceiptRowItem(label = stringResource(R.string.receipt_idempotency_key), value = transaction.idempotencyKey.take(12) + "...")
                 }
             }
@@ -432,4 +431,14 @@ fun ReceiptRowItem(label: String, value: String) {
             color = MaterialTheme.colorScheme.onSurface
         )
     }
+}
+
+/** Maps the stored (Indonesian) authentication labels to the current language; unknown values pass through. */
+@Composable
+fun authMethodLabel(raw: String): String = when (raw) {
+    "PIN 6-Digit" -> stringResource(R.string.auth_pin)
+    "Biometrik (Sidik Jari / Face ID)" -> stringResource(R.string.auth_biometric)
+    "Biometrik / PIN 6-Digit" -> stringResource(R.string.auth_default)
+    "Otomatis" -> stringResource(R.string.auth_auto)
+    else -> raw
 }

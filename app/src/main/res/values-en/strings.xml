@@ -207,4 +207,29 @@
     <string name="pdf_gagal_membagikan_pdf">Failed to share PDF: %1$s</string>
     <string name="pdf_buka_e_statement_pdf">Open E-Statement PDF</string>
     <string name="pdf_tidak_ada_aplikasi_pembuka_pdf_di">No PDF viewer app is installed on this device.</string>
+    <string name="bank_err_amount">The amount must be greater than zero.</string>
+    <string name="bank_err_account_missing">Main account not found.</string>
+    <string name="bank_err_pocket_missing">Pocket not found.</string>
+    <string name="bank_err_source_missing">Source pocket not found.</string>
+    <string name="bank_err_dest_missing">Destination pocket not found.</string>
+    <string name="bank_err_account_funds">Insufficient Main Account balance.</string>
+    <string name="bank_err_account_funds_topup">Insufficient Main Account balance for the top-up.</string>
+    <string name="bank_err_roundup_funds">Insufficient Main Account balance for the Spare Change Jar round-up.</string>
+    <string name="bank_err_pocket_funds">Insufficient pocket balance.</string>
+    <string name="bank_err_named_pocket_funds">Insufficient balance in pocket %1$s.</string>
+    <string name="bank_err_combined_funds">The combined balance of pocket %1$s and the Main Account is insufficient.</string>
+    <string name="bank_err_deposit_locked">The deposit is locked until maturity.</string>
+    <string name="bank_err_deposit_locked_close">The deposit is locked until maturity and cannot be closed yet.</string>
+    <string name="bank_err_deposit_qris">A locked deposit cannot be used for QRIS payments.</string>
+    <string name="bank_err_source_locked">The source pocket is locked and cannot transfer funds.</string>
+    <string name="bank_err_dest_locked">The destination pocket is locked and cannot receive direct transfers.</string>
+    <string name="bank_err_same_pocket">Source and destination pockets must be different.</string>
+    <string name="bank_err_invalid_source">Invalid payment source.</string>
+    <string name="bank_err_duplicate">Duplicate transaction detected. Payment rejected.</string>
+    <string name="auth_pin">6-Digit PIN</string>
+    <string name="auth_biometric">Biometrics (Fingerprint / Face ID)</string>
+    <string name="auth_default">Biometrics / 6-Digit PIN</string>
+    <string name="auth_auto">Automatic</string>
+    <string name="pay_share_transfer">Transfer to PocketPay Account:\nAccount No.: %1$s</string>
+    <string name="receipt_share_text">=== POCKETPAY DIGITAL TRANSACTION RECEIPT ===\nStatus: %1$s\nReference No.: %2$s\nTitle: %3$s\nAmount: %4$s\nType: %5$s\nSource of Funds: %6$s\nTime: %7$s\nAuthentication: %8$s\nIdempotency: %9$s\n=====================================</string>
 </resources>

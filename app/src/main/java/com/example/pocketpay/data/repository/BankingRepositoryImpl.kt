@@ -2,6 +2,8 @@ package com.example.pocketpay.data.repository
 
 import com.example.pocketpay.data.AccountEntity
 import com.example.pocketpay.data.BankingDao
+import com.example.pocketpay.data.BankingError
+import com.example.pocketpay.data.BankingException
 import com.example.pocketpay.data.PocketEntity
 import com.example.pocketpay.data.PocketType
 import com.example.pocketpay.data.TransactionEntity
@@ -54,7 +56,7 @@ class BankingRepositoryImpl @Inject constructor(
         authMethod: String
     ): Result<Unit> = runCatching {
         val account = dao.getAccountOnce()
-            ?: throw IllegalStateException("Rekening utama tidak ditemukan.")
+            ?: throw BankingException(BankingError.ACCOUNT_NOT_FOUND)
         val tx = TransactionEntity(
             id = UUID.randomUUID().toString(),
             title = "QRIS - $merchant",
@@ -81,7 +83,7 @@ class BankingRepositoryImpl @Inject constructor(
         idempotencyKey: String
     ): Result<Unit> = runCatching {
         val account = dao.getAccountOnce()
-            ?: throw IllegalStateException("Rekening Utama tidak ditemukan.")
+            ?: throw BankingException(BankingError.ACCOUNT_NOT_FOUND)
         dao.executeCascadingQrisPayment(
             pocket = pocket,
             account = account,
@@ -101,7 +103,7 @@ class BankingRepositoryImpl @Inject constructor(
         targetAmount: Long?
     ): Result<Unit> = runCatching {
         val account = dao.getAccountOnce()
-            ?: throw IllegalStateException("Rekening utama tidak ditemukan.")
+            ?: throw BankingException(BankingError.ACCOUNT_NOT_FOUND)
 
         val interestRate = if (type == PocketType.LOCKED_DEPOSIT) 6.0 else 3.5
 
@@ -131,7 +133,7 @@ class BankingRepositoryImpl @Inject constructor(
         amount: Long
     ): Result<Unit> = runCatching {
         val account = dao.getAccountOnce()
-            ?: throw IllegalStateException("Rekening utama tidak ditemukan.")
+            ?: throw BankingException(BankingError.ACCOUNT_NOT_FOUND)
         dao.topUpPocket(pocket, amount, account)
     }
 
@@ -140,7 +142,7 @@ class BankingRepositoryImpl @Inject constructor(
         amount: Long
     ): Result<Unit> = runCatching {
         val account = dao.getAccountOnce()
-            ?: throw IllegalStateException("Rekening utama tidak ditemukan.")
+            ?: throw BankingException(BankingError.ACCOUNT_NOT_FOUND)
         dao.withdrawFromPocket(pocket, amount, account)
     }
 
@@ -158,7 +160,7 @@ class BankingRepositoryImpl @Inject constructor(
 
     override suspend fun closePocket(pocket: PocketEntity): Result<Unit> = runCatching {
         val account = dao.getAccountOnce()
-            ?: throw IllegalStateException("Rekening utama tidak ditemukan.")
+            ?: throw BankingException(BankingError.ACCOUNT_NOT_FOUND)
         dao.closeAndRefundPocket(pocket, account)
     }
 }

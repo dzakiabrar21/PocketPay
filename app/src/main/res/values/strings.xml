@@ -208,4 +208,29 @@
     <string name="bio_use_pin">Gunakan PIN</string>
     <string name="bio_failed">Verifikasi biometrik gagal.</string>
     <string name="bio_not_recognized">Biometrik tidak dikenali, silakan coba lagi.</string>
+    <string name="bank_err_amount">Nominal harus lebih dari nol.</string>
+    <string name="bank_err_account_missing">Rekening utama tidak ditemukan.</string>
+    <string name="bank_err_pocket_missing">Kantong tidak ditemukan.</string>
+    <string name="bank_err_source_missing">Kantong asal tidak ditemukan.</string>
+    <string name="bank_err_dest_missing">Kantong tujuan tidak ditemukan.</string>
+    <string name="bank_err_account_funds">Saldo Rekening Utama tidak cukup.</string>
+    <string name="bank_err_account_funds_topup">Saldo Rekening Utama tidak cukup untuk top-up.</string>
+    <string name="bank_err_roundup_funds">Saldo Rekening Utama tidak cukup untuk pembulatan Celengan Receh.</string>
+    <string name="bank_err_pocket_funds">Saldo kantong tidak cukup.</string>
+    <string name="bank_err_named_pocket_funds">Saldo kantong %1$s tidak cukup.</string>
+    <string name="bank_err_combined_funds">Gabungan saldo kantong %1$s dan Rekening Utama tidak cukup.</string>
+    <string name="bank_err_deposit_locked">Deposito masih terkunci hingga jatuh tempo.</string>
+    <string name="bank_err_deposit_locked_close">Deposito masih terkunci hingga jatuh tempo dan belum bisa ditutup.</string>
+    <string name="bank_err_deposit_qris">Deposito terkunci tidak bisa dipakai untuk pembayaran QRIS.</string>
+    <string name="bank_err_source_locked">Kantong asal terkunci dan tidak bisa mentransfer dana.</string>
+    <string name="bank_err_dest_locked">Kantong tujuan terkunci dan tidak bisa menerima transfer langsung.</string>
+    <string name="bank_err_same_pocket">Kantong asal dan tujuan tidak boleh sama.</string>
+    <string name="bank_err_invalid_source">Sumber dana pembayaran tidak valid.</string>
+    <string name="bank_err_duplicate">Transaksi ganda terdeteksi. Pembayaran ditolak.</string>
+    <string name="auth_pin">PIN 6-Digit</string>
+    <string name="auth_biometric">Biometrik (Sidik Jari / Face ID)</string>
+    <string name="auth_default">Biometrik / PIN 6-Digit</string>
+    <string name="auth_auto">Otomatis</string>
+    <string name="pay_share_transfer">Transfer ke Rekening PocketPay:\nNo. Rekening: %1$s</string>
+    <string name="receipt_share_text">=== STRUK MUTASI DIGITAL POCKETPAY ===\nStatus: %1$s\nNo. Referensi: %2$s\nJudul: %3$s\nNominal: %4$s\nTipe: %5$s\nSumber Dana: %6$s\nWaktu: %7$s\nOtentikasi: %8$s\nIdempotency: %9$s\n=====================================</string>
 </resources>
