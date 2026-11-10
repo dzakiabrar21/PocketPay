@@ -32,7 +32,7 @@ data class HomeUiState(
     val isAccountProfileOpen: Boolean = false,
     val isBalanceHidden: Boolean = false,
     val isRoundUpEnabled: Boolean = true,
-    val isAppLocked: Boolean = false,
+    val isAppLocked: Boolean = true, // locked on cold start; unlocked via PIN/biometric
     val successAlert: SuccessAlertData? = null,
     val userName: String = "Nasabah Utama",
     val userPhone: String = "0812-3456-7890",

@@ -3,6 +3,8 @@ package com.example.pocketpay.presentation.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.pocketpay.data.PocketEntity
+import com.example.pocketpay.data.ProfileStore
+import com.example.pocketpay.data.UserProfile
 import com.example.pocketpay.data.PocketType
 import com.example.pocketpay.domain.repository.BankingRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -17,7 +19,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val repository: BankingRepository
+    private val repository: BankingRepository,
+    private val profileStore: ProfileStore
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(HomeUiState())
@@ -27,6 +30,9 @@ class HomeViewModel @Inject constructor(
     val effect = _effect.receiveAsFlow()
 
     init {
+        val defaults = _uiState.value
+        val saved = profileStore.load(UserProfile(defaults.userName, defaults.userPhone, defaults.userEmail))
+        _uiState.update { it.copy(userName = saved.name, userPhone = saved.phone, userEmail = saved.email) }
         viewModelScope.launch { repository.accrueInterest() }
         observeBankingData()
     }
@@ -110,6 +116,7 @@ class HomeViewModel @Inject constructor(
             }
 
             is HomeUiIntent.UpdateUserProfile -> {
+                profileStore.save(UserProfile(intent.name, intent.phone, intent.email))
                 _uiState.update {
                     it.copy(
                         userName = intent.name,

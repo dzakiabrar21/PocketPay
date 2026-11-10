@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PocketPay — Dribbble & Portfolio Showcase Presentation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #0d131f;
+        }
+        .banner-canvas {
+            width: 1200px;
+            height: 900px;
+            background: radial-gradient(circle at 50% 20%, #064e3b 0%, #022c22 60%, #0f172a 100%);
+            border-radius: 32px;
+            box-shadow: 0 40px 100px -20px rgba(0,0,0,0.8);
+        }
+        .phone-mockup {
+            border-radius: 42px;
+            box-shadow: 0 30px 60px -15px rgba(0,0,0,0.6), 0 0 0 10px #0f172a, 0 0 0 12px #334155;
+            overflow: hidden;
+            background: #ffffff;
+        }
+        .tilt-left {
+            transform: perspective(1000px) rotateY(12deg) rotateX(4deg) scale(0.95);
+        }
+        .tilt-right {
+            transform: perspective(1000px) rotateY(-12deg) rotateX(4deg) scale(0.95);
+        }
+        .glass-badge {
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+    </style>
+</head>
+<body class="p-10 flex items-center justify-center min-h-screen">
+
+    <!-- DRIBBBLE SHOWCASE BANNER CONTAINER (1200x900 PERFECT PORTFOLIO RATIO) -->
+    <div class="banner-canvas relative p-12 flex flex-col justify-between overflow-hidden border border-emerald-500/20">
+
+        <!-- TOP BRANDING HEADER -->
+        <div class="flex items-center justify-between text-white z-10">
+            <div class="flex items-center space-x-3">
+                <div class="w-12 h-12 bg-white text-emerald-900 rounded-2xl flex items-center justify-center font-extrabold text-2xl shadow-lg">
+                    <i class="fa-solid fa-wallet text-emerald-800"></i>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-extrabold tracking-tight">PocketPay<span class="text-emerald-400">®</span></h1>
+                    <p class="text-xs text-emerald-300 font-semibold uppercase tracking-widest">Next-Gen Digital Banking</p>
+                </div>
+            </div>
+
+            <div class="glass-badge px-4 py-2 rounded-full text-xs font-bold text-emerald-200 flex items-center space-x-2">
+                <i class="fa-solid fa-check-circle text-emerald-400"></i>
+                <span>Commercial Fintech Showcase 2026</span>
+            </div>
+        </div>
+
+        <!-- CENTER PRESENTATION: DUAL PHONE MOCKUPS (LUMEXART STYLE) -->
+        <div class="grid grid-cols-2 gap-10 items-center my-auto z-10 px-8">
+
+            <!-- LEFT PHONE MOCKUP: DASHBOARD & POCKETS -->
+            <div class="phone-mockup tilt-left transition duration-500 hover:scale-100 hover:rotate-0">
+                <div class="bg-emerald-900 p-5 text-white">
+                    <div class="flex justify-between items-center text-xs text-emerald-200 mb-3">
+                        <span>Halo, Nasabah Utama</span>
+                        <span class="bg-emerald-800 px-2 py-0.5 rounded-md text-[10px] font-bold text-emerald-200">Gold Member</span>
+                    </div>
+                    <div class="text-xs text-emerald-300">Rekening Utama (Super Deposito)</div>
+                    <div class="text-3xl font-extrabold my-1">Rp 4.975.000</div>
+                    <div class="text-[10px] text-emerald-300">No. Rek: 9012839102</div>
+
+                    <div class="grid grid-cols-3 gap-2 mt-4">
+                        <div class="bg-white text-emerald-900 py-1.5 rounded-lg text-[11px] font-bold text-center">Bayar QRIS</div>
+                        <div class="bg-emerald-100 text-emerald-900 py-1.5 rounded-lg text-[11px] font-bold text-center">Antar Kantong</div>
+                        <div class="bg-emerald-800 text-white py-1.5 rounded-lg text-[11px] font-bold text-center border border-emerald-600">Kantong</div>
+                    </div>
+                </div>
+
+                <div class="p-4 bg-slate-50 space-y-3">
+                    <div class="bg-emerald-100/80 p-3 rounded-xl flex items-center space-x-3 border border-emerald-200">
+                        <i class="fa-solid fa-wand-magic-sparkles text-emerald-800 text-lg"></i>
+                        <div>
+                            <div class="text-xs font-bold text-emerald-950">Celengan Receh (Round-Up)</div>
+                            <div class="text-[10px] text-emerald-800">Pembulatan otomatis ditabung 3.5% p.a.</div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
+                        <div class="text-xs font-bold text-slate-800 mb-2">Kantong Finansial</div>
+                        <div class="grid grid-cols-2 gap-2 text-xs">
+                            <div class="bg-emerald-50 p-2 rounded-lg border border-emerald-200">
+                                <div class="font-bold text-slate-900">Jajan Harian</div>
+                                <div class="font-extrabold text-emerald-800">Rp 350.000</div>
+                            </div>
+                            <div class="bg-orange-50 p-2 rounded-lg border border-orange-200">
+                                <div class="font-bold text-slate-900">Deposito Darurat</div>
+                                <div class="font-extrabold text-orange-800">Rp 2.000.000</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT PHONE MOCKUP: E-STATEMENT PDF & ACCOUNT -->
+            <div class="phone-mockup tilt-right transition duration-500 hover:scale-100 hover:rotate-0">
+                <div class="p-5 bg-white text-slate-900 h-full flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between pb-3 border-b border-slate-200 mb-3">
+                            <span class="font-bold text-xs text-emerald-900"><i class="fa-solid fa-file-pdf mr-1 text-emerald-700"></i> Rekening Koran E-Statement</span>
+                            <span class="bg-emerald-100 text-emerald-800 text-[9px] font-bold px-2 py-0.5 rounded-full">RESMI</span>
+                        </div>
+
+                        <div class="bg-slate-900 text-white p-4 rounded-xl text-center mb-3">
+                            <div class="text-[10px] text-slate-400 uppercase tracking-widest font-semibold">POCKETPAY OFFICIAL E-STATEMENT</div>
+                            <div class="text-2xl font-extrabold text-emerald-400 my-1">Rp 4.975.000</div>
+                            <div class="text-[10px] text-slate-300">Periode: Semua Waktu (A4 Native PDF)</div>
+                        </div>
+
+                        <div class="space-y-2 text-[11px]">
+                            <div class="flex justify-between py-1 border-b border-slate-100">
+                                <span class="text-slate-500">Kop Surat</span>
+                                <span class="font-bold text-slate-800">PocketPay Bank Letterhead</span>
+                            </div>
+                            <div class="flex justify-between py-1 border-b border-slate-100">
+                                <span class="text-slate-500">Security Watermark</span>
+                                <span class="font-bold text-emerald-700">OFFICIAL WATERMARK</span>
+                            </div>
+                            <div class="flex justify-between py-1 border-b border-slate-100">
+                                <span class="text-slate-500">Ringkasan Mutasi</span>
+                                <span class="font-semibold text-slate-800">Tabel Debit & Kredit</span>
+                            </div>
+                            <div class="flex justify-between py-1">
+                                <span class="text-slate-500">FileProvider Integration</span>
+                                <span class="font-semibold text-emerald-800">Direct Share & Open</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pt-4 border-t border-slate-100 mt-3">
+                        <div class="bg-emerald-900 text-white py-2.5 rounded-xl text-xs font-bold text-center shadow-lg shadow-emerald-900/20">
+                            <i class="fa-solid fa-download mr-1"></i> Download / Share E-Statement PDF
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- BOTTOM SHOWCASE BANNER FOOTER -->
+        <div class="flex items-center justify-between text-white text-xs z-10 border-t border-emerald-500/20 pt-4">
+            <div class="flex items-center space-x-6">
+                <span><i class="fa-solid fa-code text-emerald-400 mr-1.5"></i> Clean Architecture + MVI</span>
+                <span><i class="fa-solid fa-shield-halved text-emerald-400 mr-1.5"></i> FLAG_SECURE & Biometrics</span>
+                <span><i class="fa-solid fa-bolt text-emerald-400 mr-1.5"></i> Room Atomic Transactions</span>
+            </div>
+            <div class="font-bold text-emerald-300">
+                Jetpack Compose • Material 3 • Kotlin 2.0
+            </div>
+        </div>
+
+    </div>
+
+</body>
+</html>

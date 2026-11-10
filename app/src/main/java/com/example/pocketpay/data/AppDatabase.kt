@@ -8,7 +8,7 @@ import javax.inject.Provider
 @Database(
     entities = [AccountEntity::class, PocketEntity::class, TransactionEntity::class],
     version = 7,
-    exportSchema = false
+    exportSchema = true
 )
 abstract class AppDatabase : RoomDatabase() {
     abstract fun bankingDao(): BankingDao

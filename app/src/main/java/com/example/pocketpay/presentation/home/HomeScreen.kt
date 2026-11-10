@@ -142,7 +142,10 @@ fun HomeScreen(
     var isPinSet by remember { mutableStateOf(PinManager.isPinSet(context)) }
     if (!isPinSet) {
         Box(modifier = Modifier.fillMaxSize().background(Color(0xFF064E3B)))
-        PinSetupDialog(onDone = { isPinSet = true })
+        PinSetupDialog(onDone = {
+            isPinSet = true
+            viewModel.processIntent(HomeUiIntent.UnlockApp) // user just created the PIN
+        })
         return
     }
 
