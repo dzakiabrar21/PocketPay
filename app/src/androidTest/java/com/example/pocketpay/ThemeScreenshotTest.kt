@@ -86,7 +86,7 @@ class ThemeScreenshotTest {
     )
     private val state = HomeUiState(
         isLoading = false, account = AccountEntity(balance = 4_998_500L), pockets = pockets,
-        recentTransactions = txs, userName = "Dzaki Abrar", userPhone = "0812-3456-7890", userEmail = "dzaki@pocketpay.com"
+        recentTransactions = txs, userName = "Alex Morgan", userPhone = "0812-3456-7890", userEmail = "alex.morgan@example.com"
     )
 
     private fun save(name: String) {
@@ -96,13 +96,33 @@ class ThemeScreenshotTest {
         assertTrue(file.length() > 0)
     }
 
-    /** Renders [content] in light, captures, flips to dark, captures again. */
+    /**
+     * Renders [content] in Indonesian and English, each in light and dark, and saves
+     * `<name>_<lang>_<theme>.png`. The locale is applied through a configuration context so every
+     * stringResource() resolves in that language.
+     */
     private fun shotBoth(name: String, content: @Composable () -> Unit) {
         val dark = mutableStateOf(false)
-        rule.setContent { PocketPayTheme(darkTheme = dark.value) { content() } }
-        rule.waitForIdle(); save("${name}_light")
-        dark.value = true
-        rule.waitForIdle(); save("${name}_dark")
+        val lang = mutableStateOf("id")
+        rule.setContent {
+            val base = androidx.compose.ui.platform.LocalContext.current
+            val cfg = android.content.res.Configuration(base.resources.configuration)
+                .apply { setLocale(java.util.Locale(lang.value)) }
+            val localized = base.createConfigurationContext(cfg)
+            androidx.compose.runtime.CompositionLocalProvider(
+                androidx.compose.ui.platform.LocalContext provides localized,
+                androidx.compose.ui.platform.LocalConfiguration provides cfg
+            ) { PocketPayTheme(darkTheme = dark.value) { content() } }
+        }
+        for (l in listOf("id", "en")) {
+            lang.value = l
+            java.util.Locale.setDefault(java.util.Locale(l))
+            for (d in listOf(false, true)) {
+                dark.value = d
+                rule.waitForIdle()
+                save("${name}_${l}_${if (d) "dark" else "light"}")
+            }
+        }
     }
 
     @Composable
@@ -110,10 +130,13 @@ class ThemeScreenshotTest {
         PocketBackground {
             Box(Modifier.fillMaxSize().statusBarsPadding()) {
                 body(PaddingValues(bottom = 104.dp))
+                val ctx = androidx.compose.ui.platform.LocalContext.current
                 FloatingBottomBar(
                     listOf(
-                        NavItem("Home", Icons.Rounded.Home), NavItem("Statistic", Icons.Rounded.BarChart),
-                        NavItem("Pockets", Icons.Rounded.Savings), NavItem("Profile", Icons.Rounded.Person)
+                        NavItem(ctx.getString(R.string.nav_home), Icons.Rounded.Home),
+                        NavItem(ctx.getString(R.string.nav_stats), Icons.Rounded.BarChart),
+                        NavItem(ctx.getString(R.string.nav_pockets), Icons.Rounded.Savings),
+                        NavItem(ctx.getString(R.string.nav_profile), Icons.Rounded.Person)
                     ), tab, {}, Modifier.align(Alignment.BottomCenter).navigationBarsPadding()
                 )
             }
@@ -124,21 +147,35 @@ class ThemeScreenshotTest {
     @Test fun stats() = shotBoth("stats") { Shell(1) { StatsTab(state, {}, Modifier.fillMaxSize(), it, now) } }
     @Test fun pocketsTab() = shotBoth("pockets") { Shell(2) { PocketsTab(state, {}, Modifier.fillMaxSize(), it) } }
     @Test fun profile() = shotBoth("profile") {
-        Shell(3) { ProfileTab("Dzaki Abrar", "0812-3456-7890", "dzaki@pocketpay.com", "Gold Premier Member", "9012839102", true, { _, _, _ -> }, {}, Modifier.fillMaxSize(), it) }
+        Shell(3) { ProfileTab("Alex Morgan", "0812-3456-7890", "alex.morgan@example.com", "Gold Premier Member", "9012839102", true, { _, _, _ -> }, {}, Modifier.fillMaxSize(), it) }
     }
     @Test fun history() = shotBoth("history") { HistoryScreen(state, {}, {}) }
     @Test fun splash() = shotBoth("splash") { SplashScreen({}, holdMillis = 600_000) }
-    @Test fun pin() = shotBoth("pin") { PinEntryScreen("Enter PIN", "The session locked automatically. Enter your PIN to continue.", error = "Wrong PIN. Attempts left: 3", onComplete = {}) }
+    @Test fun pin() = shotBoth("pin") {
+        PinEntryScreen(
+            androidx.compose.ui.res.stringResource(R.string.pin_enter_title),
+            androidx.compose.ui.res.stringResource(R.string.pin_lock_subtitle),
+            onComplete = {}
+        )
+    }
     @Test fun pay() = shotBoth("pay") { QrisPaymentScreen("Kantin Mahasiswa PocketPay", 23_500, pockets.filter { it.pocketType == PocketType.SPENDING }, 4_998_500, {}, { _, _, _, _ -> }) }
     @Test fun success() = shotBoth("success") {
+        val ctx = androidx.compose.ui.platform.LocalContext.current
+        val t = { id: Int -> ctx.getString(id) }
         SuccessScreen(
             SuccessAlertData(
-                "Payment success!", "", 23_500L,
-                listOf("Merchant" to "Kantin Mahasiswa PocketPay", "Source of funds" to "Rekening Utama", "Celengan Receh" to "Rp1.500", "Reference" to "76367D01", "Time" to "11 Nov 2026, 14:03:22")
+                t(R.string.success_payment_title), "", 23_500L,
+                listOf(
+                    t(R.string.success_row_merchant) to "Kantin Mahasiswa PocketPay",
+                    t(R.string.success_row_source) to t(R.string.pay_rekening_utama),
+                    t(R.string.home_celengan_receh_round_up) to "Rp1.500",
+                    t(R.string.success_row_ref) to "76367D01",
+                    t(R.string.success_row_time) to "11 Nov 2026, 14:03:22"
+                )
             ), {}
         )
     }
-    @Test fun receive() = shotBoth("receive") { ReceiveQrScreen("9012839102", "Dzaki Abrar", {}) }
+    @Test fun receive() = shotBoth("receive") { ReceiveQrScreen("9012839102", "Alex Morgan", {}) }
 
     @Test fun sheets() = shotBoth("sheets") {
         Box(Modifier.fillMaxSize().statusBarsPadding()) {

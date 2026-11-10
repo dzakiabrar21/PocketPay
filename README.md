@@ -1,4 +1,4 @@
-# 💳 PocketPay — Next-Gen Digital Banking & Micro-Savings App
+# 💳 PocketPay — Digital Wallet & Micro-Savings (Android)
 
 [![Kotlin](https://img.shields.io/badge/Kotlin-2.0.21-7F52FF.svg?style=flat&logo=kotlin)](https://kotlinlang.org)
 [![Android](https://img.shields.io/badge/Android-API%2026%2B-3DDC84.svg?style=flat&logo=android)](https://developer.android.com)
@@ -6,7 +6,19 @@
 [![Architecture](https://img.shields.io/badge/Architecture-Clean%20%2B%20MVI-FF6F00.svg?style=flat)](https://developer.android.com/topic/architecture)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-**PocketPay** is a production-ready, feature-rich Android digital banking and e-wallet application built with modern Android development practices. It demonstrates advanced fintech engineering concepts, including **Smart Cascading Payment Routing**, **Atomic Database Transactions**, **Round-Up Micro-Savings**, **Idempotency Safeguards**, **Fintech Security Hardening**, and a **Native PDF E-Statement Generator**.
+**PocketPay** is a portfolio prototype of an Android digital wallet. Every feature really works on the device, but the money is **simulated** and there is no backend. It demonstrates fintech-style engineering: atomic money rules, an encrypted database, QRIS payments, round-up savings, refunds, background interest and a modern design system.
+
+> **Not for real funds.** QRIS codes are structurally valid but PocketPay is not a registered QRIS issuer.
+
+📖 **Landing page & docs:** [`docs/index.html`](docs/index.html) · [Architecture](docs/ARCHITECTURE.md) · [Features & rules](docs/FEATURES.md) · [Security notes](docs/SECURITY.md) · [Testing](docs/TESTING.md)
+
+<p align="center">
+  <img src="docs/assets/screens/home-en-light.webp" width="19%" alt="Home">
+  <img src="docs/assets/screens/pay-en-light.webp" width="19%" alt="QRIS payment">
+  <img src="docs/assets/screens/success-en-light.webp" width="19%" alt="Payment success">
+  <img src="docs/assets/screens/stats-en-light.webp" width="19%" alt="Statistics">
+  <img src="docs/assets/screens/home-en-dark.webp" width="19%" alt="Dark mode">
+</p>
 
 ---
 

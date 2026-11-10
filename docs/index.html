@@ -1,481 +1,569 @@
-<!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<!doctype html>
+<html lang="id" data-lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PocketPay — Next-Gen Digital Banking & Micro-Savings Android App</title>
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts: Plus Jakarta Sans -->
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <!-- FontAwesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PocketPay — Dompet digital &amp; tabungan receh otomatis (Android)</title>
+<meta name="description" content="PocketPay: aplikasi dompet digital Android bergaya fintech. Bayar QRIS, kantong tabungan berbunga, round-up receh, refund, statistik, dan keamanan berlapis. Proyek portofolio dengan data simulasi.">
+<meta property="og:title" content="PocketPay — Digital wallet & micro-savings for Android">
+<meta property="og:description" content="QRIS payments, round-up savings, interest-bearing pockets, refunds and an encrypted, PIN-locked app. Kotlin + Jetpack Compose portfolio project.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://dzakiabrar21.github.io/PocketPay/assets/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0E1A2B">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='18' fill='%238CD63F'/%3E%3Ctext x='32' y='45' font-size='38' font-weight='800' text-anchor='middle' fill='%230E1A2B' font-family='Arial'%3EP%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<noscript><style>.reveal{opacity:1!important;transform:none!important}</style></noscript>
+<style>
+  :root{
+    --navy:#0E1A2B; --navy-2:#1A2E4D; --navy-3:#1F3049;
+    --lime:#8CD63F; --lime-dark:#3F7F12; --lime-soft:#E4F5D3;
+    --bg:#F4F8F1; --card:#fff; --ink:#0E1A2B; --muted:#5D6B80; --line:#E1E8DA;
+    --radius:24px; --maxw:1160px;
+    --font:"Plus Jakarta Sans",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth;scroll-padding-top:84px}
+  body{margin:0;font-family:var(--font);color:var(--ink);background:var(--bg);line-height:1.6;-webkit-font-smoothing:antialiased}
+  img{max-width:100%;display:block}
+  a{color:inherit}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px}
+  /* language switch: only the active language is shown */
+  html[data-lang="id"] [lang="en"], html[data-lang="en"] [lang="id"]{display:none !important}
+  :focus-visible{outline:3px solid var(--lime);outline-offset:3px;border-radius:8px}
+  .skip{position:absolute;left:-999px;top:8px;background:var(--lime);color:var(--navy);padding:8px 14px;border-radius:10px;font-weight:700;z-index:100}
+  .skip:focus{left:8px}
 
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Plus Jakarta Sans', 'sans-serif'],
-                    },
-                    colors: {
-                        emerald: {
-                            950: '#022c22',
-                            900: '#064e3b',
-                            800: '#065f46',
-                            700: '#047857',
-                            600: '#059669',
-                            500: '#10b981',
-                            100: '#d1fae5',
-                            50: '#ecfdf5',
-                        }
-                    }
-                }
-            }
-        }
-    </script>
-    <style>
-        .glass-card {
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.4);
-        }
-        .glass-dark {
-            background: rgba(6, 78, 59, 0.9);
-            backdrop-filter: blur(16px);
-            border: 1px solid rgba(16, 185, 129, 0.2);
-        }
-        .phone-frame {
-            box-shadow: 0 25px 50px -12px rgba(6, 78, 59, 0.25), 0 0 0 12px #0f172a, 0 0 0 14px #334155;
-            border-radius: 40px;
-        }
-        .gradient-text {
-            background: linear-gradient(135deg, #064e3b 0%, #059669 50%, #10b981 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-    </style>
+  /* ---------- nav ---------- */
+  header.nav{position:sticky;top:0;z-index:50;background:rgba(14,26,43,.92);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,.06)}
+  .nav-in{display:flex;align-items:center;gap:20px;height:68px}
+  .brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:#fff;font-weight:800;font-size:19px;letter-spacing:-.2px}
+  .mark{width:34px;height:34px;border-radius:11px;background:var(--lime);color:var(--navy);display:grid;place-items:center;font-weight:800}
+  .nav-links{display:flex;gap:6px;margin-left:auto}
+  .nav-links a{color:#B7C4DA;text-decoration:none;font-weight:600;font-size:14px;padding:8px 12px;border-radius:999px}
+  .nav-links a:hover{color:#fff;background:rgba(255,255,255,.07)}
+  .nav-end{display:flex;align-items:center;gap:10px}
+  .seg{display:inline-flex;background:rgba(255,255,255,.08);border-radius:999px;padding:3px}
+  .seg button{font:inherit;font-size:12px;font-weight:700;color:#B7C4DA;background:none;border:0;padding:6px 12px;border-radius:999px;cursor:pointer}
+  .seg button[aria-pressed="true"]{background:var(--lime);color:var(--navy)}
+  .btn{display:inline-flex;align-items:center;gap:8px;font:inherit;font-weight:700;font-size:15px;text-decoration:none;border-radius:999px;padding:13px 22px;border:0;cursor:pointer;transition:transform .15s,box-shadow .15s}
+  .btn:hover{transform:translateY(-2px)}
+  .btn-lime{background:var(--lime);color:var(--navy);box-shadow:0 10px 30px -10px rgba(140,214,63,.6)}
+  .btn-ghost{background:rgba(255,255,255,.08);color:#fff}
+  .btn-dark{background:var(--navy);color:#fff}
+  .btn-sm{padding:9px 16px;font-size:13px}
+  @media (max-width:900px){.nav-links{display:none}.nav-end{margin-left:auto}}
+
+  /* ---------- hero ---------- */
+  .hero{background:linear-gradient(180deg,var(--navy) 0%,var(--navy-2) 100%);color:#fff;position:relative;overflow:hidden}
+  .hero::before,.hero::after{content:"";position:absolute;border-radius:50%;pointer-events:none}
+  .hero::before{width:620px;height:620px;right:-160px;top:-240px;background:rgba(140,214,63,.12)}
+  .hero::after{width:420px;height:420px;left:-140px;bottom:-200px;background:rgba(140,214,63,.08)}
+  .hero-in{display:grid;grid-template-columns:1.05fr .95fr;gap:40px;align-items:center;padding-block:72px 88px;position:relative;z-index:1}
+  .pill{display:inline-flex;align-items:center;gap:8px;background:rgba(140,214,63,.14);color:var(--lime);font-weight:700;font-size:13px;padding:7px 14px;border-radius:999px}
+  .pill i{width:8px;height:8px;border-radius:50%;background:var(--lime);display:block}
+  h1{font-size:clamp(36px,5.2vw,62px);line-height:1.07;letter-spacing:-1.4px;margin:18px 0 18px;font-weight:800}
+  h1 em{font-style:normal;color:var(--lime)}
+  .lead{font-size:18px;color:#B7C4DA;max-width:540px;margin:0 0 28px}
+  .cta{display:flex;flex-wrap:wrap;gap:12px}
+  .stats{display:grid;grid-template-columns:repeat(4,auto);gap:28px;margin-top:40px;justify-content:start}
+  .stats b{display:block;font-size:28px;letter-spacing:-.5px}
+  .stats div>span{font-size:13px;color:#9FB1CD}
+  .stage{position:relative;height:560px}
+  .stage .phone{position:absolute;width:210px}
+  .stage .p1{left:2%;top:70px;transform:rotate(-7deg);z-index:1}
+  .stage .p2{left:50%;margin-left:-125px;top:0;width:250px;z-index:3}
+  .stage .p3{right:2%;top:90px;transform:rotate(7deg);z-index:2}
+  @media (prefers-reduced-motion:no-preference){
+    .stage .p1{animation:float 7s ease-in-out infinite}
+    .stage .p2{animation:float 6s ease-in-out -2s infinite}
+    .stage .p3{animation:float 8s ease-in-out -4s infinite}
+  }
+  @keyframes float{50%{translate:0 -12px}}
+  .phone{aspect-ratio:540/1200;border-radius:34px;border:7px solid #0A111E;background:#0A111E;box-shadow:0 30px 60px -20px rgba(0,0,0,.55),0 0 0 1.5px #2B3F5E;overflow:hidden}
+  .phone img{width:100%;height:100%;object-fit:cover}
+  @media (max-width:960px){
+    .hero-in{grid-template-columns:1fr;padding-block:48px 56px}
+    .stage{height:470px;max-width:520px;margin:10px auto 0;width:100%}
+    .stage .phone{width:150px}.stage .p2{width:190px;margin-left:-95px}
+    .stats{grid-template-columns:repeat(2,auto)}
+  }
+
+  /* ---------- sections ---------- */
+  section{padding:88px 0}
+  .eyebrow{color:var(--lime-dark);font-weight:800;font-size:13px;letter-spacing:1.4px;text-transform:uppercase}
+  h2{font-size:clamp(28px,3.6vw,42px);line-height:1.15;letter-spacing:-.8px;margin:10px 0 14px;font-weight:800}
+  .sub{color:var(--muted);font-size:17px;max-width:680px;margin:0 0 40px}
+  .dark{background:var(--navy);color:#fff}
+  .dark .sub{color:#B7C4DA}.dark .eyebrow{color:var(--lime)}
+  .note{display:flex;gap:14px;align-items:flex-start;background:#FFF8E6;border:1px solid #F4DDA0;color:#6B4A07;border-radius:18px;padding:16px 18px;font-size:15px}
+  .note svg{flex:none;margin-top:2px}
+
+  .grid{display:grid;gap:18px}
+  .g3{grid-template-columns:repeat(3,1fr)}
+  .g2{grid-template-columns:repeat(2,1fr)}
+  @media (max-width:900px){.g3{grid-template-columns:repeat(2,1fr)}}
+  @media (max-width:620px){.g3,.g2{grid-template-columns:1fr}}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:26px;transition:transform .2s,box-shadow .2s}
+  .card:hover{transform:translateY(-4px);box-shadow:0 22px 40px -24px rgba(14,26,43,.35)}
+  .ico{width:48px;height:48px;border-radius:15px;background:var(--lime-soft);color:var(--lime-dark);display:grid;place-items:center;margin-bottom:16px}
+  .ico svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  .card h3{margin:0 0 6px;font-size:18px;letter-spacing:-.2px}
+  .card p{margin:0;color:var(--muted);font-size:15px}
+  .dark .card{background:var(--navy-3);border-color:rgba(255,255,255,.08)}
+  .dark .card p{color:#B7C4DA}
+  .dark .ico{background:rgba(140,214,63,.14);color:var(--lime)}
+
+  /* ---------- screens gallery ---------- */
+  .tools{display:flex;flex-wrap:wrap;gap:14px;align-items:center;margin-bottom:28px}
+  .seg.light{background:#fff;border:1px solid var(--line)}
+  .seg.light button{color:var(--muted)}
+  .seg.light button[aria-pressed="true"]{background:var(--navy);color:#fff}
+  .gallery{display:flex;gap:26px;overflow-x:auto;scroll-snap-type:x mandatory;padding:12px 4px 30px;margin:0 -24px;padding-left:24px;padding-right:24px;scrollbar-width:thin}
+  .shot{flex:none;width:240px;scroll-snap-align:start}
+  .shot figcaption{margin-top:14px;font-size:14px;color:var(--muted)}
+  .shot figcaption b{display:block;color:var(--ink);font-size:15px;margin-bottom:2px}
+  .shot .phone{width:100%;transition:transform .25s}
+  .shot:hover .phone{transform:translateY(-6px)}
+
+  /* ---------- flow ---------- */
+  .steps{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;counter-reset:s}
+  @media (max-width:900px){.steps{grid-template-columns:repeat(2,1fr)}}
+  @media (max-width:560px){.steps{grid-template-columns:1fr}}
+  .step{background:var(--navy-3);border:1px solid rgba(255,255,255,.08);border-radius:var(--radius);padding:22px;position:relative}
+  .step::before{counter-increment:s;content:counter(s);position:absolute;top:-14px;left:20px;width:30px;height:30px;border-radius:50%;background:var(--lime);color:var(--navy);font-weight:800;display:grid;place-items:center}
+  .step h3{margin:6px 0 6px;font-size:17px;color:#fff}
+  .step p{margin:0 0 14px;color:#B7C4DA;font-size:14px}
+  .step .phone{width:100%;max-width:170px;margin:0 auto}
+
+  /* ---------- tables / lists ---------- */
+  table{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;font-size:15px}
+  th,td{text-align:left;padding:14px 18px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{background:var(--lime-soft);font-size:13px;letter-spacing:.5px;text-transform:uppercase;color:#2B5409}
+  tr:last-child td{border-bottom:0}
+  td:first-child{font-weight:700;white-space:nowrap}
+  .scroll-x{overflow-x:auto;border-radius:var(--radius)}
+  code,pre{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+  code{background:rgba(14,26,43,.07);padding:2px 7px;border-radius:8px;font-size:.9em}
+  .dark code{background:rgba(255,255,255,.1)}
+  pre{margin:0;background:#091322;color:#D5E1F5;border-radius:18px;padding:18px 20px;overflow-x:auto;font-size:14px;line-height:1.7;position:relative}
+  pre .c{color:#6F86A8}
+  .copy{position:absolute;right:10px;top:10px;font:inherit;font-size:12px;font-weight:700;border:0;background:rgba(255,255,255,.1);color:#fff;padding:6px 12px;border-radius:999px;cursor:pointer}
+  .copy:hover{background:rgba(255,255,255,.2)}
+  ul.tick{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+  ul.tick li{position:relative;padding-left:30px;color:var(--muted);font-size:15px}
+  ul.tick li::before{content:"";position:absolute;left:0;top:4px;width:18px;height:18px;border-radius:50%;background:var(--lime) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230E1A2B' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m5 12 5 5 9-10'/%3E%3C/svg%3E") center/12px no-repeat}
+  ul.tick li b{color:var(--ink)}
+  ul.cross li::before{background:#F7D9DA url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23B42318' stroke-width='3.5' stroke-linecap='round'%3E%3Cpath d='M6 6l12 12M18 6 6 18'/%3E%3C/svg%3E") center/12px no-repeat}
+  .dark ul.tick li{color:#B7C4DA}.dark ul.tick li b{color:#fff}
+
+  /* ---------- architecture diagram ---------- */
+  .arch{display:grid;grid-template-columns:1fr;gap:26px}
+  .diagram{background:var(--navy-3);border:1px solid rgba(255,255,255,.08);border-radius:var(--radius);padding:26px;overflow-x:auto}
+  .diagram svg{width:100%;min-width:760px;height:auto}
+  .chips{display:flex;flex-wrap:wrap;gap:10px}
+  .chip{background:#fff;border:1px solid var(--line);border-radius:999px;padding:8px 16px;font-weight:700;font-size:14px}
+  .chip small{color:var(--muted);font-weight:600;margin-left:4px}
+  .dark .chip{background:var(--navy-3);border-color:rgba(255,255,255,.1)}
+  .dark .chip small{color:#9FB1CD}
+
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px}
+  @media (max-width:780px){.kpis{grid-template-columns:repeat(2,1fr)}}
+  .kpi{background:var(--navy-3);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:20px}
+  .kpi b{display:block;font-size:34px;letter-spacing:-1px;color:var(--lime)}
+  .kpi span{font-size:14px;color:#B7C4DA}
+
+  .doc{display:flex;flex-direction:column;gap:6px;text-decoration:none}
+  .doc small{color:var(--lime-dark);font-weight:800;font-size:13px}
+  footer{background:var(--navy);color:#B7C4DA;padding:44px 0;font-size:14px}
+  footer .row{display:flex;flex-wrap:wrap;gap:16px;justify-content:space-between;align-items:center}
+  footer a{color:#fff}
+
+  .reveal{opacity:0;transform:translateY(18px);transition:opacity .6s,transform .6s}
+  .reveal.in{opacity:1;transform:none}
+  @media (prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none}html{scroll-behavior:auto}}
+</style>
 </head>
-<body class="bg-slate-50 text-slate-900 font-sans antialiased selection:bg-emerald-500 selection:text-white">
+<body>
+<a class="skip" href="#main"><span lang="id">Lewati ke konten</span><span lang="en">Skip to content</span></a>
 
-    <!-- NAVIGATION BAR -->
-    <nav class="fixed top-0 left-0 right-0 z-50 glass-card border-b border-slate-200/80">
-        <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-            <div class="flex items-center space-x-3">
-                <div class="w-11 h-11 bg-emerald-900 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-emerald-900/20">
-                    <i class="fa-solid fa-wallet text-xl text-emerald-400"></i>
-                </div>
-                <div>
-                    <span class="text-xl font-extrabold tracking-tight text-emerald-950">Pocket<span class="text-emerald-600">Pay</span></span>
-                    <span class="block text-[10px] font-semibold text-emerald-700 uppercase tracking-widest">Digital Banking</span>
-                </div>
-            </div>
-
-            <div class="hidden md:flex items-center space-x-8 font-semibold text-sm text-slate-600">
-                <a href="#features" class="hover:text-emerald-600 transition">Key Features</a>
-                <a href="#architecture" class="hover:text-emerald-600 transition">Architecture</a>
-                <a href="#security" class="hover:text-emerald-600 transition">Security Shield</a>
-                <a href="#showcase" class="hover:text-emerald-600 transition">App Showcase</a>
-                <a href="#techstack" class="hover:text-emerald-600 transition">Tech Stack</a>
-            </div>
-
-            <a href="https://github.com" target="_blank" class="inline-flex items-center space-x-2 bg-emerald-900 hover:bg-emerald-800 text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-lg shadow-emerald-900/20 transition transform active:scale-95">
-                <i class="fa-brands fa-github text-lg"></i>
-                <span>View Repository</span>
-            </a>
-        </div>
+<header class="nav">
+  <div class="wrap nav-in">
+    <a class="brand" href="#top" aria-label="PocketPay"><span class="mark">P</span>PocketPay</a>
+    <nav class="nav-links" aria-label="Main">
+      <a href="#fitur"><span lang="id">Fitur</span><span lang="en">Features</span></a>
+      <a href="#tampilan"><span lang="id">Tampilan</span><span lang="en">Screens</span></a>
+      <a href="#alur"><span lang="id">Alur bayar</span><span lang="en">Payment flow</span></a>
+      <a href="#keamanan"><span lang="id">Keamanan</span><span lang="en">Security</span></a>
+      <a href="#arsitektur"><span lang="id">Arsitektur</span><span lang="en">Architecture</span></a>
+      <a href="#dokumentasi"><span lang="id">Dokumentasi</span><span lang="en">Docs</span></a>
     </nav>
+    <div class="nav-end">
+      <div class="seg" role="group" aria-label="Language">
+        <button type="button" data-set-lang="id" aria-pressed="true">ID</button>
+        <button type="button" data-set-lang="en" aria-pressed="false">EN</button>
+      </div>
+      <a class="btn btn-lime btn-sm" href="https://github.com/dzakiabrar21/PocketPay" target="_blank" rel="noopener">GitHub</a>
+    </div>
+  </div>
+</header>
 
-    <!-- HERO SECTION (LUMEXART / FUNDARO DRIBBBLE STYLE) -->
-    <section class="pt-36 pb-20 px-6 overflow-hidden bg-gradient-to-b from-emerald-50/50 via-slate-50 to-slate-50">
-        <div class="max-w-7xl mx-auto">
-            <div class="text-center max-w-3xl mx-auto mb-16">
-                <div class="inline-flex items-center space-x-2 bg-emerald-100/80 border border-emerald-300 text-emerald-800 px-4 py-1.5 rounded-full text-xs font-bold mb-6">
-                    <i class="fa-solid fa-sparkles text-emerald-600"></i>
-                    <span>Next-Gen Android Fintech & Micro-Savings Engineering</span>
-                </div>
-                <h1 class="text-4xl md:text-6xl font-extrabold text-slate-900 leading-tight mb-6 tracking-tight">
-                    Seamless & Secure <br>
-                    <span class="gradient-text">Digital Banking Experience</span>
-                </h1>
-                <p class="text-lg text-slate-600 leading-relaxed font-medium mb-8">
-                    An advanced Android application built with <strong>Clean Architecture + MVI</strong>, featuring <strong>Smart Cascading Payment Routing</strong>, <strong>Round-Up Micro-Savings</strong>, <strong>Native E-Statement PDF Generator</strong>, and <strong>Fintech Security Shield</strong>.
-                </p>
-                <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
-                    <a href="#showcase" class="w-full sm:w-auto bg-emerald-900 hover:bg-emerald-800 text-white px-8 py-4 rounded-2xl font-bold text-base shadow-xl shadow-emerald-900/25 transition transform hover:-translate-y-0.5 active:translate-y-0">
-                        <i class="fa-solid fa-mobile-screen-button mr-2"></i> Explore Live Showcase
-                    </a>
-                    <a href="#features" class="w-full sm:w-auto bg-white hover:bg-slate-100 text-slate-800 border border-slate-300 px-8 py-4 rounded-2xl font-bold text-base shadow-sm transition">
-                        <i class="fa-solid fa-layer-group mr-2 text-emerald-600"></i> View Features
-                    </a>
-                </div>
-            </div>
+<main id="main">
+<!-- ===================== HERO ===================== -->
+<div class="hero" id="top">
+  <div class="wrap hero-in">
+    <div>
+      <span class="pill"><i></i><span lang="id">Proyek portofolio · data simulasi</span><span lang="en">Portfolio project · simulated data</span></span>
+      <h1>
+        <span lang="id">Dompet digital yang <em>menabung receh</em> untukmu.</span>
+        <span lang="en">A digital wallet that <em>saves your spare change</em>.</span>
+      </h1>
+      <p class="lead">
+        <span lang="id">Aplikasi Android bergaya fintech: bayar QRIS, kantong tabungan berbunga, pembulatan otomatis ke celengan, refund, statistik, dan keamanan berlapis. Semua fitur berjalan nyata di perangkat.</span>
+        <span lang="en">A fintech-style Android app: pay with QRIS, interest-bearing pockets, automatic round-up savings, refunds, statistics and layered security. Every feature really works on the device.</span>
+      </p>
+      <div class="cta">
+        <a class="btn btn-lime" href="#tampilan"><span lang="id">Lihat tampilan</span><span lang="en">See the screens</span></a>
+        <a class="btn btn-ghost" href="https://github.com/dzakiabrar21/PocketPay" target="_blank" rel="noopener"><span lang="id">Kode sumber</span><span lang="en">Source code</span> →</a>
+      </div>
+      <div class="stats">
+        <div><b><span lang="id">6.300+</span><span lang="en">6,300+</span></b><span lang="id">baris Kotlin</span><span lang="en">lines of Kotlin</span></div>
+        <div><b>99</b><span lang="id">pengujian</span><span lang="en">tests</span></div>
+        <div><b>2</b><span lang="id">bahasa</span><span lang="en">languages</span></div>
+        <div><b>AES-256</b><span lang="id">database terenkripsi</span><span lang="en">encrypted database</span></div>
+      </div>
+    </div>
+    <div class="stage" aria-hidden="true">
+      <div class="phone p1"><img data-shot="home" src="assets/screens/home-id-light.webp" alt="" width="540" height="1200"></div>
+      <div class="phone p3"><img data-shot="success" src="assets/screens/success-id-light.webp" alt="" width="540" height="1200"></div>
+      <div class="phone p2"><img data-shot="pay" src="assets/screens/pay-id-light.webp" alt="" width="540" height="1200"></div>
+    </div>
+  </div>
+</div>
 
-            <!-- DUAL DEVICE MOCKUP SHOWCASE (LUMEXART STYLE) -->
-            <div class="relative max-w-5xl mx-auto mt-12">
-                <div class="absolute -top-10 left-1/2 -translate-x-1/2 w-96 h-96 bg-emerald-400/20 rounded-full blur-3xl -z-10"></div>
+<!-- ===================== ABOUT ===================== -->
+<section id="tentang">
+  <div class="wrap">
+    <div class="eyebrow"><span lang="id">Tentang proyek</span><span lang="en">About</span></div>
+    <h2><span lang="id">Prototipe yang jujur, dengan fitur yang benar-benar jalan</span><span lang="en">An honest prototype whose features really work</span></h2>
+    <p class="sub">
+      <span lang="id">PocketPay dibuat untuk menunjukkan rekayasa aplikasi keuangan di Android: aturan uang yang atomik, penyimpanan terenkripsi, alur pembayaran lengkap, dan desain modern. Tidak ada server; semuanya tersimpan di perangkat.</span>
+      <span lang="en">PocketPay showcases financial-app engineering on Android: atomic money rules, encrypted storage, a complete payment flow and a modern design. There is no server; everything lives on the device.</span>
+    </p>
+    <div class="note" role="note">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.01"/></svg>
+      <div>
+        <span lang="id"><b>Penting:</b> uang di aplikasi ini simulasi dan QRIS-nya hanya valid secara format (PocketPay bukan penerbit QRIS terdaftar). Jangan dipakai untuk dana sungguhan.</span>
+        <span lang="en"><b>Please note:</b> the money in this app is simulated and its QRIS codes are only structurally valid (PocketPay is not a registered QRIS issuer). Do not use it for real funds.</span>
+      </div>
+    </div>
+  </div>
+</section>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center justify-center">
+<!-- ===================== FEATURES ===================== -->
+<section id="fitur" style="padding-top:0">
+  <div class="wrap">
+    <div class="eyebrow"><span lang="id">Fitur</span><span lang="en">Features</span></div>
+    <h2><span lang="id">Semua yang dibutuhkan dompet digital modern</span><span lang="en">Everything a modern wallet needs</span></h2>
+    <p class="sub"><span lang="id">Setiap fitur di bawah sudah diimplementasikan dan diuji.</span><span lang="en">Every feature below is implemented and tested.</span></p>
+    <div class="grid g3">
+      <article class="card reveal"><div class="ico"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 14v.01M14 20h3M20 20h1"/></svg></div>
+        <h3><span lang="id">Bayar QRIS</span><span lang="en">Pay with QRIS</span></h3>
+        <p><span lang="id">Pindai lewat kamera atau galeri. Hanya QRIS valid (CRC-16, IDR) yang diterima. Sumber dana berlapis: kekurangan kantong otomatis diambil dari Rekening Utama dalam satu transaksi atomik.</span><span lang="en">Scan with the camera or the gallery. Only valid QRIS (CRC-16, IDR) is accepted. Cascading funding: a short pocket is topped up from the Main Account inside one atomic transaction.</span></p></article>
+      <article class="card reveal"><div class="ico"><svg viewBox="0 0 24 24"><circle cx="9" cy="9" r="6"/><path d="M15 9.3a6 6 0 1 1-5.7 5.7"/></svg></div>
+        <h3><span lang="id">Celengan receh</span><span lang="en">Round-up savings</span></h3>
+        <p><span lang="id">Pembayaran dibulatkan ke atas ke kelipatan Rp 5.000 dan selisihnya masuk ke Celengan Receh. Bisa dimatikan per pembayaran.</span><span lang="en">Payments are rounded up to the next Rp 5,000 and the change goes into the Spare Change Jar. It can be switched off per payment.</span></p></article>
+      <article class="card reveal"><div class="ico"><svg viewBox="0 0 24 24"><path d="M4 8h16v11a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2zM4 8l2-4h12l2 4M10 13h4"/></svg></div>
+        <h3><span lang="id">Kantong tabungan</span><span lang="en">Savings pockets</span></h3>
+        <p><span lang="id">Kantong belanja (3,5% p.a.) dengan target opsional dan progres, serta deposito terkunci (6% p.a., 1/3/6 bulan) yang tidak bisa disentuh sebelum jatuh tempo.</span><span lang="en">Spending pockets (3.5% p.a.) with optional goals and progress, and locked deposits (6% p.a., 1/3/6 months) that stay untouchable until maturity.</span></p></article>
+      <article class="card reveal"><div class="ico"><svg viewBox="0 0 24 24"><path d="m3 17 6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg></div>
+        <h3><span lang="id">Bunga harian otomatis</span><span lang="en">Automatic daily interest</span></h3>
+        <p><span lang="id">Bunga sederhana per hari dikreditkan lewat WorkManager walau aplikasi tidak dibuka. Dihitung dengan BigDecimal, tidak pernah dibayar dua kali.</span><span lang="en">Simple daily interest is credited by WorkManager even when the app is closed. Computed with BigDecimal and never paid twice.</span></p></article>
+      <article class="card reveal"><div class="ico"><svg viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></svg></div>
+        <h3><span lang="id">Refund &amp; status transaksi</span><span lang="en">Refunds &amp; status</span></h3>
+        <p><span lang="id">Batalkan pembayaran dalam 24 jam: dana kembali ke Rekening Utama, transaksi asli ditandai dibatalkan, dan refund kedua ditolak.</span><span lang="en">Reverse a payment within 24 hours: money returns to the Main Account, the original is marked reversed and a second refund is rejected.</span></p></article>
+      <article class="card reveal"><div class="ico"><svg viewBox="0 0 24 24"><path d="M5 21V10M12 21V4M19 21v-7"/></svg></div>
+        <h3><span lang="id">Statistik nyata</span><span lang="en">Real statistics</span></h3>
+        <p><span lang="id">Grafik mingguan dan bulanan dari transaksi sungguhan. Refund, pembayaran yang dibatalkan, dan perpindahan antar-kantong tidak dihitung ganda.</span><span lang="en">Weekly and monthly charts built from real transactions. Refunds, reversed payments and internal moves are never double-counted.</span></p></article>
+      <article class="card reveal"><div class="ico"><svg viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg></div>
+        <h3><span lang="id">Scan me &amp; e-statement</span><span lang="en">Scan me &amp; e-statement</span></h3>
+        <p><span lang="id">Kode QR terima yang bisa dipindai dengan nominal opsional, dan rekening koran PDF multi-halaman yang bisa dibuka atau dibagikan.</span><span lang="en">A scannable receive QR with an optional amount, and a multi-page PDF statement you can open or share.</span></p></article>
+      <article class="card reveal"><div class="ico"><svg viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 8 3 8H3s3-1 3-8"/><path d="M10 21a2 2 0 0 0 4 0"/></svg></div>
+        <h3><span lang="id">Notifikasi pribadi</span><span lang="en">Private notifications</span></h3>
+        <p><span lang="id">Pemberitahuan deposito jatuh tempo, target tercapai, dan bunga masuk. Di layar kunci hanya tampil kalimat umum.</span><span lang="en">Alerts for matured deposits, reached goals and credited interest. The lock screen only shows a generic line.</span></p></article>
+      <article class="card reveal"><div class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg></div>
+        <h3><span lang="id">Dwibahasa, terang &amp; gelap</span><span lang="en">Bilingual, light &amp; dark</span></h3>
+        <p><span lang="id">Indonesia dan Inggris lengkap, serta tema terang dan gelap yang mengikuti sistem, dari satu set token warna.</span><span lang="en">Full Indonesian and English, plus light and dark themes that follow the system, from a single set of colour tokens.</span></p></article>
+    </div>
+  </div>
+</section>
 
-                    <!-- PHONE MOCKUP 1: DASHBOARD -->
-                    <div class="phone-frame bg-slate-900 p-4 max-w-sm mx-auto w-full">
-                        <!-- Screen Header -->
-                        <div class="bg-emerald-900 rounded-3xl p-6 text-white relative overflow-hidden">
-                            <div class="flex items-center justify-between mb-6">
-                                <div class="flex items-center space-x-3">
-                                    <div class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center font-bold text-lg">N</div>
-                                    <div>
-                                        <div class="text-xs text-emerald-200">Selamat Pagi,</div>
-                                        <div class="text-sm font-bold">Nasabah Utama</div>
-                                    </div>
-                                </div>
-                                <span class="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2.5 py-1 rounded-full">Premier Gold</span>
-                            </div>
+<!-- ===================== SCREENS ===================== -->
+<section id="tampilan" class="dark">
+  <div class="wrap">
+    <div class="eyebrow"><span lang="id">Tampilan</span><span lang="en">Screens</span></div>
+    <h2><span lang="id">Desain navy &amp; lime yang bersih</span><span lang="en">A clean navy &amp; lime design</span></h2>
+    <p class="sub"><span lang="id">Geser untuk melihat semua layar. Gambar diambil langsung dari aplikasi (data contoh).</span><span lang="en">Swipe through every screen. Images are rendered straight from the app (sample data).</span></p>
+    <div class="tools">
+      <div class="seg" role="group" aria-label="Theme">
+        <button type="button" data-set-theme="light" aria-pressed="true"><span lang="id">Terang</span><span lang="en">Light</span></button>
+        <button type="button" data-set-theme="dark" aria-pressed="false"><span lang="id">Gelap</span><span lang="en">Dark</span></button>
+      </div>
+    </div>
+    <div class="gallery" tabindex="0" aria-label="App screens">
+      <figure class="shot" style="margin:0"><div class="phone"><img data-shot="splash" src="assets/screens/splash-id-light.webp" alt="Splash" loading="lazy" width="540" height="1200"></div><figcaption><b>Splash</b><span lang="id">Gerbang masuk bermerek.</span><span lang="en">Branded entrance.</span></figcaption></figure>
+      <figure class="shot" style="margin:0"><div class="phone"><img data-shot="pin" src="assets/screens/pin-id-light.webp" alt="PIN" loading="lazy" width="540" height="1200"></div><figcaption><b><span lang="id">Kunci PIN</span><span lang="en">PIN lock</span></b><span lang="id">Keypad dengan sidik jari opsional.</span><span lang="en">Keypad with optional fingerprint.</span></figcaption></figure>
+      <figure class="shot" style="margin:0"><div class="phone"><img data-shot="home" src="assets/screens/home-id-light.webp" alt="Home" loading="lazy" width="540" height="1200"></div><figcaption><b><span lang="id">Beranda</span><span lang="en">Home</span></b><span lang="id">Saldo, aksi cepat, kantong, riwayat.</span><span lang="en">Balance, quick actions, pockets, history.</span></figcaption></figure>
+      <figure class="shot" style="margin:0"><div class="phone"><img data-shot="pay" src="assets/screens/pay-id-light.webp" alt="Pay" loading="lazy" width="540" height="1200"></div><figcaption><b><span lang="id">Bayar QRIS</span><span lang="en">Pay with QRIS</span></b><span lang="id">Sumber dana &amp; round-up.</span><span lang="en">Source of funds &amp; round-up.</span></figcaption></figure>
+      <figure class="shot" style="margin:0"><div class="phone"><img data-shot="success" src="assets/screens/success-id-light.webp" alt="Success" loading="lazy" width="540" height="1200"></div><figcaption><b><span lang="id">Pembayaran berhasil</span><span lang="en">Payment success</span></b><span lang="id">Struk bergaya kuitansi.</span><span lang="en">Receipt-style summary.</span></figcaption></figure>
+      <figure class="shot" style="margin:0"><div class="phone"><img data-shot="stats" src="assets/screens/stats-id-light.webp" alt="Statistics" loading="lazy" width="540" height="1200"></div><figcaption><b><span lang="id">Statistik</span><span lang="en">Statistics</span></b><span lang="id">Grafik mingguan &amp; bulanan.</span><span lang="en">Weekly &amp; monthly chart.</span></figcaption></figure>
+      <figure class="shot" style="margin:0"><div class="phone"><img data-shot="pockets" src="assets/screens/pockets-id-light.webp" alt="Pockets" loading="lazy" width="540" height="1200"></div><figcaption><b><span lang="id">Kantong</span><span lang="en">Pockets</span></b><span lang="id">Belanja, deposito, dan target.</span><span lang="en">Spending, deposit and goals.</span></figcaption></figure>
+      <figure class="shot" style="margin:0"><div class="phone"><img data-shot="receive" src="assets/screens/receive-id-light.webp" alt="Scan me" loading="lazy" width="540" height="1200"></div><figcaption><b>Scan me</b><span lang="id">QR terima yang bisa dipindai.</span><span lang="en">A scannable receive QR.</span></figcaption></figure>
+      <figure class="shot" style="margin:0"><div class="phone"><img data-shot="receipt" src="assets/screens/receipt-id-light.webp" alt="Receipt" loading="lazy" width="540" height="1200"></div><figcaption><b><span lang="id">Struk &amp; refund</span><span lang="en">Receipt &amp; refund</span></b><span lang="id">Detail transaksi digital.</span><span lang="en">Digital transaction details.</span></figcaption></figure>
+      <figure class="shot" style="margin:0"><div class="phone"><img data-shot="history" src="assets/screens/history-id-light.webp" alt="History" loading="lazy" width="540" height="1200"></div><figcaption><b><span lang="id">Riwayat</span><span lang="en">History</span></b><span lang="id">Cari dan filter transaksi.</span><span lang="en">Search and filter.</span></figcaption></figure>
+      <figure class="shot" style="margin:0"><div class="phone"><img data-shot="profile" src="assets/screens/profile-id-light.webp" alt="Profile" loading="lazy" width="540" height="1200"></div><figcaption><b><span lang="id">Profil</span><span lang="en">Profile</span></b><span lang="id">Status keamanan langsung.</span><span lang="en">Live security status.</span></figcaption></figure>
+      <figure class="shot" style="margin:0"><div class="phone"><img data-shot="statement" src="assets/screens/statement-id-light.webp" alt="E-statement" loading="lazy" width="540" height="1200"></div><figcaption><b>E-statement</b><span lang="id">Ekspor PDF multi-halaman.</span><span lang="en">Multi-page PDF export.</span></figcaption></figure>
+    </div>
+  </div>
+</section>
 
-                            <div class="bg-gradient-to-r from-emerald-900 via-emerald-800 to-emerald-700 p-5 rounded-2xl border border-emerald-600/30 mb-4">
-                                <div class="text-xs text-emerald-200">Rekening Utama (Super Deposito)</div>
-                                <div class="text-3xl font-extrabold my-2">Rp 4.975.000</div>
-                                <div class="text-[11px] text-emerald-300">No. Rek: 9012839102</div>
-                            </div>
+<!-- ===================== FLOW ===================== -->
+<section id="alur">
+  <div class="wrap">
+    <div class="eyebrow"><span lang="id">Alur pembayaran</span><span lang="en">Payment flow</span></div>
+    <h2><span lang="id">Dari pindai sampai struk, dalam empat langkah</span><span lang="en">From scan to receipt in four steps</span></h2>
+    <p class="sub"><span lang="id">Setiap langkah punya aturan yang diuji: validasi QRIS, pemilihan sumber dana, otorisasi, dan pencatatan atomik.</span><span lang="en">Every step has tested rules: QRIS validation, funding choice, authorisation and atomic recording.</span></p>
+  </div>
+  <div class="wrap" style="margin-top:20px">
+    <div class="steps" style="background:var(--navy);border-radius:32px;padding:44px 28px 30px">
+      <div class="step"><h3><span lang="id">Pindai</span><span lang="en">Scan</span></h3><p><span lang="id">Kamera atau galeri. QR selain QRIS ditolak.</span><span lang="en">Camera or gallery. Non-QRIS codes are rejected.</span></p><div class="phone"><img data-shot="home" src="assets/screens/home-id-light.webp" alt="" loading="lazy" width="540" height="1200"></div></div>
+      <div class="step"><h3><span lang="id">Pilih sumber dana</span><span lang="en">Choose funding</span></h3><p><span lang="id">Rekening atau kantong, plus round-up opsional.</span><span lang="en">Account or pocket, plus optional round-up.</span></p><div class="phone"><img data-shot="pay" src="assets/screens/pay-id-light.webp" alt="" loading="lazy" width="540" height="1200"></div></div>
+      <div class="step"><h3><span lang="id">Otorisasi</span><span lang="en">Authorise</span></h3><p><span lang="id">PIN 6 digit atau biometrik; 5 kali salah mengunci 30 detik.</span><span lang="en">6-digit PIN or biometrics; 5 wrong tries lock for 30 s.</span></p><div class="phone"><img data-shot="pin" src="assets/screens/pin-id-light.webp" alt="" loading="lazy" width="540" height="1200"></div></div>
+      <div class="step"><h3><span lang="id">Selesai</span><span lang="en">Done</span></h3><p><span lang="id">Transaksi atomik, kunci idempotensi, dan struk.</span><span lang="en">Atomic transaction, idempotency key and receipt.</span></p><div class="phone"><img data-shot="success" src="assets/screens/success-id-light.webp" alt="" loading="lazy" width="540" height="1200"></div></div>
+    </div>
+  </div>
+</section>
 
-                            <div class="grid grid-cols-3 gap-2">
-                                <button class="bg-white text-emerald-900 py-2 rounded-xl text-xs font-bold flex items-center justify-center space-x-1">
-                                    <i class="fa-solid fa-qrcode"></i> <span>QRIS</span>
-                                </button>
-                                <button class="bg-emerald-100 text-emerald-900 py-2 rounded-xl text-xs font-bold flex items-center justify-center space-x-1">
-                                    <i class="fa-solid fa-right-left"></i> <span>Kantong</span>
-                                </button>
-                                <button class="bg-emerald-800 text-white py-2 rounded-xl text-xs font-bold flex items-center justify-center space-x-1 border border-emerald-600">
-                                    <i class="fa-solid fa-plus"></i> <span>Baru</span>
-                                </button>
-                            </div>
-                        </div>
+<!-- ===================== RULES ===================== -->
+<section id="aturan" style="padding-top:0">
+  <div class="wrap">
+    <div class="eyebrow"><span lang="id">Aturan uang</span><span lang="en">Money rules</span></div>
+    <h2><span lang="id">Logika keuangan yang bisa diperiksa</span><span lang="en">Financial logic you can verify</span></h2>
+    <p class="sub"><span lang="id">Aturan di bawah ada di <code>BankingDao</code> dan diuji dengan test unit.</span><span lang="en">These rules live in <code>BankingDao</code> and are covered by unit tests.</span></p>
+    <div class="scroll-x"><table>
+      <thead><tr><th><span lang="id">Aturan</span><span lang="en">Rule</span></th><th><span lang="id">Cara kerja</span><span lang="en">How it works</span></th></tr></thead>
+      <tbody>
+        <tr><td>Round-up</td><td><span lang="id">Nominal dibulatkan ke atas ke kelipatan Rp 5.000; selisih dipindahkan dari Rekening Utama ke Celengan Receh.</span><span lang="en">The amount is rounded up to a multiple of Rp 5,000; the difference moves from the Main Account to the Spare Change Jar.</span></td></tr>
+        <tr><td>Cascading</td><td><span lang="id">Jika kantong kurang, selisihnya diambil dari Rekening Utama. Ditolak bila gabungan saldo tak cukup untuk pembayaran + round-up.</span><span lang="en">If the pocket is short, the deficit is taken from the Main Account. Rejected if the combined balance cannot cover payment + round-up.</span></td></tr>
+        <tr><td><span lang="id">Deposito</span><span lang="en">Deposit</span></td><td><span lang="id">Terkunci sampai jatuh tempo: tidak bisa membayar, ditransfer, ditarik, atau ditutup.</span><span lang="en">Locked until maturity: cannot pay, be transferred, withdrawn or closed.</span></td></tr>
+        <tr><td><span lang="id">Bunga</span><span lang="en">Interest</span></td><td><code>saldo × rate ÷ 100 ÷ 365 × <span lang="id">hari penuh</span><span lang="en">whole days</span></code> — <span lang="id">dibulatkan ke bawah, maks. 365 hari per proses, sisa hari terbawa.</span><span lang="en">rounded down, at most 365 days per run, the partial day carries over.</span></td></tr>
+        <tr><td>Refund</td><td><span lang="id">24 jam. Dana kembali ke Rekening Utama; asli → <code>REVERSED</code>; entri kredit "Refund"; round-up tetap tersimpan.</span><span lang="en">24 hours. Funds return to the Main Account; original → <code>REVERSED</code>; a "Refund" credit entry; the round-up stays saved.</span></td></tr>
+        <tr><td><span lang="id">Idempotensi</span><span lang="en">Idempotency</span></td><td><span lang="id">UUID per pembayaran sebagai kunci transaksi (<code>ABORT</code> bila ganda); pembayaran kedua diabaikan saat satu sedang berjalan.</span><span lang="en">A UUID per payment is the transaction key (<code>ABORT</code> on duplicates); a second payment is ignored while one is in flight.</span></td></tr>
+        <tr><td><span lang="id">Integritas</span><span lang="en">Integrity</span></td><td><span lang="id">Saldo <code>Long</code>; nominal harus &gt; 0; saldo dibaca ulang di dalam transaksi sehingga layar basi tidak bisa boros.</span><span lang="en"><code>Long</code> balances; amounts must be &gt; 0; balances are re-read inside the transaction so a stale screen cannot overspend.</span></td></tr>
+      </tbody>
+    </table></div>
+  </div>
+</section>
 
-                        <!-- Screen Content -->
-                        <div class="bg-slate-50 p-4 rounded-3xl mt-3 space-y-3">
-                            <div class="bg-emerald-50 p-3 rounded-2xl flex items-center space-x-3 border border-emerald-100">
-                                <div class="w-9 h-9 bg-emerald-600 rounded-xl flex items-center justify-center text-white text-sm">
-                                    <i class="fa-solid fa-wand-magic-sparkles"></i>
-                                </div>
-                                <div>
-                                    <div class="text-xs font-bold text-emerald-950">Celengan Receh (Round-Up)</div>
-                                    <div class="text-[10px] text-emerald-700">Pembulatan QRIS otomatis ditabung 3.5% p.a.</div>
-                                </div>
-                            </div>
+<!-- ===================== SECURITY ===================== -->
+<section id="keamanan" class="dark">
+  <div class="wrap">
+    <div class="eyebrow"><span lang="id">Keamanan</span><span lang="en">Security</span></div>
+    <h2><span lang="id">Berlapis, dan jujur soal batasannya</span><span lang="en">Layered, and honest about its limits</span></h2>
+    <p class="sub"><span lang="id">Perlindungan di perangkat yang sudah diterapkan, beserta yang belum.</span><span lang="en">The on-device protections that are in place, and the ones that are not.</span></p>
+    <div class="grid g2">
+      <div class="card">
+        <h3 style="margin-bottom:14px"><span lang="id">Sudah diterapkan</span><span lang="en">Implemented</span></h3>
+        <ul class="tick">
+          <li><span lang="id"><b>Database terenkripsi</b> SQLCipher AES-256; kata sandi acak dibungkus kunci Android Keystore.</span><span lang="en"><b>Encrypted database</b>: SQLCipher AES-256 with a random passphrase wrapped by an Android Keystore key.</span></li>
+          <li><span lang="id"><b>PIN</b> 6 digit, hash PBKDF2 (120 rb iterasi) yang dienkripsi lagi dengan Keystore; PIN lemah ditolak.</span><span lang="en"><b>PIN</b>: 6 digits, PBKDF2 hash (120k iterations) further encrypted with the Keystore; weak PINs rejected.</span></li>
+          <li><span lang="id"><b>Biometrik terikat kripto</b> (<code>CryptoObject</code>); kunci tidak berlaku bila ada biometrik baru.</span><span lang="en"><b>Crypto-bound biometrics</b> (<code>CryptoObject</code>); the key is invalidated when new biometrics are enrolled.</span></li>
+          <li><span lang="id"><b>Kunci otomatis</b> saat dibuka dingin dan 60 detik di latar; <code>FLAG_SECURE</code> menutup screenshot.</span><span lang="en"><b>Auto-lock</b> on cold start and after 60 s in the background; <code>FLAG_SECURE</code> blocks screenshots.</span></li>
+          <li><span lang="id"><b>Tanpa backup</b>, FileProvider sempit, R8 aktif, notifikasi privat.</span><span lang="en"><b>No backups</b>, a narrow FileProvider, R8 enabled, private notifications.</span></li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3 style="margin-bottom:14px"><span lang="id">Belum / keterbatasan</span><span lang="en">Not yet / limitations</span></h3>
+        <ul class="tick cross">
+          <li><span lang="id">Tidak ada backend atau akun: perangkat adalah satu-satunya sumber data.</span><span lang="en">No backend or accounts: the device is the only source of truth.</span></li>
+          <li><span lang="id">Tidak ada deteksi root/emulator (Play Integrity).</span><span lang="en">No root/emulator detection (Play Integrity).</span></li>
+          <li><span lang="id">Penghitung salah-PIN tersimpan di preferensi biasa.</span><span lang="en">PIN-attempt counters live in regular preferences.</span></li>
+          <li><span lang="id">Jalur biometrik belum diuji di HP dengan sidik jari terdaftar.</span><span lang="en">The biometric path has not been tested on a phone with an enrolled fingerprint.</span></li>
+          <li><span lang="id">QRIS valid secara format, tetapi PocketPay bukan penerbit terdaftar.</span><span lang="en">QRIS is structurally valid, but PocketPay is not a registered issuer.</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
 
-                            <div class="bg-white p-3 rounded-2xl shadow-sm border border-slate-200/80">
-                                <div class="text-xs font-bold text-slate-800 mb-2">Kantong Finansial</div>
-                                <div class="flex space-x-2 overflow-x-auto">
-                                    <div class="bg-emerald-50 p-2.5 rounded-xl border border-emerald-200 min-w-[120px]">
-                                        <div class="text-[10px] text-emerald-700 font-bold">3.5% p.a.</div>
-                                        <div class="text-xs font-bold text-slate-900 mt-1">Jajan Harian</div>
-                                        <div class="text-xs font-extrabold text-emerald-800">Rp 350.000</div>
-                                    </div>
-                                    <div class="bg-orange-50 p-2.5 rounded-xl border border-orange-200 min-w-[120px]">
-                                        <div class="text-[10px] text-orange-700 font-bold">6.0% p.a.</div>
-                                        <div class="text-xs font-bold text-slate-900 mt-1">Deposito Darurat</div>
-                                        <div class="text-xs font-extrabold text-orange-800">Rp 2.000.000</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- PHONE MOCKUP 2: DIGITAL RECEIPT & PDF STATEMENT -->
-                    <div class="phone-frame bg-slate-900 p-4 max-w-sm mx-auto w-full">
-                        <div class="bg-white rounded-3xl p-5 text-slate-900 h-full flex flex-col justify-between">
-                            <div>
-                                <div class="flex items-center justify-between pb-4 border-b border-slate-200">
-                                    <div class="flex items-center space-x-2">
-                                        <i class="fa-solid fa-file-invoice text-emerald-700 text-lg"></i>
-                                        <span class="font-extrabold text-sm text-slate-900">Struk Transaksi Digital</span>
-                                    </div>
-                                    <span class="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2.5 py-0.5 rounded-full">BERHASIL</span>
-                                </div>
-
-                                <div class="text-center py-6 bg-slate-50 rounded-2xl my-4 border border-slate-100">
-                                    <div class="text-xs text-slate-500 font-semibold mb-1">Nominal Transaksi</div>
-                                    <div class="text-3xl font-extrabold text-emerald-900">Rp 23.500</div>
-                                    <div class="text-[10px] text-emerald-600 mt-1 font-semibold">+ Rp 1.500 Masuk Celengan Receh</div>
-                                </div>
-
-                                <div class="space-y-2.5 text-xs">
-                                    <div class="flex justify-between py-1 border-b border-slate-100">
-                                        <span class="text-slate-500">Merchant</span>
-                                        <span class="font-bold text-slate-800">Kantin Mahasiswa PocketPay</span>
-                                    </div>
-                                    <div class="flex justify-between py-1 border-b border-slate-100">
-                                        <span class="text-slate-500">No. Referensi</span>
-                                        <span class="font-mono text-slate-700">REF-83910283</span>
-                                    </div>
-                                    <div class="flex justify-between py-1 border-b border-slate-100">
-                                        <span class="text-slate-500">Sumber Dana</span>
-                                        <span class="font-semibold text-slate-800">Kantong: Jajan Harian</span>
-                                    </div>
-                                    <div class="flex justify-between py-1 border-b border-slate-100">
-                                        <span class="text-slate-500">Metode Otentikasi</span>
-                                        <span class="font-semibold text-emerald-700"><i class="fa-solid fa-fingerprint mr-1"></i> Biometrik</span>
-                                    </div>
-                                    <div class="flex justify-between py-1">
-                                        <span class="text-slate-500">Idempotency Key</span>
-                                        <span class="font-mono text-[10px] text-slate-500">a812f901...</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="pt-4 space-y-2">
-                                <button class="w-full bg-emerald-900 text-white py-3 rounded-xl text-xs font-bold shadow-lg shadow-emerald-900/20 flex items-center justify-center space-x-2">
-                                    <i class="fa-solid fa-share-nodes"></i> <span>Bagikan Struk</span>
-                                </button>
-                                <button class="w-full bg-slate-100 text-slate-700 py-2.5 rounded-xl text-xs font-bold">
-                                    Cetak E-Statement PDF
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
+<!-- ===================== ARCHITECTURE ===================== -->
+<section id="arsitektur">
+  <div class="wrap">
+    <div class="eyebrow"><span lang="id">Arsitektur</span><span lang="en">Architecture</span></div>
+    <h2><span lang="id">Clean Architecture + MVI, satu arah</span><span lang="en">Clean Architecture + unidirectional MVI</span></h2>
+    <p class="sub"><span lang="id">UI mengirim intent, ViewModel mengelola <code>StateFlow</code>, repository memanggil DAO yang menjalankan aturan uang secara atomik.</span><span lang="en">The UI sends intents, the ViewModel owns a <code>StateFlow</code>, and the repository calls a DAO that runs the money rules atomically.</span></p>
+    <div class="diagram dark" style="background:var(--navy);border:0">
+      <svg viewBox="0 0 880 330" role="img" aria-label="Architecture diagram" font-family="Plus Jakarta Sans, system-ui, sans-serif">
+        <defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" fill="#8CD63F"/></marker></defs>
+        <g font-size="15" font-weight="700" fill="#fff" text-anchor="middle">
+          <rect x="10" y="40" width="170" height="86" rx="20" fill="#1F3049"/><text x="95" y="78">Compose UI</text><text x="95" y="100" font-size="12" font-weight="500" fill="#9FB1CD">tabs · flows · sheets</text>
+          <rect x="230" y="40" width="170" height="86" rx="20" fill="#1F3049"/><text x="315" y="78">HomeViewModel</text><text x="315" y="100" font-size="12" font-weight="500" fill="#9FB1CD">StateFlow · effects</text>
+          <rect x="450" y="40" width="170" height="86" rx="20" fill="#1F3049"/><text x="535" y="78">Repository</text><text x="535" y="100" font-size="12" font-weight="500" fill="#9FB1CD">Result&lt;T&gt; · typed errors</text>
+          <rect x="670" y="40" width="200" height="86" rx="20" fill="#1F3049"/><text x="770" y="78">BankingDao</text><text x="770" y="100" font-size="12" font-weight="500" fill="#9FB1CD">@Transaction money rules</text>
+          <rect x="670" y="200" width="200" height="86" rx="20" fill="#26405F" stroke="#8CD63F" stroke-width="1.5"/><text x="770" y="238">Room + SQLCipher</text><text x="770" y="260" font-size="12" font-weight="500" fill="#9FB1CD">AES-256 database</text>
+          <rect x="450" y="200" width="170" height="86" rx="20" fill="#1F3049"/><text x="535" y="238">MaintenanceWorker</text><text x="535" y="260" font-size="12" font-weight="500" fill="#9FB1CD">daily · WorkManager</text>
+          <rect x="230" y="200" width="170" height="86" rx="20" fill="#1F3049"/><text x="315" y="238">PinManager</text><text x="315" y="260" font-size="12" font-weight="500" fill="#9FB1CD">PBKDF2 · biometrics</text>
+          <rect x="10" y="200" width="170" height="86" rx="20" fill="#26405F" stroke="#8CD63F" stroke-width="1.5"/><text x="95" y="238">Android Keystore</text><text x="95" y="260" font-size="12" font-weight="500" fill="#9FB1CD">non-exportable keys</text>
+        </g>
+        <g stroke="#8CD63F" stroke-width="2" fill="none" marker-end="url(#ar)">
+          <path d="M180 70h48"/><path d="M400 70h48"/><path d="M620 70h48"/>
+          <path d="M770 126v72"/>
+          <path d="M535 200v-72"/>
+          <path d="M180 243h48" marker-end="none" marker-start="url(#ar)"/>
+          <path d="M670 243h-48" marker-end="none"/>
+        </g>
+        <g font-size="11" fill="#9FB1CD" text-anchor="middle"><text x="204" y="62">Intent</text><text x="424" y="62">call</text><text x="644" y="62">SQL</text></g>
+      </svg>
+    </div>
+    <div class="grid g2" style="margin-top:26px">
+      <div class="card"><h3><span lang="id">Keputusan desain</span><span lang="en">Design decisions</span></h3>
+        <ul class="tick" style="margin-top:12px">
+          <li><span lang="id">Semua operasi uang adalah satu <b>transaksi Room</b>; saldo dibaca ulang di dalamnya.</span><span lang="en">Every money operation is one <b>Room transaction</b>, re-reading balances inside it.</span></li>
+          <li><span lang="id"><b>Error bertipe</b> (<code>BankingError</code>) dipetakan ke pesan dwibahasa; galat tak dikenal tidak membocorkan detail.</span><span lang="en"><b>Typed errors</b> (<code>BankingError</code>) map to bilingual messages; unknown errors never leak details.</span></li>
+          <li><span lang="id">Layar tanpa state; overlay <b>menelan sentuhan</b> dan menyembunyikan layar di bawahnya dari TalkBack.</span><span lang="en">Stateless screens; overlays <b>swallow touches</b> and hide what is beneath from TalkBack.</span></li>
+          <li><span lang="id">Warna sebagai <b>peran semantik</b> sehingga mode terang/gelap tak butuh hex di layar.</span><span lang="en">Colours are <b>semantic roles</b>, so light/dark needs no hex values in screens.</span></li>
+        </ul></div>
+      <div class="card"><h3><span lang="id">Teknologi</span><span lang="en">Tech stack</span></h3>
+        <div class="chips" style="margin-top:14px">
+          <span class="chip">Kotlin<small>2.0</small></span><span class="chip">Jetpack Compose<small>M3</small></span>
+          <span class="chip">Room<small>2.7</small></span><span class="chip">SQLCipher<small>4.6</small></span>
+          <span class="chip">Hilt<small>2.60</small></span><span class="chip">WorkManager<small>2.10</small></span>
+          <span class="chip">CameraX<small>1.4</small></span><span class="chip">ML Kit<small>barcode</small></span>
+          <span class="chip">ZXing<small>QR</small></span><span class="chip">Coroutines &amp; Flow</span>
+          <span class="chip">Android Keystore</span><span class="chip">BiometricPrompt</span>
+          <span class="chip">Robolectric</span><span class="chip">R8</span>
         </div>
-    </section>
+        <p style="margin-top:16px;font-size:14px;color:var(--muted)"><span lang="id">minSdk 26 · targetSdk 36 · satu modul.</span><span lang="en">minSdk 26 · targetSdk 36 · single module.</span></p></div>
+    </div>
+  </div>
+</section>
 
-    <!-- KEY FEATURES SECTION -->
-    <section id="features" class="py-24 px-6 bg-white">
-        <div class="max-w-7xl mx-auto">
-            <div class="text-center max-w-2xl mx-auto mb-16">
-                <span class="text-emerald-600 font-extrabold text-xs tracking-widest uppercase mb-2 block">Enterprise Features</span>
-                <h2 class="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">Engineered for Commercial Fintech Standards</h2>
-            </div>
+<!-- ===================== TESTING ===================== -->
+<section id="pengujian" class="dark">
+  <div class="wrap">
+    <div class="eyebrow"><span lang="id">Pengujian</span><span lang="en">Testing</span></div>
+    <h2><span lang="id">99 pengujian, termasuk di perangkat sungguhan</span><span lang="en">99 tests, including on a real device</span></h2>
+    <p class="sub"><span lang="id">Aturan uang, PIN, QRIS, statistik, migrasi database terenkripsi, dan paginasi PDF diuji. Layar dirender ke gambar untuk tinjauan desain.</span><span lang="en">Money rules, PIN, QRIS, statistics, the encrypted-database migration and PDF pagination are tested. Screens are rendered to images for design review.</span></p>
+    <div class="kpis">
+      <div class="kpi"><b>76</b><span lang="id">unit test (JVM + Robolectric)</span><span lang="en">unit tests (JVM + Robolectric)</span></div>
+      <div class="kpi"><b>8</b><span lang="id">test instrumented fungsional</span><span lang="en">functional instrumented tests</span></div>
+      <div class="kpi"><b>15</b><span lang="id">render layar (ID/EN, terang/gelap)</span><span lang="en">screen renders (ID/EN, light/dark)</span></div>
+      <div class="kpi"><b>0</b><span lang="id">kegagalan pada build ini</span><span lang="en">failures on this build</span></div>
+    </div>
+    <pre><button class="copy" type="button" data-copy>Copy</button><span class="c"># JVM tests</span>
+./gradlew :app:testDebugUnitTest
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+<span class="c"># on a device or emulator (Keystore, SQLCipher, PDF, worker, screenshots)</span>
+./gradlew :app:connectedDebugAndroidTest</pre>
+  </div>
+</section>
 
-                <!-- Feature 1 -->
-                <div class="bg-slate-50 p-8 rounded-3xl border border-slate-200/80 hover:border-emerald-300 transition duration-300 hover:shadow-xl hover:shadow-emerald-900/5">
-                    <div class="w-14 h-14 bg-emerald-100 rounded-2xl flex items-center justify-center text-emerald-800 text-2xl mb-6">
-                        <i class="fa-solid fa-route"></i>
-                    </div>
-                    <h3 class="text-xl font-bold text-slate-900 mb-3">Smart Cascading Payment</h3>
-                    <p class="text-slate-600 text-sm leading-relaxed">
-                        Multi-source payment routing that automatically draws remaining balance from the Primary Account if spending pocket funds are insufficient, executing seamlessly in a single Room <code>@Transaction</code>.
-                    </p>
-                </div>
+<!-- ===================== QUICK START ===================== -->
+<section id="mulai">
+  <div class="wrap">
+    <div class="eyebrow"><span lang="id">Mulai cepat</span><span lang="en">Quick start</span></div>
+    <h2><span lang="id">Jalankan dalam beberapa menit</span><span lang="en">Run it in minutes</span></h2>
+    <div class="grid g2" style="margin-top:24px">
+      <pre><button class="copy" type="button" data-copy>Copy</button>git clone https://github.com/dzakiabrar21/PocketPay.git
+cd PocketPay
+./gradlew installDebug</pre>
+      <div class="card">
+        <ul class="tick">
+          <li><span lang="id">Butuh Android Studio (JDK 17+) dan perangkat/emulator Android 8.0+ (API 26).</span><span lang="en">Needs Android Studio (JDK 17+) and an Android 8.0+ (API 26) device or emulator.</span></li>
+          <li><span lang="id">Saat pertama dibuka, buat PIN 6 digit (tidak boleh berulang atau berurutan).</span><span lang="en">On first launch create a 6-digit PIN (no repeats or sequences).</span></li>
+          <li><span lang="id">Di emulator, pakai <b>Input manual</b> di pemindai karena kamera tidak tersedia.</span><span lang="en">On an emulator use <b>Enter manually</b> in the scanner since there is no camera.</span></li>
+          <li><span lang="id">Data awal: Rekening Utama Rp 5.000.000, kantong Jajan Harian dan Deposito Darurat.</span><span lang="en">Seed data: a Rp 5,000,000 Main Account plus Jajan Harian and Deposito Darurat pockets.</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
 
-                <!-- Feature 2 -->
-                <div class="bg-slate-50 p-8 rounded-3xl border border-slate-200/80 hover:border-emerald-300 transition duration-300 hover:shadow-xl hover:shadow-emerald-900/5">
-                    <div class="w-14 h-14 bg-emerald-100 rounded-2xl flex items-center justify-center text-emerald-800 text-2xl mb-6">
-                        <i class="fa-solid fa-piggy-bank"></i>
-                    </div>
-                    <h3 class="text-xl font-bold text-slate-900 mb-3">Round-Up Micro-Savings</h3>
-                    <p class="text-slate-600 text-sm leading-relaxed">
-                        Rounds up non-integer QRIS payments to the nearest Rp 5,000 threshold and automatically deposits the change into a high-yield "Celengan Receh" pocket.
-                    </p>
-                </div>
+<!-- ===================== DOCS ===================== -->
+<section id="dokumentasi" style="padding-top:0">
+  <div class="wrap">
+    <div class="eyebrow"><span lang="id">Dokumentasi</span><span lang="en">Documentation</span></div>
+    <h2><span lang="id">Baca lebih dalam</span><span lang="en">Dig deeper</span></h2>
+    <p class="sub"><span lang="id">Dokumen di repositori menjelaskan arsitektur, aturan fitur, catatan keamanan, dan pengujian.</span><span lang="en">The documents in the repository cover the architecture, feature rules, security notes and testing.</span></p>
+    <div class="grid g3">
+      <a class="card doc" href="https://github.com/dzakiabrar21/PocketPay/blob/main/docs/ARCHITECTURE.md" target="_blank" rel="noopener"><small>ARCHITECTURE.md</small><h3><span lang="id">Arsitektur</span><span lang="en">Architecture</span></h3><p><span lang="id">Lapisan, paket, aliran data MVI, migrasi, dan pekerjaan latar.</span><span lang="en">Layers, packages, the MVI data flow, migrations and background work.</span></p></a>
+      <a class="card doc" href="https://github.com/dzakiabrar21/PocketPay/blob/main/docs/FEATURES.md" target="_blank" rel="noopener"><small>FEATURES.md</small><h3><span lang="id">Fitur &amp; aturan</span><span lang="en">Features &amp; rules</span></h3><p><span lang="id">Setiap fitur beserta rumus dan batasannya.</span><span lang="en">Each feature with its formulas and limits.</span></p></a>
+      <a class="card doc" href="https://github.com/dzakiabrar21/PocketPay/blob/main/docs/SECURITY.md" target="_blank" rel="noopener"><small>SECURITY.md</small><h3><span lang="id">Catatan keamanan</span><span lang="en">Security notes</span></h3><p><span lang="id">Apa yang dilindungi, bagaimana, dan apa yang belum.</span><span lang="en">What is protected, how, and what is not.</span></p></a>
+      <a class="card doc" href="https://github.com/dzakiabrar21/PocketPay/blob/main/docs/TESTING.md" target="_blank" rel="noopener"><small>TESTING.md</small><h3><span lang="id">Pengujian</span><span lang="en">Testing</span></h3><p><span lang="id">Daftar test, cara menjalankan, dan harness screenshot.</span><span lang="en">The test inventory, how to run it and the screenshot harness.</span></p></a>
+      <a class="card doc" href="https://github.com/dzakiabrar21/PocketPay#readme" target="_blank" rel="noopener"><small>README.md</small><h3>README</h3><p><span lang="id">Ringkasan proyek, struktur, dan langkah instalasi.</span><span lang="en">Project overview, structure and setup steps.</span></p></a>
+      <a class="card doc" href="https://github.com/dzakiabrar21/PocketPay/blob/main/LICENSE" target="_blank" rel="noopener"><small>LICENSE</small><h3>MIT</h3><p><span lang="id">Bebas dipelajari dan dikembangkan.</span><span lang="en">Free to study and build upon.</span></p></a>
+    </div>
 
-                <!-- Feature 3 -->
-                <div class="bg-slate-50 p-8 rounded-3xl border border-slate-200/80 hover:border-emerald-300 transition duration-300 hover:shadow-xl hover:shadow-emerald-900/5">
-                    <div class="w-14 h-14 bg-emerald-100 rounded-2xl flex items-center justify-center text-emerald-800 text-2xl mb-6">
-                        <i class="fa-solid fa-shield-halved"></i>
-                    </div>
-                    <h3 class="text-xl font-bold text-slate-900 mb-3">Fintech Security Shield</h3>
-                    <p class="text-slate-600 text-sm leading-relaxed">
-                        <code>FLAG_SECURE</code> screen recording/screenshot prevention, <code>ProcessLifecycleOwner</code> 60s background inactivity auto-lock, Biometric authentication, and balance masking.
-                    </p>
-                </div>
+    <div class="grid g2" style="margin-top:40px">
+      <div class="card"><h3><span lang="id">Belum ada</span><span lang="en">Not built yet</span></h3>
+        <ul class="tick cross" style="margin-top:12px">
+          <li><span lang="id">Transfer ke pengguna lain, tagihan, dan isi saldo dari luar.</span><span lang="en">Transfers to other people, bill payments and external top-ups.</span></li>
+          <li><span lang="id">Akun/login dan backend sinkronisasi.</span><span lang="en">Accounts/login and a sync backend.</span></li>
+          <li><span lang="id">Kategori, anggaran, dan pembayaran terjadwal.</span><span lang="en">Categories, budgets and scheduled payments.</span></li>
+        </ul></div>
+      <div class="card"><h3><span lang="id">Rencana berikutnya</span><span lang="en">What is next</span></h3>
+        <ul class="tick" style="margin-top:12px">
+          <li><span lang="id">Transfer ke kontak simulasi dan alur <code>PENDING</code> → berhasil/gagal.</span><span lang="en">Transfers to simulated contacts and a <code>PENDING</code> → success/fail flow.</span></li>
+          <li><span lang="id">Use case terpisah, test ViewModel, dan CI GitHub Actions.</span><span lang="en">Dedicated use cases, ViewModel tests and GitHub Actions CI.</span></li>
+          <li><span lang="id">Uji biometrik di perangkat fisik.</span><span lang="en">Test biometrics on a physical device.</span></li>
+        </ul></div>
+    </div>
+  </div>
+</section>
+</main>
 
-                <!-- Feature 4 -->
-                <div class="bg-slate-50 p-8 rounded-3xl border border-slate-200/80 hover:border-emerald-300 transition duration-300 hover:shadow-xl hover:shadow-emerald-900/5">
-                    <div class="w-14 h-14 bg-emerald-100 rounded-2xl flex items-center justify-center text-emerald-800 text-2xl mb-6">
-                        <i class="fa-solid fa-file-pdf"></i>
-                    </div>
-                    <h3 class="text-xl font-bold text-slate-900 mb-3">Native E-Statement PDF Engine</h3>
-                    <p class="text-slate-600 text-sm leading-relaxed">
-                        Generates official A4 bank statements with letterhead, security watermark, account balance summary, and mutation tables using Android's native <code>PdfDocument</code> engine.
-                    </p>
-                </div>
+<footer>
+  <div class="wrap row">
+    <div><b style="color:#fff">PocketPay</b> · <span lang="id">Proyek portofolio, data simulasi.</span><span lang="en">Portfolio project, simulated data.</span> MIT License.</div>
+    <div><a href="https://github.com/dzakiabrar21/PocketPay" target="_blank" rel="noopener">github.com/dzakiabrar21/PocketPay</a></div>
+  </div>
+</footer>
 
-                <!-- Feature 5 -->
-                <div class="bg-slate-50 p-8 rounded-3xl border border-slate-200/80 hover:border-emerald-300 transition duration-300 hover:shadow-xl hover:shadow-emerald-900/5">
-                    <div class="w-14 h-14 bg-emerald-100 rounded-2xl flex items-center justify-center text-emerald-800 text-2xl mb-6">
-                        <i class="fa-solid fa-key"></i>
-                    </div>
-                    <h3 class="text-xl font-bold text-slate-900 mb-3">Idempotency & Payment States</h3>
-                    <p class="text-slate-600 text-sm leading-relaxed">
-                        UUID-based idempotency key verification preventing duplicate payment requests, combined with an explicit Payment State Machine (<code>SUCCESS</code>, <code>PENDING</code>, <code>REVERSED</code>).
-                    </p>
-                </div>
-
-                <!-- Feature 6 -->
-                <div class="bg-slate-50 p-8 rounded-3xl border border-slate-200/80 hover:border-emerald-300 transition duration-300 hover:shadow-xl hover:shadow-emerald-900/5">
-                    <div class="w-14 h-14 bg-emerald-100 rounded-2xl flex items-center justify-center text-emerald-800 text-2xl mb-6">
-                        <i class="fa-solid fa-camera"></i>
-                    </div>
-                    <h3 class="text-xl font-bold text-slate-900 mb-3">QRIS Camera & Gallery Scanner</h3>
-                    <p class="text-slate-600 text-sm leading-relaxed">
-                        CameraX integration for live QRIS scanning alongside Google ML Kit image analysis for scanning QR code images selected from the gallery.
-                    </p>
-                </div>
-
-            </div>
-        </div>
-    </section>
-
-    <!-- SECURITY SHIELD SECTION -->
-    <section id="security" class="py-24 px-6 bg-emerald-950 text-white">
-        <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <div>
-                <span class="text-emerald-400 font-extrabold text-xs tracking-widest uppercase mb-2 block">App Security Shield</span>
-                <h2 class="text-3xl md:text-5xl font-extrabold leading-tight mb-6">Bank-Grade Protection & Anti-Fraud Engine</h2>
-                <p class="text-slate-300 leading-relaxed mb-8">
-                    PocketPay is fortified with enterprise security mechanisms ensuring strict data protection against malware, unauthorized physical access, and double-spending fraud.
-                </p>
-                <div class="space-y-4">
-                    <div class="bg-emerald-900/50 p-4 rounded-2xl border border-emerald-800 flex items-center space-x-4">
-                        <i class="fa-solid fa-lock text-emerald-400 text-xl"></i>
-                        <div>
-                            <div class="font-bold text-sm">FLAG_SECURE Active</div>
-                            <div class="text-xs text-slate-400">Blocks screen capturing and displays blank thumbnails in Recent Apps.</div>
-                        </div>
-                    </div>
-                    <div class="bg-emerald-900/50 p-4 rounded-2xl border border-emerald-800 flex items-center space-x-4">
-                        <i class="fa-solid fa-stopwatch text-emerald-400 text-xl"></i>
-                        <div>
-                            <div class="font-bold text-sm">ProcessLifecycleOwner Auto-Lock</div>
-                            <div class="text-xs text-slate-400">60-second inactivity session timeout enforcing Biometric or PIN re-verification.</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="glass-dark p-8 rounded-3xl border border-emerald-500/20 text-center">
-                <div class="w-20 h-20 bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center text-4xl mx-auto mb-6">
-                    <i class="fa-solid fa-shield-halved"></i>
-                </div>
-                <h3 class="text-2xl font-bold mb-2">PocketPay Security Shield</h3>
-                <p class="text-slate-300 text-sm mb-6">Session auto-locked for user financial privacy protection.</p>
-                <div class="bg-emerald-800/60 p-4 rounded-2xl text-xs font-mono text-emerald-200">
-                    STATUS: SECURE & ENCRYPTED
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- ARCHITECTURE SECTION -->
-    <section id="architecture" class="py-24 px-6 bg-slate-900 text-white">
-        <div class="max-w-7xl mx-auto">
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-                <div>
-                    <span class="text-emerald-400 font-extrabold text-xs tracking-widest uppercase mb-2 block">Architecture & Quality</span>
-                    <h2 class="text-3xl md:text-5xl font-extrabold leading-tight mb-6">Clean Architecture + Unidirectional Data Flow (MVI)</h2>
-                    <p class="text-slate-300 text-base leading-relaxed mb-8">
-                        PocketPay is architected using strict Clean Architecture boundaries and the MVI (Model-View-Intent) presentation pattern to deliver predictable state management and high testability.
-                    </p>
-
-                    <div class="space-y-4">
-                        <div class="flex items-start space-x-4">
-                            <div class="w-8 h-8 bg-emerald-500/20 text-emerald-400 rounded-xl flex items-center justify-center font-bold text-sm mt-1">1</div>
-                            <div>
-                                <h4 class="font-bold text-white text-base">Predictable State Machine</h4>
-                                <p class="text-slate-400 text-sm">UI emits immutable Intents (<code>HomeUiIntent</code>) and listens to single StateFlow updates (<code>HomeUiState</code>).</p>
-                            </div>
-                        </div>
-                        <div class="flex items-start space-x-4">
-                            <div class="w-8 h-8 bg-emerald-500/20 text-emerald-400 rounded-xl flex items-center justify-center font-bold text-sm mt-1">2</div>
-                            <div>
-                                <h4 class="font-bold text-white text-base">Atomic Room Persistence</h4>
-                                <p class="text-slate-400 text-sm">All complex financial operations execute inside SQL <code>@Transaction</code> blocks, preventing partial state failures.</p>
-                            </div>
-                        </div>
-                        <div class="flex items-start space-x-4">
-                            <div class="w-8 h-8 bg-emerald-500/20 text-emerald-400 rounded-xl flex items-center justify-center font-bold text-sm mt-1">3</div>
-                            <div>
-                                <h4 class="font-bold text-white text-base">Dependency Injection with Hilt</h4>
-                                <p class="text-slate-400 text-sm">Loose coupling across data, domain, and presentation layers managed by Dagger Hilt.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="glass-dark p-8 rounded-3xl border border-emerald-500/20 font-mono text-xs text-slate-300">
-                    <div class="flex items-center justify-between pb-4 border-b border-emerald-500/20 text-emerald-400 font-bold mb-4">
-                        <span><i class="fa-solid fa-code mr-2"></i> Architecture Directory Structure</span>
-                        <span>Kotlin 2.0</span>
-                    </div>
-                    <pre class="leading-relaxed">
-com.example.pocketpay/
-├── <span class="text-emerald-400 font-bold">data/</span>
-│   ├── AppDatabase.kt          <span class="text-slate-500"># Room DB & Seeding</span>
-│   ├── BankingDao.kt           <span class="text-slate-500"># Atomic Transaction DAO</span>
-│   ├── Entities.kt             <span class="text-slate-500"># Entities & Enums</span>
-│   └── repository/             <span class="text-slate-500"># BankingRepositoryImpl</span>
-├── <span class="text-emerald-400 font-bold">domain/</span>
-│   └── repository/             <span class="text-slate-500"># BankingRepository Interface</span>
-├── <span class="text-emerald-400 font-bold">presentation/</span>
-│   ├── home/                   <span class="text-slate-500"># MVI Contract, ViewModel, Compose UI</span>
-│   ├── scanner/                <span class="text-slate-500"># CameraX & ML Kit Analyzer</span>
-│   ├── security/               <span class="text-slate-500"># BiometricHelper</span>
-│   └── statement/              <span class="text-slate-500"># Native PDF Generator</span>
-└── <span class="text-emerald-400 font-bold">di/</span>                         <span class="text-slate-500"># Dagger Hilt Modules</span>
-                    </pre>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- APP SHOWCASE SECTION -->
-    <section id="showcase" class="py-24 px-6 bg-slate-50">
-        <div class="max-w-7xl mx-auto text-center">
-            <span class="text-emerald-600 font-extrabold text-xs tracking-widest uppercase mb-2 block">Application Showcase</span>
-            <h2 class="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight mb-12">Interactive Screen Previews</h2>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <div class="bg-white p-6 rounded-3xl shadow-lg border border-slate-200">
-                    <i class="fa-solid fa-mobile text-3xl text-emerald-700 mb-4"></i>
-                    <h3 class="font-bold text-lg mb-2">Emerald Dashboard</h3>
-                    <p class="text-xs text-slate-600">Primary Account balance, multi-pocket cards, quick actions & transactions history.</p>
-                </div>
-                <div class="bg-white p-6 rounded-3xl shadow-lg border border-slate-200">
-                    <i class="fa-solid fa-file-pdf text-3xl text-emerald-700 mb-4"></i>
-                    <h3 class="font-bold text-lg mb-2">Official E-Statement</h3>
-                    <p class="text-xs text-slate-600">A4 PDF Bank Statement generation with letterhead, watermark & FileProvider sharing.</p>
-                </div>
-                <div class="bg-white p-6 rounded-3xl shadow-lg border border-slate-200">
-                    <i class="fa-solid fa-user-shield text-3xl text-emerald-700 mb-4"></i>
-                    <h3 class="font-bold text-lg mb-2">Account & Security</h3>
-                    <p class="text-xs text-slate-600">Full-screen user account profile management & auto-lock shield overlay.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- TECH STACK SECTION -->
-    <section id="techstack" class="py-20 px-6 bg-white border-t border-slate-200">
-        <div class="max-w-7xl mx-auto text-center">
-            <span class="text-emerald-600 font-extrabold text-xs tracking-widest uppercase mb-2 block">Tech Stack</span>
-            <h2 class="text-3xl font-extrabold text-slate-900 mb-12">Powered by Modern Android Stack</h2>
-            <div class="flex flex-wrap items-center justify-center gap-6">
-                <span class="bg-slate-100 text-slate-800 font-bold px-5 py-3 rounded-2xl text-sm border border-slate-200"><i class="fa-brands fa-android text-emerald-600 mr-2"></i> Android SDK 26+</span>
-                <span class="bg-slate-100 text-slate-800 font-bold px-5 py-3 rounded-2xl text-sm border border-slate-200"><i class="fa-solid fa-code text-purple-600 mr-2"></i> Kotlin 2.0</span>
-                <span class="bg-slate-100 text-slate-800 font-bold px-5 py-3 rounded-2xl text-sm border border-slate-200"><i class="fa-solid fa-cubes text-blue-600 mr-2"></i> Jetpack Compose</span>
-                <span class="bg-slate-100 text-slate-800 font-bold px-5 py-3 rounded-2xl text-sm border border-slate-200"><i class="fa-solid fa-database text-amber-600 mr-2"></i> Room DB</span>
-                <span class="bg-slate-100 text-slate-800 font-bold px-5 py-3 rounded-2xl text-sm border border-slate-200"><i class="fa-solid fa-syringe text-emerald-700 mr-2"></i> Dagger Hilt</span>
-                <span class="bg-slate-100 text-slate-800 font-bold px-5 py-3 rounded-2xl text-sm border border-slate-200"><i class="fa-solid fa-[#3DDC84] fa-qrcode mr-2 text-indigo-600"></i> Google ML Kit</span>
-            </div>
-        </div>
-    </section>
-
-    <!-- FOOTER -->
-    <footer class="bg-emerald-950 text-slate-400 py-12 px-6 border-t border-emerald-900">
-        <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
-            <div class="flex items-center space-x-3">
-                <div class="w-9 h-9 bg-emerald-800 rounded-xl flex items-center justify-center text-white font-bold">
-                    <i class="fa-solid fa-wallet text-emerald-400"></i>
-                </div>
-                <span class="text-white font-extrabold text-lg">PocketPay</span>
-            </div>
-            <p class="text-xs text-slate-400">© 2026 PocketPay. Developed as a modern Android Fintech & Digital Banking showcase.</p>
-            <a href="https://github.com" target="_blank" class="text-white hover:text-emerald-400 transition text-sm font-bold">
-                <i class="fa-brands fa-github text-lg mr-1"></i> GitHub Repository
-            </a>
-        </div>
-    </footer>
-
+<script>
+(function(){
+  var root=document.documentElement, state={lang:'id',theme:'light'};
+  try{var l=localStorage.getItem('pp-lang'); if(l) state.lang=l; else if(!/^id/i.test(navigator.language||'id')) state.lang='en';}catch(e){}
+  var titles={id:'PocketPay — Dompet digital & tabungan receh otomatis (Android)',en:'PocketPay — Digital wallet & micro-savings for Android'};
+  var alts={splash:['Layar splash','Splash screen'],pin:['Layar kunci PIN','PIN lock screen'],home:['Beranda dengan kartu saldo dan kantong','Home with balance card and pockets'],pay:['Form pembayaran QRIS','QRIS payment form'],success:['Halaman pembayaran berhasil','Payment success page'],stats:['Statistik pemasukan dan pengeluaran','Income and expense statistics'],pockets:['Daftar kantong','Pockets list'],receive:['Kode QR terima','Receive QR code'],receipt:['Struk transaksi','Transaction receipt'],history:['Riwayat transaksi','Transaction history'],profile:['Profil dan status keamanan','Profile and security status'],statement:['Ekspor e-statement','E-statement export']};
+  function apply(){
+    root.setAttribute('data-lang',state.lang); root.lang=state.lang; document.title=titles[state.lang];
+    document.querySelectorAll('[data-set-lang]').forEach(function(b){b.setAttribute('aria-pressed',b.dataset.setLang===state.lang)});
+    document.querySelectorAll('[data-set-theme]').forEach(function(b){b.setAttribute('aria-pressed',b.dataset.setTheme===state.theme)});
+    document.querySelectorAll('img[data-shot]').forEach(function(img){
+      var n=img.dataset.shot;
+      // the hero phones are always light; only the gallery follows the theme switch
+      var theme=img.closest('.gallery')?state.theme:'light';
+      img.src='assets/screens/'+n+'-'+state.lang+'-'+theme+'.webp';
+      if(img.getAttribute('alt')!==''&&alts[n]) img.alt=alts[n][state.lang==='id'?0:1];
+    });
+  }
+  document.addEventListener('click',function(e){
+    var b=e.target.closest('button'); if(!b) return;
+    if(b.dataset.setLang){state.lang=b.dataset.setLang;try{localStorage.setItem('pp-lang',state.lang)}catch(x){} apply();}
+    if(b.dataset.setTheme){state.theme=b.dataset.setTheme; apply();}
+    if(b.hasAttribute('data-copy')){
+      var pre=b.parentElement, txt=pre.innerText.replace(/^Copy\s*/,'').replace(/^Disalin\s*/,'');
+      if(navigator.clipboard){navigator.clipboard.writeText(txt).then(function(){var o=b.textContent;b.textContent='✓';setTimeout(function(){b.textContent=o},1200)})}
+    }
+  });
+  apply();
+  if('IntersectionObserver' in window){
+    var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})},{threshold:.12});
+    document.querySelectorAll('.reveal').forEach(function(el){io.observe(el)});
+  } else {document.querySelectorAll('.reveal').forEach(function(el){el.classList.add('in')})}
+})();
+</script>
 </body>
 </html>
