@@ -312,4 +312,11 @@
     <string name="nav_profile">Profil</string>
     <string name="scan_title">Pindai QRIS</string>
     <string name="scan_hint">Arahkan kamera ke kode QRIS merchant</string>
+    <string name="status_received">Diterima</string>
+    <string name="status_moved">Dipindahkan</string>
+    <string name="type_expense">Pengeluaran</string>
+    <string name="type_income">Pemasukan</string>
+    <string name="type_transfer">Pemindahan</string>
+    <string name="history_search">Cari transaksi</string>
+    <string name="stats_bar_detail">%1$s: masuk %2$s, keluar %3$s</string>
 </resources>

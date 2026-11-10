@@ -185,14 +185,14 @@ fun HistoryScreen(
             item {
                 PocketTextField(
                     state.searchQuery, { onIntent(HomeUiIntent.SetSearchQuery(it)) },
-                    stringResource(R.string.home_cari_merchant_ref_atau_sumber_dana), leadingIcon = Icons.Rounded.Search
+                    stringResource(R.string.history_search), leadingIcon = Icons.Rounded.Search
                 )
             }
             item {
                 LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     item { PocketChip(state.selectedTxTypeFilter == null, { onIntent(HomeUiIntent.SetTxTypeFilter(null)) }, stringResource(R.string.home_semua_tipe)) }
                     items(TxType.entries.toList()) { type ->
-                        PocketChip(state.selectedTxTypeFilter == type, { onIntent(HomeUiIntent.SetTxTypeFilter(type)) }, type.name)
+                        PocketChip(state.selectedTxTypeFilter == type, { onIntent(HomeUiIntent.SetTxTypeFilter(type)) }, txTypeLabel(type))
                     }
                 }
             }

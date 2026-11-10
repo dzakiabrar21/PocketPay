@@ -312,4 +312,11 @@
     <string name="nav_profile">Profile</string>
     <string name="scan_title">Scan QRIS</string>
     <string name="scan_hint">Point the camera at the merchant QRIS code</string>
+    <string name="status_received">Received</string>
+    <string name="status_moved">Moved</string>
+    <string name="type_expense">Expense</string>
+    <string name="type_income">Income</string>
+    <string name="type_transfer">Transfer</string>
+    <string name="history_search">Search transactions</string>
+    <string name="stats_bar_detail">%1$s: in %2$s, out %3$s</string>
 </resources>

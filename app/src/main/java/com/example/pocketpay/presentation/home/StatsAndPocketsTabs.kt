@@ -91,6 +91,7 @@ fun StatsTab(
     now: Long = System.currentTimeMillis()
 ) {
     var period by rememberSaveable { mutableStateOf(StatsPeriod.WEEKLY) }
+    var selectedBar by rememberSaveable(period) { mutableStateOf(-1) }
     val c = PocketTheme.colors
     val buckets = remember(state.recentTransactions, period, now) {
         if (period == StatsPeriod.WEEKLY) Statistics.weekly(state.recentTransactions, now)
@@ -126,11 +127,23 @@ fun StatsTab(
         }
         item {
             SoftCard(contentPadding = PaddingValues(16.dp)) {
-                BarChart(
-                    values = buckets.map { it.expense + it.income },
-                    labels = labels,
-                    highlight = buckets.lastIndex
-                )
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    val picked = if (selectedBar in buckets.indices) selectedBar else buckets.lastIndex
+                    val bucket = buckets[picked]
+                    Text(
+                        stringResource(
+                            R.string.stats_bar_detail, labels[picked],
+                            formatAmount(bucket.income, state.isBalanceHidden), formatAmount(bucket.expense, state.isBalanceHidden)
+                        ),
+                        style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    BarChart(
+                        values = buckets.map { it.expense + it.income },
+                        labels = labels,
+                        highlight = picked,
+                        onBarClick = { selectedBar = it }
+                    )
+                }
             }
         }
         item {

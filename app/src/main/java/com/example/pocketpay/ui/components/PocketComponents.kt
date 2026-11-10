@@ -3,6 +3,8 @@ package com.example.pocketpay.ui.components
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -257,23 +259,31 @@ fun FloatingBottomBar(
 
 /** Row of dots showing how many PIN digits were entered. */
 @Composable
-fun PinDots(length: Int, filled: Int, modifier: Modifier = Modifier, isError: Boolean = false, onDark: Boolean = false) {
+fun PinDots(
+    length: Int,
+    filled: Int,
+    modifier: Modifier = Modifier,
+    isError: Boolean = false,
+    onDark: Boolean = false,
+    shakeKey: Any = Unit
+) {
     val c = PocketTheme.colors
     val active = if (isError) c.danger else if (onDark) c.lime else MaterialTheme.colorScheme.onSurface
     val idle = if (onDark) c.onHero.copy(alpha = 0.25f) else MaterialTheme.colorScheme.outline
-    Row(modifier = modifier, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+
+    // A short horizontal shake each time a wrong PIN is reported.
+    val shake = remember { Animatable(0f) }
+    LaunchedEffect(shakeKey) {
+        if (isError) {
+            for (target in listOf(-18f, 18f, -12f, 12f, -6f, 0f)) shake.animateTo(target, tween(55))
+        }
+    }
+    Row(
+        modifier = modifier.graphicsLayer { translationX = shake.value.dp.toPx() },
+        horizontalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
         repeat(length) { i ->
-            Box(
-                Modifier
-                    .size(16.dp)
-                    .clip(CircleShape)
-                    .background(if (i < filled) active else Color.Transparent)
-                    .then(
-                        if (i < filled) Modifier else Modifier.background(Color.Transparent)
-                    )
-                    .padding(1.dp)
-                    .background(if (i < filled) active else idle, CircleShape)
-            )
+            Box(Modifier.size(16.dp).clip(CircleShape).background(if (i < filled) active else idle))
         }
     }
 }
@@ -288,6 +298,7 @@ fun PinKeypad(
     leading: (@Composable () -> Unit)? = null
 ) {
     val c = PocketTheme.colors
+    val haptics = androidx.compose.ui.platform.LocalHapticFeedback.current
     val keyBg = if (onDark) c.heroChip else MaterialTheme.colorScheme.surface
     val keyFg = if (onDark) c.onHero else MaterialTheme.colorScheme.onSurface
     @Composable
@@ -296,7 +307,12 @@ fun PinKeypad(
             modifier = Modifier
                 .size(72.dp)
                 .clip(CircleShape)
-                .then(if (onClick != null) Modifier.background(keyBg).clickable(role = Role.Button, onClick = onClick) else Modifier),
+                .then(
+                    if (onClick != null) Modifier.background(keyBg).clickable(role = Role.Button) {
+                        haptics.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.TextHandleMove)
+                        onClick()
+                    } else Modifier
+                ),
             contentAlignment = Alignment.Center
         ) { content() }
     }
@@ -360,13 +376,17 @@ fun BarChart(
     labels: List<String>,
     modifier: Modifier = Modifier,
     highlight: Int? = null,
-    chartHeight: Dp = 170.dp
+    chartHeight: Dp = 170.dp,
+    onBarClick: ((Int) -> Unit)? = null
 ) {
     val c = PocketTheme.colors
     val max = (values.maxOrNull() ?: 0L).coerceAtLeast(1L)
     Row(modifier = modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
         values.forEachIndexed { i, v ->
-            Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
+            Column(
+                modifier = Modifier.weight(1f).then(if (onBarClick != null) Modifier.clickable(role = Role.Button) { onBarClick(i) } else Modifier),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -438,7 +458,8 @@ fun PocketTextField(
     keyboardOptions: androidx.compose.foundation.text.KeyboardOptions = androidx.compose.foundation.text.KeyboardOptions.Default,
     isError: Boolean = false,
     prefix: String? = null,
-    singleLine: Boolean = true
+    singleLine: Boolean = true,
+    visualTransformation: androidx.compose.ui.text.input.VisualTransformation = androidx.compose.ui.text.input.VisualTransformation.None
 ) {
     val c = PocketTheme.colors
     androidx.compose.material3.OutlinedTextField(
@@ -449,6 +470,7 @@ fun PocketTextField(
         singleLine = singleLine,
         isError = isError,
         keyboardOptions = keyboardOptions,
+        visualTransformation = visualTransformation,
         prefix = prefix?.let { { Text(it) } },
         leadingIcon = leadingIcon?.let { { Icon(it, null) } },
         shape = RoundedCornerShape(18.dp),
@@ -486,3 +508,33 @@ fun PocketChip(selected: Boolean, onClick: () -> Unit, label: String, modifier: 
 
 /** Hides a covered screen from accessibility services (TalkBack) while something is drawn over it. */
 fun Modifier.hideIf(covered: Boolean): Modifier = if (covered) this.clearAndSetSemantics { } else this
+
+/** Shows digits grouped by thousands ("1.234.567") while the stored text stays plain digits. */
+object ThousandsTransformation : androidx.compose.ui.text.input.VisualTransformation {
+    override fun filter(text: androidx.compose.ui.text.AnnotatedString): androidx.compose.ui.text.input.TransformedText {
+        val raw = text.text
+        val n = raw.length
+        val out = StringBuilder()
+        raw.forEachIndexed { i, ch ->
+            if (i > 0 && (n - i) % 3 == 0) out.append('.')
+            out.append(ch)
+        }
+        // Index in the grouped text of the digit at original position j.
+        fun indexOfDigit(j: Int): Int {
+            var seps = 0
+            for (i in 1..j) if ((n - i) % 3 == 0) seps++
+            return j + seps
+        }
+        val mapping = object : androidx.compose.ui.text.input.OffsetMapping {
+            override fun originalToTransformed(offset: Int): Int =
+                if (offset <= 0 || n == 0) 0 else indexOfDigit(offset.coerceAtMost(n) - 1) + 1
+
+            override fun transformedToOriginal(offset: Int): Int {
+                var original = 0
+                for (j in 0 until n) if (indexOfDigit(j) < offset) original = j + 1
+                return original
+            }
+        }
+        return androidx.compose.ui.text.input.TransformedText(androidx.compose.ui.text.AnnotatedString(out.toString()), mapping)
+    }
+}

@@ -165,7 +165,9 @@ fun TransactionItemRow(
                 maxLines = 1
             )
             val (label, color) = when (tx.status) {
-                TxStatus.SUCCESS -> stringResource(R.string.status_paid) to c.successText
+                TxStatus.SUCCESS -> stringResource(
+                    when (tx.type) { TxType.DEBIT -> R.string.status_paid; TxType.CREDIT -> R.string.status_received; TxType.REALLOCATION -> R.string.status_moved }
+                ) to c.successText
                 TxStatus.PENDING -> statusLabel(tx.status) to c.amberText
                 TxStatus.REVERSED -> statusLabel(tx.status) to c.warnText
             }
@@ -194,3 +196,9 @@ fun authMethodLabel(raw: String): String = when (raw) {
 /** Thin colour for dividers inside list cards. */
 @Composable
 fun listDividerColor(): Color = MaterialTheme.colorScheme.outlineVariant
+
+/** Human label for a transaction type (the enum names are internal). */
+@Composable
+fun txTypeLabel(type: TxType): String = stringResource(
+    when (type) { TxType.DEBIT -> R.string.type_expense; TxType.CREDIT -> R.string.type_income; TxType.REALLOCATION -> R.string.type_transfer }
+)

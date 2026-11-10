@@ -220,7 +220,7 @@ fun HomeScreen(
                 }
 
                 // ---- full-screen flows ----
-                if (showHistory) HistoryScreen(uiState, onIntent, onBack = { showHistory = false }, modifier = Modifier.hideIf(topOverlay))
+                OverlayTransition(showHistory) { HistoryScreen(uiState, onIntent, onBack = { showHistory = false }, modifier = Modifier.hideIf(topOverlay)) }
 
                 if (uiState.isScannerOpen) {
                     QrisScannerDialog(
@@ -348,4 +348,16 @@ fun HomeScreen(
             }
         }
     }
+}
+
+/** Slides a full-screen flow up from the bottom and fades it out again; keeps the last content during the exit. */
+@Composable
+fun OverlayTransition(visible: Boolean, content: @Composable () -> Unit) {
+    androidx.compose.animation.AnimatedVisibility(
+        visible = visible,
+        enter = androidx.compose.animation.slideInVertically(androidx.compose.animation.core.tween(280)) { it / 8 } +
+            androidx.compose.animation.fadeIn(androidx.compose.animation.core.tween(220)),
+        exit = androidx.compose.animation.slideOutVertically(androidx.compose.animation.core.tween(220)) { it / 8 } +
+            androidx.compose.animation.fadeOut(androidx.compose.animation.core.tween(180))
+    ) { content() }
 }

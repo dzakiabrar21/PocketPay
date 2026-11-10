@@ -125,12 +125,12 @@ fun CreatePocketSheet(
         PocketTextField(name, { name = it }, stringResource(R.string.pocket_nama_kantong))
         PocketTextField(
             amountText, { amountFilter(it)?.let { v -> amountText = v } },
-            stringResource(R.string.pocket_saldo_awal_dialokasikan_rp), prefix = "Rp ", keyboardOptions = NumberKeyboard
+            stringResource(R.string.pocket_saldo_awal_dialokasikan_rp), prefix = "Rp ", keyboardOptions = NumberKeyboard, visualTransformation = com.example.pocketpay.ui.components.ThousandsTransformation
         )
         if (type == PocketType.SPENDING) {
             PocketTextField(
                 targetText, { amountFilter(it)?.let { v -> targetText = v } },
-                stringResource(R.string.pocket_target_tabungan_rp_opsional), prefix = "Rp ", keyboardOptions = NumberKeyboard
+                stringResource(R.string.pocket_target_tabungan_rp_opsional), prefix = "Rp ", keyboardOptions = NumberKeyboard, visualTransformation = com.example.pocketpay.ui.components.ThousandsTransformation
             )
         } else {
             Text(stringResource(R.string.pocket_pilih_tenor_deposito), style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
@@ -220,7 +220,7 @@ fun ManagePocketSheet(
         }
         PocketTextField(
             amountText, { amountFilter(it)?.let { v -> amountText = v } },
-            stringResource(R.string.pocket_nominal_rp), prefix = "Rp ", keyboardOptions = NumberKeyboard
+            stringResource(R.string.pocket_nominal_rp), prefix = "Rp ", keyboardOptions = NumberKeyboard, visualTransformation = com.example.pocketpay.ui.components.ThousandsTransformation
         )
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             PillButton(
@@ -271,7 +271,7 @@ fun TransferSheet(
             pockets.filter { it.id != fromId }.forEach { p -> PocketPickRow(p, selected = toId == p.id) { toId = p.id } }
             PocketTextField(
                 amountText, { amountFilter(it)?.let { v -> amountText = v } },
-                stringResource(R.string.pocket_nominal_transfer_rp), prefix = "Rp ", keyboardOptions = NumberKeyboard
+                stringResource(R.string.pocket_nominal_transfer_rp), prefix = "Rp ", keyboardOptions = NumberKeyboard, visualTransformation = com.example.pocketpay.ui.components.ThousandsTransformation
             )
             PillButton(
                 stringResource(R.string.pocket_transfer_sekarang), { onConfirm(fromId, toId, amount) },
@@ -379,7 +379,7 @@ fun ReceiptSheet(transaction: TransactionEntity, onRefund: () -> Unit) {
     val receiptSummary = stringResource(
         R.string.receipt_share_text,
         transaction.status.name, transaction.referenceNo, transaction.title, transaction.amount.toRupiah(),
-        transaction.type.name, transaction.sourceOfFund, transaction.timestamp.toFullDateTimeFormatted(),
+        txTypeLabel(transaction.type), transaction.sourceOfFund, transaction.timestamp.toFullDateTimeFormatted(),
         authMethodLabel(transaction.authMethod), transaction.idempotencyKey
     )
 
@@ -410,7 +410,7 @@ fun ReceiptSheet(transaction: TransactionEntity, onRefund: () -> Unit) {
                 val rows = listOf(
                     stringResource(R.string.receipt_nama_merchant) to transaction.title,
                     stringResource(R.string.receipt_no_referensi) to transaction.referenceNo,
-                    stringResource(R.string.receipt_tipe_mutasi) to transaction.type.name,
+                    stringResource(R.string.receipt_tipe_mutasi) to txTypeLabel(transaction.type),
                     stringResource(R.string.receipt_sumber_dana) to transaction.sourceOfFund,
                     stringResource(R.string.receipt_waktu) to transaction.timestamp.toFullDateTimeFormatted(),
                     stringResource(R.string.receipt_metode_otentikasi) to authMethodLabel(transaction.authMethod),

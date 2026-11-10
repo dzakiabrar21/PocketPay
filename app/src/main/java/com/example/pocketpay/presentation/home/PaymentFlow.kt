@@ -143,7 +143,7 @@ fun PinEntryScreen(
                 Text(subtitle, color = fgMuted, style = MaterialTheme.typography.bodyMedium, textAlign = TextAlign.Center)
             }
             Spacer(Modifier.height(28.dp))
-            PinDots(length, pin.length, isError = error != null, onDark = onDark)
+            PinDots(length, pin.length, isError = error != null, onDark = onDark, shakeKey = resetKey)
             Box(Modifier.height(36.dp).padding(top = 12.dp), contentAlignment = Alignment.Center) {
                 if (error != null) {
                     Text(error, color = if (onDark) Color(0xFFFFA3A6) else c.danger, style = MaterialTheme.typography.bodySmall, textAlign = TextAlign.Center)
@@ -227,6 +227,7 @@ fun QrisPaymentScreen(
                         ),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         singleLine = true,
+                        visualTransformation = com.example.pocketpay.ui.components.ThousandsTransformation,
                         cursorBrush = SolidColor(c.accent),
                         decorationBox = { inner ->
                             Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
@@ -461,7 +462,8 @@ fun ReceiveQrScreen(
                 PocketTextField(
                     amountText, { if (it.length <= 12 && it.all(Char::isDigit)) amountText = it },
                     stringResource(R.string.pay_set_nominal_transfer_opsional), prefix = "Rp ",
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    visualTransformation = com.example.pocketpay.ui.components.ThousandsTransformation
                 )
                 Spacer(Modifier.height(4.dp))
             }
