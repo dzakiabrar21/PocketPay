@@ -5,6 +5,7 @@ import androidx.room.Room
 import com.example.pocketpay.data.AppDatabase
 import com.example.pocketpay.data.BankingDao
 import com.example.pocketpay.data.DatabaseCallback
+import com.example.pocketpay.data.EncryptedDatabase
 import com.example.pocketpay.data.MIGRATION_5_6
 import com.example.pocketpay.data.MIGRATION_6_7
 import dagger.Module
@@ -18,6 +19,7 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object DatabaseModule {
+    private const val DB_NAME = "pocketpay_database.db"
 
     @Provides
     @Singleton
@@ -28,8 +30,9 @@ object DatabaseModule {
         return Room.databaseBuilder(
             context,
             AppDatabase::class.java,
-            "pocketpay_database.db"
+            DB_NAME
         )
+            .openHelperFactory(EncryptedDatabase.openHelperFactory(context, DB_NAME))
             .addCallback(DatabaseCallback(databaseProvider))
             .addMigrations(MIGRATION_5_6, MIGRATION_6_7)
             .build()

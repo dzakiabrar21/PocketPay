@@ -19,13 +19,14 @@ class QrCodeAnalyzer(
             .build()
     )
 
-    private var isDetected = false
+    private var lastRaw: String? = null
+    private var lastAt = 0L
 
     @OptIn(ExperimentalGetImage::class)
     override fun analyze(imageProxy: ImageProxy) {
         val mediaImage = imageProxy.image
 
-        if (mediaImage != null && !isDetected) {
+        if (mediaImage != null) {
             val image = InputImage.fromMediaImage(
                 mediaImage,
                 imageProxy.imageInfo.rotationDegrees
@@ -35,8 +36,13 @@ class QrCodeAnalyzer(
                 .addOnSuccessListener { barcodes ->
                     for (barcode in barcodes) {
                         barcode.rawValue?.let { rawQrValue ->
-                            isDetected = true
-                            onQrCodeScanned(rawQrValue)
+                            val now = System.currentTimeMillis()
+                            // Debounce: the camera sees the same code many times per second.
+                            if (rawQrValue != lastRaw || now - lastAt > 2500L) {
+                                lastRaw = rawQrValue
+                                lastAt = now
+                                onQrCodeScanned(rawQrValue)
+                            }
                             return@addOnSuccessListener
                         }
                     }

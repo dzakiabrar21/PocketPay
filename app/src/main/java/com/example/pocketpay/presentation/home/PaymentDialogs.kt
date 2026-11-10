@@ -1,0 +1,445 @@
+package com.example.pocketpay.presentation.home
+
+import android.content.Intent
+import android.widget.Toast
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.scaleIn
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowDownward
+import androidx.compose.material.icons.filled.ArrowUpward
+import androidx.compose.material.icons.filled.AutoAwesome
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Payment
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Phone
+import androidx.compose.material.icons.filled.PictureAsPdf
+import androidx.compose.material.icons.filled.QrCode
+import androidx.compose.material.icons.filled.QrCodeScanner
+import androidx.compose.material.icons.filled.ReceiptLong
+import androidx.compose.material.icons.filled.Savings
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Security
+import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.filled.Shield
+import androidx.compose.material.icons.filled.SwapHoriz
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.fragment.app.FragmentActivity
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.pocketpay.data.PocketEntity
+import com.example.pocketpay.data.PocketType
+import com.example.pocketpay.data.TransactionEntity
+import com.example.pocketpay.data.TxType
+import com.example.pocketpay.presentation.scanner.QrisScannerDialog
+import com.example.pocketpay.presentation.security.BiometricHelper
+import com.example.pocketpay.presentation.security.ChangePinDialog
+import com.example.pocketpay.presentation.security.PinManager
+import com.example.pocketpay.presentation.security.PinSetupDialog
+import com.example.pocketpay.presentation.security.PinResult
+import com.example.pocketpay.presentation.statement.PdfStatementGenerator
+import kotlinx.coroutines.delay
+import java.text.NumberFormat
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+import kotlin.math.abs
+
+@Composable
+fun PaymentQrisDialog(
+    initialMerchant: String = "Kantin Mahasiswa PocketPay",
+    initialAmount: Long = 23_500L,
+    pockets: List<PocketEntity>,
+    onDismiss: () -> Unit,
+    onConfirmPayment: (merchant: String, amount: Long, pocketId: String?, isRoundUp: Boolean) -> Unit
+) {
+    var merchant by remember { mutableStateOf(initialMerchant) }
+    var amountText by remember { mutableStateOf(if (initialAmount > 0) initialAmount.toString() else "") }
+    var selectedPocketId by remember { mutableStateOf<String?>(null) }
+    var isRoundUpEnabled by remember { mutableStateOf(true) }
+
+    val amount = amountText.toLongOrNull() ?: 0L
+    val remainder = amount % 5000L
+    val roundUpDiff = if (remainder == 0L) 0L else (5000L - remainder)
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Konfirmasi Bayar QRIS") },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                OutlinedTextField(
+                    value = merchant,
+                    onValueChange = { merchant = it },
+                    label = { Text("Nama Merchant") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                OutlinedTextField(
+                    value = amountText,
+                    onValueChange = { amountText = it },
+                    label = { Text("Nominal Pembayaran (Rp)") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(Color(0xFFECFDF5), RoundedCornerShape(12.dp))
+                        .padding(10.dp)
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = "Celengan Receh (Round-Up)",
+                            style = MaterialTheme.typography.labelMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFF064E3B)
+                        )
+                        Text(
+                            text = if (roundUpDiff > 0) "Bulatkan Rp 5.000 (+ ${roundUpDiff.toRupiah()})" else "Nominal kelipatan Rp 5.000",
+                            style = MaterialTheme.typography.bodySmall,
+                            fontSize = 11.sp,
+                            color = Color(0xFF047857)
+                        )
+                    }
+
+                    Switch(
+                        checked = isRoundUpEnabled,
+                        onCheckedChange = { isRoundUpEnabled = it }
+                    )
+                }
+
+                val targetP = pockets.find { it.id == selectedPocketId }
+                if (targetP != null && targetP.balance < amount) {
+                    val deficit = amount - targetP.balance
+                    Card(
+                        colors = CardDefaults.cardColors(
+                            containerColor = Color(0xFFFEF3C7)
+                        ),
+                        shape = RoundedCornerShape(12.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(10.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.SwapHoriz,
+                                contentDescription = null,
+                                tint = Color(0xFFD97706),
+                                modifier = Modifier.size(20.dp)
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Column {
+                                Text(
+                                    text = "Smart Cascading Active",
+                                    style = MaterialTheme.typography.labelMedium,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color(0xFF92400E)
+                                )
+                                Text(
+                                    text = "Saldo ${targetP.name} kurang ${deficit.toRupiah()}. Sisa ${deficit.toRupiah()} ditalangi dari Rekening Utama.",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    fontSize = 11.sp,
+                                    color = Color(0xFF92400E)
+                                )
+                            }
+                        }
+                    }
+                }
+
+                Text(
+                    text = "Pilih Sumber Dana (Source-of-Fund):",
+                    style = MaterialTheme.typography.labelMedium,
+                    fontWeight = FontWeight.SemiBold
+                )
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    RadioButton(
+                        selected = (selectedPocketId == null),
+                        onClick = { selectedPocketId = null }
+                    )
+                    Text(text = "Rekening Utama")
+                }
+
+                pockets.forEach { pocket ->
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        RadioButton(
+                            selected = (selectedPocketId == pocket.id),
+                            onClick = { selectedPocketId = pocket.id }
+                        )
+                        Text(text = "${pocket.name} (${pocket.balance.toRupiah()})")
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = {
+                    if (amount > 0 && merchant.isNotBlank()) {
+                        onConfirmPayment(merchant, amount, selectedPocketId, isRoundUpEnabled)
+                    }
+                },
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF064E3B))
+            ) {
+                Text("Konfirmasi & Bayar")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text("Batal") }
+        }
+    )
+}
+
+@Composable
+fun TransactionPinDialog(
+    merchant: String,
+    amount: Long,
+    onDismiss: () -> Unit,
+    onPinSuccess: () -> Unit
+) {
+    val pinContext = LocalContext.current
+    var pin by remember { mutableStateOf("") }
+    var errorText by remember { mutableStateOf<String?>(null) }
+    val isError = errorText != null
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text(
+                text = "Masukkan PIN Transaksi",
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold
+            )
+        },
+        text = {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(10.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = "Verifikasi pembayaran ${amount.toRupiah()} ke $merchant",
+                    style = MaterialTheme.typography.bodyMedium,
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+
+                OutlinedTextField(
+                    value = pin,
+                    onValueChange = {
+                        if (it.length <= 6 && it.all { char -> char.isDigit() }) {
+                            pin = it
+                            errorText = null
+                        }
+                    },
+                    label = { Text("6 Digit PIN") },
+                    singleLine = true,
+                    isError = isError,
+                    visualTransformation = PasswordVisualTransformation(),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                errorText?.let {
+                    Text(
+                        text = it,
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = {
+                    val result = PinManager.verify(pinContext, pin)
+                    if (result == PinResult.Success) {
+                        onPinSuccess()
+                    } else {
+                        errorText = PinManager.describe(result)
+                        pin = ""
+                    }
+                },
+                enabled = pin.length == 6,
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF064E3B))
+            ) {
+                Text("Konfirmasi PIN")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Batal")
+            }
+        }
+    )
+}
+
+@Composable
+fun ReceiveQrDialog(
+    accountNumber: String,
+    onDismiss: () -> Unit
+) {
+    val context = LocalContext.current
+    var amountText by remember { mutableStateOf("") }
+    val enteredAmount = amountText.toLongOrNull()
+
+    val qrPayload = remember(accountNumber, enteredAmount) {
+        com.example.pocketpay.domain.qris.Qris.build("PocketPay", "JAKARTA", accountNumber, enteredAmount)
+    }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text(
+                text = "QR Terima Transfer",
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold
+            )
+        },
+        text = {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Text(
+                    text = "Tunjukkan QR ini ke pengirim untuk menerima transfer dana.",
+                    style = MaterialTheme.typography.bodySmall,
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+
+                Box(
+                    modifier = Modifier
+                        .size(200.dp)
+                        .background(Color.White, RoundedCornerShape(16.dp))
+                        .border(2.dp, Color(0xFF064E3B), RoundedCornerShape(16.dp))
+                        .padding(16.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    QrCodeCanvas(dataText = qrPayload)
+                }
+
+                Text(
+                    text = "No. Rekening: $accountNumber",
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.Bold
+                )
+
+                if (enteredAmount != null && enteredAmount > 0) {
+                    Text(
+                        text = "Nominal: ${enteredAmount.toRupiah()}",
+                        style = MaterialTheme.typography.titleSmall,
+                        color = Color(0xFF064E3B),
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+
+                OutlinedTextField(
+                    value = amountText,
+                    onValueChange = { amountText = it },
+                    label = { Text("Set Nominal Transfer (Opsional)") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = {
+                    val shareText = """
+                        Transfer ke Rekening PocketPay:
+                        No. Rekening: $accountNumber
+                        ${if (enteredAmount != null && enteredAmount > 0) "Nominal: ${enteredAmount.toRupiah()}" else ""}
+                    """.trimIndent()
+
+                    val sendIntent = Intent().apply {
+                        action = Intent.ACTION_SEND
+                        putExtra(Intent.EXTRA_TEXT, shareText)
+                        type = "text/plain"
+                    }
+                    context.startActivity(Intent.createChooser(sendIntent, "Bagikan Informasi Transfer"))
+                },
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF064E3B))
+            ) {
+                Icon(Icons.Default.Share, contentDescription = null, modifier = Modifier.size(16.dp))
+                Spacer(modifier = Modifier.width(6.dp))
+                Text("Bagikan QR / No. Rek")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Tutup")
+            }
+        }
+    )
+}
+
+@Composable
+fun QrCodeCanvas(dataText: String) {
+    // Real, scannable QR code (ZXing encodes the matrix; we only paint the modules).
+    val matrix = remember(dataText) {
+        com.google.zxing.qrcode.QRCodeWriter().encode(
+            dataText,
+            com.google.zxing.BarcodeFormat.QR_CODE,
+            0, 0,
+            mapOf(com.google.zxing.EncodeHintType.MARGIN to 0)
+        )
+    }
+    Canvas(modifier = Modifier.fillMaxSize()) {
+        val cell = size.width / matrix.width
+        for (y in 0 until matrix.height) {
+            for (x in 0 until matrix.width) {
+                if (matrix.get(x, y)) {
+                    drawRect(
+                        color = Color.Black,
+                        topLeft = Offset(x * cell, y * cell),
+                        size = Size(cell + 0.5f, cell + 0.5f)
+                    )
+                }
+            }
+        }
+    }
+}

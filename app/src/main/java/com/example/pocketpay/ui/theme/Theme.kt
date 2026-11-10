@@ -1,6 +1,5 @@
 package com.example.pocketpay.ui.theme
 
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
@@ -30,7 +29,8 @@ private val LightColorScheme = lightColorScheme(
 
 @Composable
 fun PocketPayTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
+    // Screens still use fixed light colours, so dark mode is opt-in until they move to theme tokens.
+    darkTheme: Boolean = false,
     content: @Composable () -> Unit
 ) {
     val colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme

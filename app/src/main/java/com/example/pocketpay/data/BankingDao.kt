@@ -54,10 +54,10 @@ abstract class BankingDao {
         val pocket = getPocketById(pocket.id)
             ?: throw IllegalStateException("Kantong tidak ditemukan.")
         if (pocket.pocketType == PocketType.LOCKED_DEPOSIT) {
-            throw IllegalStateException("Locked deposit pockets cannot be used for QRIS payments.")
+            throw IllegalStateException("Deposito terkunci tidak bisa dipakai untuk pembayaran QRIS.")
         }
         if (pocket.balance < paymentAmount) {
-            throw IllegalStateException("Insufficient pocket balance.")
+            throw IllegalStateException("Saldo kantong tidak cukup.")
         }
 
         val updatedPocket = pocket.copy(balance = pocket.balance - paymentAmount)
@@ -78,7 +78,7 @@ abstract class BankingDao {
         val account = getAccountOnce()
             ?: throw IllegalStateException("Rekening utama tidak ditemukan.")
         if (account.balance < paymentAmount) {
-            throw IllegalStateException("Insufficient primary account balance.")
+            throw IllegalStateException("Saldo Rekening Utama tidak cukup.")
         }
 
         val updatedAccount = account.copy(balance = account.balance - paymentAmount)
@@ -98,7 +98,7 @@ abstract class BankingDao {
         val account = getAccountOnce()
             ?: throw IllegalStateException("Rekening utama tidak ditemukan.")
         if (currentAccount.balance < newPocket.balance) {
-            throw IllegalStateException("Insufficient primary account balance.")
+            throw IllegalStateException("Saldo Rekening Utama tidak cukup.")
         }
 
         updateAccount(currentAccount.copy(balance = currentAccount.balance - newPocket.balance))
@@ -129,7 +129,7 @@ abstract class BankingDao {
         val pocket = getPocketById(pocket.id)
             ?: throw IllegalStateException("Kantong tidak ditemukan.")
         if (account.balance < amount) {
-            throw IllegalStateException("Insufficient primary account balance for top-up.")
+            throw IllegalStateException("Saldo Rekening Utama tidak cukup untuk top-up.")
         }
 
         updateAccount(account.copy(balance = account.balance - amount))
@@ -162,11 +162,11 @@ abstract class BankingDao {
         val currentTime = System.currentTimeMillis()
 
         if (pocket.pocketType == PocketType.LOCKED_DEPOSIT && (pocket.maturityDate ?: 0L) > currentTime) {
-            throw IllegalStateException("Deposit pocket is locked until maturity date.")
+            throw IllegalStateException("Deposito masih terkunci hingga jatuh tempo.")
         }
 
         if (pocket.balance < amount) {
-            throw IllegalStateException("Insufficient pocket balance.")
+            throw IllegalStateException("Saldo kantong tidak cukup.")
         }
 
         updatePocket(pocket.copy(balance = pocket.balance - amount))
@@ -200,7 +200,7 @@ abstract class BankingDao {
         val currentTime = System.currentTimeMillis()
 
         if (pocket.pocketType == PocketType.LOCKED_DEPOSIT && (pocket.maturityDate ?: 0L) > currentTime) {
-            throw IllegalStateException("Deposit pocket is locked until maturity date and cannot be closed.")
+            throw IllegalStateException("Deposito masih terkunci hingga jatuh tempo dan belum bisa ditutup.")
         }
 
         if (pocket.balance > 0) {
@@ -237,13 +237,13 @@ abstract class BankingDao {
         val toPocket = getPocketById(toPocket.id)
             ?: throw IllegalStateException("Kantong tujuan tidak ditemukan.")
         if (fromPocket.pocketType == PocketType.LOCKED_DEPOSIT) {
-            throw IllegalStateException("Source pocket is locked and cannot transfer funds.")
+            throw IllegalStateException("Kantong asal terkunci dan tidak bisa mentransfer dana.")
         }
         if (toPocket.pocketType == PocketType.LOCKED_DEPOSIT) {
-            throw IllegalStateException("Destination pocket is locked and cannot receive direct transfers.")
+            throw IllegalStateException("Kantong tujuan terkunci dan tidak bisa menerima transfer langsung.")
         }
         if (fromPocket.balance < amount) {
-            throw IllegalStateException("Insufficient balance in ${fromPocket.name}.")
+            throw IllegalStateException("Saldo kantong ${fromPocket.name} tidak cukup.")
         }
 
         updatePocket(fromPocket.copy(balance = fromPocket.balance - amount))
@@ -278,29 +278,29 @@ abstract class BankingDao {
         val pocket = pocket?.let { getPocketById(it.id) ?: throw IllegalStateException("Kantong tidak ditemukan.") }
         if (pocket != null) {
             if (pocket.pocketType == PocketType.LOCKED_DEPOSIT) {
-                throw IllegalStateException("Locked deposit pockets cannot be used for QRIS payments.")
+                throw IllegalStateException("Deposito terkunci tidak bisa dipakai untuk pembayaran QRIS.")
             }
             if (pocket.balance < paymentAmount) {
-                throw IllegalStateException("Insufficient pocket balance.")
+                throw IllegalStateException("Saldo kantong tidak cukup.")
             }
             updatePocket(pocket.copy(balance = pocket.balance - paymentAmount))
             insertTransaction(paymentTxRecord)
         } else if (account != null) {
             if (account.balance < paymentAmount + roundUpAmount) {
-                throw IllegalStateException("Insufficient primary account balance.")
+                throw IllegalStateException("Saldo Rekening Utama tidak cukup.")
             }
             updateAccount(account.copy(balance = account.balance - paymentAmount))
             insertTransaction(paymentTxRecord)
         } else {
-            throw IllegalStateException("Invalid payment source.")
+            throw IllegalStateException("Sumber dana pembayaran tidak valid.")
         }
 
         if (roundUpAmount > 0) {
             val currentAccount = getAccountOnce()
-                ?: throw IllegalStateException("Primary account not found.")
+                ?: throw IllegalStateException("Rekening utama tidak ditemukan.")
 
             if (currentAccount.balance < roundUpAmount) {
-                throw IllegalStateException("Insufficient primary account balance for round-up.")
+                throw IllegalStateException("Saldo Rekening Utama tidak cukup untuk pembulatan Celengan Receh.")
             }
 
             updateAccount(currentAccount.copy(balance = currentAccount.balance - roundUpAmount))
@@ -405,14 +405,14 @@ abstract class BankingDao {
         val pocket = pocket?.let { getPocketById(it.id) ?: throw IllegalStateException("Kantong tidak ditemukan.") }
         val existingTx = getTransactionById(idempotencyKey)
         if (existingTx != null) {
-            throw IllegalStateException("Duplicate transaction detected (Idempotency Key: $idempotencyKey). Payment rejected.")
+            throw IllegalStateException("Transaksi ganda terdeteksi (kunci: $idempotencyKey). Pembayaran ditolak.")
         }
 
         var sourceOfFundText: String
 
         if (pocket != null) {
             if (pocket.pocketType == PocketType.LOCKED_DEPOSIT) {
-                throw IllegalStateException("Locked deposit pockets cannot be used for QRIS payments.")
+                throw IllegalStateException("Deposito terkunci tidak bisa dipakai untuk pembayaran QRIS.")
             }
 
             if (pocket.balance >= paymentAmount) {
@@ -423,7 +423,7 @@ abstract class BankingDao {
                 val deficit = paymentAmount - pocketBalance
 
                 if (account.balance < deficit + roundUpAmount) {
-                    throw IllegalStateException("Combined balance of Pocket (${pocket.name}) & Primary Account is insufficient.")
+                    throw IllegalStateException("Gabungan saldo kantong ${pocket.name} dan Rekening Utama tidak cukup.")
                 }
 
                 updatePocket(pocket.copy(balance = 0L))
@@ -432,7 +432,7 @@ abstract class BankingDao {
             }
         } else {
             if (account.balance < paymentAmount + roundUpAmount) {
-                throw IllegalStateException("Primary account balance is insufficient.")
+                throw IllegalStateException("Saldo Rekening Utama tidak cukup.")
             }
             updateAccount(account.copy(balance = account.balance - paymentAmount))
             sourceOfFundText = "Rekening Utama"
@@ -452,10 +452,10 @@ abstract class BankingDao {
 
         if (roundUpAmount > 0) {
             val updatedAccount = getAccountOnce()
-                ?: throw IllegalStateException("Primary account not found.")
+                ?: throw IllegalStateException("Rekening utama tidak ditemukan.")
 
             if (updatedAccount.balance < roundUpAmount) {
-                throw IllegalStateException("Primary account balance is insufficient for round-up micro-savings.")
+                throw IllegalStateException("Saldo Rekening Utama tidak cukup untuk pembulatan Celengan Receh.")
             }
 
             updateAccount(updatedAccount.copy(balance = updatedAccount.balance - roundUpAmount))

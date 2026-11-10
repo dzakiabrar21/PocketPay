@@ -13,6 +13,7 @@ import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ProcessLifecycleOwner
 import com.example.pocketpay.presentation.home.HomeScreen
+import com.example.pocketpay.ui.theme.PocketPayTheme
 import com.example.pocketpay.presentation.home.HomeUiIntent
 import com.example.pocketpay.presentation.home.HomeViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -50,7 +51,7 @@ class MainActivity : FragmentActivity() {
         })
 
         setContent {
-            MaterialTheme {
+            PocketPayTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background

@@ -25,8 +25,10 @@ Integrated micro-savings mechanism inspired by modern digital banking.
 ### 3. 🛡️ Fintech App Hardening & Security Shield
 Comprehensive commercial banking security safeguards:
 * **Screenshot & Screen Recording Blocker (`FLAG_SECURE`)**: Prevents screen capturing, recording, and malware screen-scraping.
-* **Inactivity Auto-Lock Shield (`ProcessLifecycleOwner`)**: Automatically locks the app session when minimized or left idle for more than 60 seconds.
-* **Biometric & PIN Fallback State Machine**: Android `BiometricPrompt` (Fingerprint / Face ID) with an automatic 6-digit PIN fallback.
+* **Auto-Lock Shield**: The app starts locked and re-locks after 60 seconds in the background; unlocking needs the PIN or a biometric match.
+* **Encrypted at rest**: The Room database is encrypted with SQLCipher (AES-256). Its random passphrase is wrapped by an Android Keystore key and never stored in clear. Older plaintext databases are converted in place on first launch.
+* **Keystore-protected PIN**: 6-digit PIN stored as a salted PBKDF2 hash, additionally encrypted with a Keystore key; 5 wrong attempts trigger a 30 s lockout. Backups are disabled.
+* **Crypto-bound biometrics**: `BiometricPrompt` uses a `CryptoObject` over a Keystore key that is invalidated when new biometrics are enrolled (re-armed only after the PIN is entered), with PIN fallback.
 * **Privacy Toggle**: Instant balance masking (`Rp ••••••`) to prevent shoulder surfing.
 
 ### 4. 🔑 Idempotency Key & Payment State Machine
@@ -34,7 +36,7 @@ Comprehensive commercial banking security safeguards:
 * **Explicit Payment States**: Tracks transactions through explicit states (`SUCCESS`, `PENDING`, `REVERSED`).
 
 ### 5. 📄 Official E-Statement PDF Generator
-* **Native PDF Engine**: Uses Android's `android.graphics.pdf.PdfDocument` API to generate official A4 bank statements without third-party dependencies.
+* **Native PDF Engine**: Uses Android's `android.graphics.pdf.PdfDocument` API to generate multi-page A4 bank statements (all transactions, repeated headers, page numbers) without third-party dependencies.
 * **Official Branding**: Features official PocketPay letterhead, security watermark, account balance summary, and mutation tables.
 * **Sharing & Viewing**: Integrated with Android `FileProvider` for opening and sharing PDFs directly to WhatsApp, Google Drive, or Email.
 
@@ -47,7 +49,7 @@ Comprehensive commercial banking security safeguards:
 * **Gallery Image Scanning**: Pick QR images from the device gallery for instant ML Kit decoding.
 
 ### 8. 🔲 Dynamic Receive QR Generator
-* **Custom Canvas QR Generator**: Generates dynamic QR codes for receiving payments with custom amounts.
+* **QRIS (EMVCo) QR**: Receive-QR codes are real, scannable QR codes carrying a CRC-checked QRIS payload; the scanner parses/validates QRIS (CRC16, IDR, merchant, amount) and rejects anything else. PocketPay is not a registered QRIS issuer, so third-party wallets will not settle against it.
 
 ### 9. 👤 User Account Profile Management
 * **Dedicated Account Page**: Dedicated full-screen page to view and update user profile information (Name, Phone, Email) and monitor security configuration.
@@ -109,6 +111,13 @@ com.example.pocketpay/
    Select your device or emulator, then press **Run 'app'** (`Shift + F10`).
 
 ---
+
+## ✅ Tests
+
+```bash
+./gradlew :app:testDebugUnitTest          # JVM unit tests (Robolectric): DAO money logic, PIN, QRIS, profile
+./gradlew :app:connectedDebugAndroidTest  # needs a device/emulator: Keystore, SQLCipher migration, PDF pagination
+```
 
 ## 🔐 Security & Testing Credentials
 * **Security PIN**: created by the user on first launch (6 digits, no repeated/sequential digits); can be changed from Account Profile → "Ganti PIN"

@@ -20,9 +20,13 @@ navigationCompose = "2.8.8"
 materialIconsExtended = "1.7.8"
 
 robolectric = "4.14.1"
+zxing = "3.5.3"
+sqlcipher = "4.6.1"
 testCore = "1.6.1"
 
 [libraries]
+sqlcipher = { group = "net.zetetic", name = "sqlcipher-android", version.ref = "sqlcipher" }
+zxing-core = { group = "com.google.zxing", name = "core", version.ref = "zxing" }
 robolectric = { group = "org.robolectric", name = "robolectric", version.ref = "robolectric" }
 androidx-test-core = { group = "androidx.test", name = "core", version.ref = "testCore" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }

@@ -1,7 +1,6 @@
 package com.example.pocketpay.presentation.security
 
 import android.content.Context
-import android.util.Base64
 import java.security.MessageDigest
 import java.security.SecureRandom
 import javax.crypto.SecretKeyFactory
@@ -15,7 +14,8 @@ sealed interface PinResult {
 }
 
 /**
- * Stores the transaction PIN as a salted PBKDF2 hash (never plaintext) and enforces
+ * Stores the transaction PIN as a salted PBKDF2 hash, additionally encrypted with a Keystore key
+ * (see [Vault]) so the stored material is useless off-device, and enforces
  * a limited number of attempts followed by a temporary lockout.
  *
  * The user creates the PIN on first launch ([setInitialPin]) and can change it later ([changePin]).
@@ -38,10 +38,19 @@ object PinManager {
         return SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256").generateSecret(spec).encoded
     }
 
-    fun isPinSet(context: Context): Boolean {
+    /** Reads (salt, hash) decrypted from the Keystore-protected store, or null if absent/unreadable. */
+    private fun readSecrets(context: Context): Pair<ByteArray, ByteArray>? {
         val p = prefs(context)
-        return p.contains(KEY_HASH) && p.contains(KEY_SALT)
+        val saltToken = p.getString(KEY_SALT, null) ?: return null
+        val hashToken = p.getString(KEY_HASH, null) ?: return null
+        return try {
+            Vault.cipher.decrypt(saltToken) to Vault.cipher.decrypt(hashToken)
+        } catch (e: Exception) {
+            null // corrupt, tampered, or Keystore key lost: treat as "no PIN" so the user can re-create it
+        }
     }
+
+    fun isPinSet(context: Context): Boolean = readSecrets(context) != null
 
     /** Returns an error message if the PIN is unacceptable, or null if it is fine. */
     fun validateNewPin(pin: String): String? {
@@ -58,6 +67,7 @@ object PinManager {
         if (isPinSet(context)) return "PIN sudah pernah dibuat."
         validateNewPin(pin)?.let { return it }
         storePin(context, pin)
+        runCatching { BiometricHelper.arm() }
         return null
     }
 
@@ -75,8 +85,8 @@ object PinManager {
     private fun storePin(context: Context, pin: String) {
         val salt = ByteArray(16).also { SecureRandom().nextBytes(it) }
         prefs(context).edit()
-            .putString(KEY_SALT, Base64.encodeToString(salt, Base64.NO_WRAP))
-            .putString(KEY_HASH, Base64.encodeToString(hash(pin, salt), Base64.NO_WRAP))
+            .putString(KEY_SALT, Vault.cipher.encrypt(salt))
+            .putString(KEY_HASH, Vault.cipher.encrypt(hash(pin, salt)))
             .putInt(KEY_FAILS, 0)
             .putLong(KEY_LOCK_UNTIL, 0L)
             .apply()
@@ -84,7 +94,7 @@ object PinManager {
 
     @Synchronized
     fun verify(context: Context, pin: String): PinResult {
-        if (!isPinSet(context)) return PinResult.NotSet
+        val (salt, expected) = readSecrets(context) ?: return PinResult.NotSet
         val p = prefs(context)
         val now = System.currentTimeMillis()
 
@@ -93,12 +103,12 @@ object PinManager {
             return PinResult.LockedOut((lockUntil - now + 999) / 1000)
         }
 
-        val salt = Base64.decode(p.getString(KEY_SALT, "")!!, Base64.NO_WRAP)
-        val expected = Base64.decode(p.getString(KEY_HASH, "")!!, Base64.NO_WRAP)
         val ok = MessageDigest.isEqual(expected, hash(pin, salt))
 
         if (ok) {
             p.edit().putInt(KEY_FAILS, 0).putLong(KEY_LOCK_UNTIL, 0L).apply()
+            // Proof of PIN knowledge is the moment it is safe to (re)create the biometric key.
+            runCatching { BiometricHelper.arm() }
             return PinResult.Success
         }
 

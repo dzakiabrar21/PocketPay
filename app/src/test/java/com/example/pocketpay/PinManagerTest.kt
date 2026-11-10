@@ -4,6 +4,8 @@ import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import com.example.pocketpay.presentation.security.PinManager
 import com.example.pocketpay.presentation.security.PinResult
+import com.example.pocketpay.presentation.security.SecretCipher
+import com.example.pocketpay.presentation.security.Vault
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
@@ -21,8 +23,18 @@ class PinManagerTest {
 
     private lateinit var context: Context
 
+    /** Robolectric has no AndroidKeyStore, so use a reversible stand-in for the Keystore cipher. */
+    private object FakeCipher : SecretCipher {
+        override fun encrypt(plain: ByteArray) = "enc:" + java.util.Base64.getEncoder().encodeToString(plain)
+        override fun decrypt(token: String): ByteArray {
+            require(token.startsWith("enc:")) { "not encrypted" }
+            return java.util.Base64.getDecoder().decode(token.removePrefix("enc:"))
+        }
+    }
+
     @Before
     fun setUp() {
+        Vault.cipher = FakeCipher
         context = ApplicationProvider.getApplicationContext()
         context.getSharedPreferences("pocketpay_pin_store", Context.MODE_PRIVATE)
             .edit().clear().commit()
@@ -109,5 +121,24 @@ class PinManagerTest {
         PinManager.setInitialPin(context, "135790")
         assertNotNull(PinManager.changePin(context, "135790", "135790"))
         assertNotNull(PinManager.changePin(context, "135790", "111111"))
+    }
+
+    @Test
+    fun legacyPlaintextOrTamperedStore_isTreatedAsNoPin() {
+        // A store written by an older version (unencrypted values) must not be trusted.
+        context.getSharedPreferences("pocketpay_pin_store", Context.MODE_PRIVATE).edit()
+            .putString("pin_salt", "c2FsdA==").putString("pin_hash", "aGFzaA==").commit()
+        assertFalse(PinManager.isPinSet(context))
+        assertEquals(PinResult.NotSet, PinManager.verify(context, "135790"))
+    }
+
+    @Test
+    fun hashCannotBeSwappedBetweenPins() {
+        PinManager.setInitialPin(context, "135790")
+        val prefs = context.getSharedPreferences("pocketpay_pin_store", Context.MODE_PRIVATE)
+        val oldHash = prefs.getString("pin_hash", null)!!
+        PinManager.changePin(context, "135790", "246802")
+        prefs.edit().putString("pin_hash", oldHash).commit() // roll back only the hash
+        assertTrue(PinManager.verify(context, "135790") !is PinResult.Success)
     }
 }

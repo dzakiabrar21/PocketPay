@@ -220,7 +220,7 @@ class HomeViewModel @Inject constructor(
 
             result.onSuccess {
                 val roundUpMsg = if (roundUpAmount > 0) {
-                    "\n(Rp ${roundUpAmount.toRupiah()} otomatis dialokasikan ke Celengan Receh)"
+                    "\n(${roundUpAmount.toRupiah()} otomatis dialokasikan ke Celengan Receh)"
                 } else ""
 
                 val alertData = SuccessAlertData(
@@ -257,7 +257,7 @@ class HomeViewModel @Inject constructor(
                 .onSuccess {
                     val alertData = SuccessAlertData(
                         title = "Kantong Berhasil Dibuat!",
-                        message = "Kantong '$name' berhasil dibuat dengan alokasi awal Rp ${balance.toRupiah()}."
+                        message = "Kantong '$name' berhasil dibuat dengan alokasi awal ${balance.toRupiah()}."
                     )
                     _uiState.update {
                         it.copy(
@@ -293,7 +293,7 @@ class HomeViewModel @Inject constructor(
                 val label = if (actionType == PocketActionType.TOP_UP) "Top-Up" else "Penarikan Saldo"
                 val alertData = SuccessAlertData(
                     title = "$label Berhasil!",
-                    message = "$label sebesar Rp ${amount.toRupiah()} pada kantong '${pocket.name}' telah sukses."
+                    message = "$label sebesar ${amount.toRupiah()} pada kantong '${pocket.name}' telah sukses."
                 )
                 _uiState.update {
                     it.copy(
@@ -327,7 +327,7 @@ class HomeViewModel @Inject constructor(
                 .onSuccess {
                     val alertData = SuccessAlertData(
                         title = "Transfer Antar-Kantong Sukses!",
-                        message = "Berhasil memindahkan Rp ${amount.toRupiah()} dari kantong '${fromPocket.name}' ke '${toPocket.name}'."
+                        message = "Berhasil memindahkan ${amount.toRupiah()} dari kantong '${fromPocket.name}' ke '${toPocket.name}'."
                     )
                     _uiState.update {
                         it.copy(

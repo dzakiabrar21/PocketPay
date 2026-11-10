@@ -49,8 +49,9 @@ object PdfStatementGenerator {
         val pageHeight = 842 // A4 Height in points
 
         val pageInfo = PdfDocument.PageInfo.Builder(pageWidth, pageHeight, 1).create()
-        val page = pdfDocument.startPage(pageInfo)
-        val canvas: Canvas = page.canvas
+        var pageNumber = 1
+        var page = pdfDocument.startPage(pageInfo)
+        var canvas: Canvas = page.canvas
 
         // Paints
         val primaryPaint = Paint().apply {
@@ -91,16 +92,32 @@ object PdfStatementGenerator {
             isAntiAlias = true
         }
 
+        fun drawWatermark(c: Canvas) {
+            c.save()
+            c.rotate(-30f, pageWidth / 2f, pageHeight / 2f)
+            c.drawText(
+                "POCKETPAY OFFICIAL E-STATEMENT",
+                pageWidth / 2f - 190f,
+                pageHeight / 2f,
+                watermarkPaint
+            )
+            c.restore()
+        }
+
+        fun drawFooter(c: Canvas, number: Int) {
+            val footerY = pageHeight - 36f
+            c.drawLine(32f, footerY - 10f, pageWidth - 32f, footerY - 10f, linePaint)
+            c.drawText(
+                "Dokumen ini dicetak secara komputerisasi oleh sistem PocketPay dan sah tanpa tanda tangan basah.",
+                32f,
+                footerY,
+                subTitlePaint
+            )
+            c.drawText("Hal. $number", pageWidth - 32f - 30f, footerY + 12f, subTitlePaint)
+        }
+
         // 1. Background Watermark
-        canvas.save()
-        canvas.rotate(-30f, pageWidth / 2f, pageHeight / 2f)
-        canvas.drawText(
-            "POCKETPAY OFFICIAL E-STATEMENT",
-            pageWidth / 2f - 190f,
-            pageHeight / 2f,
-            watermarkPaint
-        )
-        canvas.restore()
+        drawWatermark(canvas)
 
         // 2. Official Bank Letterhead
         val margin = 32f
@@ -160,22 +177,23 @@ object PdfStatementGenerator {
             isAntiAlias = true
         }
 
-        val headerRect = RectF(margin, currentY, pageWidth - margin, currentY + 22f)
-        canvas.drawRoundRect(headerRect, 4f, 4f, headerBgPaint)
-
         val col1X = margin + 6f
         val col2X = margin + 90f
         val col3X = margin + 235f
         val col4X = margin + 335f
         val col5X = margin + 410f
 
-        val headerTextY = currentY + 15f
-        canvas.drawText("TANGGAL", col1X, headerTextY, headerTextPaint)
-        canvas.drawText("DESKRIPSI / MERCHANT", col2X, headerTextY, headerTextPaint)
-        canvas.drawText("SUMBER DANA", col3X, headerTextY, headerTextPaint)
-        canvas.drawText("TIPE", col4X, headerTextY, headerTextPaint)
-        canvas.drawText("NOMINAL (RP)", col5X, headerTextY, headerTextPaint)
+        fun drawTableHeader(c: Canvas, y: Float) {
+            c.drawRoundRect(RectF(margin, y, pageWidth - margin, y + 22f), 4f, 4f, headerBgPaint)
+            val ty = y + 15f
+            c.drawText("TANGGAL", col1X, ty, headerTextPaint)
+            c.drawText("DESKRIPSI / MERCHANT", col2X, ty, headerTextPaint)
+            c.drawText("SUMBER DANA", col3X, ty, headerTextPaint)
+            c.drawText("TIPE", col4X, ty, headerTextPaint)
+            c.drawText("NOMINAL (RP)", col5X, ty, headerTextPaint)
+        }
 
+        drawTableHeader(canvas, currentY)
         currentY += 34f
 
         // Table Rows
@@ -184,7 +202,19 @@ object PdfStatementGenerator {
             style = Paint.Style.FILL
         }
 
-        transactions.take(24).forEachIndexed { index, tx ->
+        transactions.forEachIndexed { index, tx ->
+            // Start a new page when the next row would collide with the footer.
+            if (currentY > pageHeight - 70f) {
+                drawFooter(canvas, pageNumber)
+                pdfDocument.finishPage(page)
+                pageNumber++
+                page = pdfDocument.startPage(PdfDocument.PageInfo.Builder(pageWidth, pageHeight, pageNumber).create())
+                canvas = page.canvas
+                drawWatermark(canvas)
+                currentY = 48f
+                drawTableHeader(canvas, currentY)
+                currentY += 34f
+            }
             if (index % 2 == 1) {
                 val rowRect = RectF(margin, currentY - 13f, pageWidth - margin, currentY + 6f)
                 canvas.drawRect(rowRect, rowBgPaintAlt)
@@ -219,18 +249,11 @@ object PdfStatementGenerator {
         }
 
         // 5. Official Footer
-        val footerY = pageHeight - 36f
-        canvas.drawLine(margin, footerY - 10f, pageWidth - margin, footerY - 10f, linePaint)
-        canvas.drawText(
-            "Dokumen ini dicetak secara komputerisasi oleh sistem PocketPay dan sah tanpa tanda tangan basah.",
-            margin,
-            footerY,
-            subTitlePaint
-        )
+        drawFooter(canvas, pageNumber)
 
         pdfDocument.finishPage(page)
 
-        val outputFile = File(context.cacheDir, "e_statement_pocketpay.pdf")
+        val outputFile = File(File(context.cacheDir, "statements").apply { mkdirs() }, "e_statement_pocketpay.pdf")
         try {
             FileOutputStream(outputFile).use { out ->
                 pdfDocument.writeTo(out)

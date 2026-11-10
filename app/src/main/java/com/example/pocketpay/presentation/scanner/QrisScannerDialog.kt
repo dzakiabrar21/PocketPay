@@ -38,6 +38,19 @@ fun QrisScannerDialog(
     onManualInputFallback: () -> Unit
 ) {
     val context = LocalContext.current
+
+    // Shared by the camera and gallery paths. Camera callbacks arrive on a worker thread.
+    val mainHandler = remember { android.os.Handler(android.os.Looper.getMainLooper()) }
+    fun invalidQr() {
+        mainHandler.post {
+            android.widget.Toast.makeText(context, "QR bukan kode QRIS yang valid.", android.widget.Toast.LENGTH_SHORT).show()
+        }
+    }
+    fun handleRaw(raw: String) {
+        val payload = com.example.pocketpay.domain.qris.Qris.parse(raw)
+        if (payload == null) invalidQr()
+        else mainHandler.post { onQrScanned(payload.merchantName, payload.amount ?: 0L) }
+    }
     val lifecycleOwner = LocalLifecycleOwner.current
 
     var hasCameraPermission by remember {
@@ -87,13 +100,7 @@ fun QrisScannerDialog(
 
                             imageAnalysis.setAnalyzer(
                                 Executors.newSingleThreadExecutor(),
-                                QrCodeAnalyzer { qrText ->
-                                    val parts = qrText.split("|")
-                                    val merchant = parts.getOrNull(0) ?: qrText
-                                    val amount = parts.getOrNull(1)?.toLongOrNull() ?: 50_000L
-
-                                    onQrScanned(merchant, amount)
-                                }
+                                QrCodeAnalyzer { qrText -> handleRaw(qrText) }
                             )
 
                             try {
@@ -150,20 +157,11 @@ fun QrisScannerDialog(
                             scanner.process(inputImage)
                                 .addOnSuccessListener { barcodes ->
                                     val rawValue: String? = barcodes.firstOrNull()?.rawValue
-                                    if (rawValue != null && rawValue.isNotEmpty()) {
-                                        val parts = rawValue.split("|")
-                                        val merchant = parts.getOrNull(0) ?: rawValue
-                                        val amount = parts.getOrNull(1)?.toLongOrNull() ?: 50_000L
-                                        onQrScanned(merchant, amount)
-                                    } else {
-                                        onQrScanned("Merchant QRIS Galeri", 50_000L)
-                                    }
+                                    if (!rawValue.isNullOrEmpty()) handleRaw(rawValue) else invalidQr()
                                 }
-                                .addOnFailureListener {
-                                    onQrScanned("Merchant QRIS Galeri", 50_000L)
-                                }
+                                .addOnFailureListener { invalidQr() }
                         } catch (_: Exception) {
-                            onQrScanned("Merchant QRIS Galeri", 50_000L)
+                            invalidQr()
                         }
                     }
                 }
