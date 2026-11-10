@@ -1,5 +1,6 @@
 package com.example.pocketpay.presentation.home
 
+import com.example.pocketpay.ui.theme.PocketTheme
 import android.content.Intent
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
@@ -170,7 +171,7 @@ fun HomeScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFF8FAFC))
+            .background(MaterialTheme.colorScheme.background)
     ) {
         Scaffold(
             topBar = {
@@ -201,13 +202,13 @@ fun HomeScreen(
                                     text = uiState.userName,
                                     style = MaterialTheme.typography.titleMedium,
                                     fontWeight = FontWeight.Bold,
-                                    color = Color(0xFF0F172A)
+                                    color = MaterialTheme.colorScheme.onSurface
                                 )
                                 Text(
                                     text = "Ketuk untuk Kelola Akun",
                                     style = MaterialTheme.typography.bodySmall,
                                     fontSize = 11.sp,
-                                    color = Color(0xFF059669)
+                                    color = PocketTheme.colors.accent
                                 )
                             }
                         }
@@ -221,7 +222,7 @@ fun HomeScreen(
                             Icon(
                                 imageVector = if (uiState.isBalanceHidden) Icons.Default.VisibilityOff else Icons.Default.Visibility,
                                 contentDescription = "Samarkan Saldo",
-                                tint = Color(0xFF064E3B)
+                                tint = PocketTheme.colors.brandText
                             )
                         }
                         IconButton(
@@ -232,7 +233,7 @@ fun HomeScreen(
                             Icon(
                                 imageVector = Icons.Default.PictureAsPdf,
                                 contentDescription = "Export E-Statement PDF",
-                                tint = Color(0xFF064E3B)
+                                tint = PocketTheme.colors.brandText
                             )
                         }
                         IconButton(
@@ -243,12 +244,12 @@ fun HomeScreen(
                             Icon(
                                 imageVector = Icons.Default.QrCode,
                                 contentDescription = "QR Saya / Terima Transfer",
-                                tint = Color(0xFF064E3B)
+                                tint = PocketTheme.colors.brandText
                             )
                         }
                     },
                     colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = Color.White
+                        containerColor = MaterialTheme.colorScheme.surface
                     )
                 )
             },
@@ -257,7 +258,7 @@ fun HomeScreen(
                     onClick = {
                         viewModel.processIntent(HomeUiIntent.SetScannerVisibility(true))
                     },
-                    containerColor = Color(0xFF064E3B),
+                    containerColor = MaterialTheme.colorScheme.primary,
                     contentColor = Color.White,
                     shape = CircleShape,
                     modifier = Modifier.size(60.dp)
@@ -269,7 +270,7 @@ fun HomeScreen(
                     )
                 }
             },
-            containerColor = Color(0xFFF8FAFC)
+            containerColor = MaterialTheme.colorScheme.background
         ) { innerPadding ->
             LazyColumn(
                 modifier = Modifier
@@ -387,7 +388,7 @@ fun HomeScreen(
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(16.dp),
-                        colors = CardDefaults.cardColors(containerColor = Color(0xFFECFDF5))
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
                     ) {
                         Row(
                             modifier = Modifier.padding(14.dp),
@@ -412,13 +413,13 @@ fun HomeScreen(
                                     text = "Celengan Receh (Round-Up)",
                                     style = MaterialTheme.typography.titleSmall,
                                     fontWeight = FontWeight.Bold,
-                                    color = Color(0xFF064E3B)
+                                    color = PocketTheme.colors.brandText
                                 )
                                 Text(
                                     text = "Pembulatan transaksi QRIS otomatis ditabung ke Celengan Receh 3.5% p.a.",
                                     style = MaterialTheme.typography.bodySmall,
                                     fontSize = 11.sp,
-                                    color = Color(0xFF047857)
+                                    color = PocketTheme.colors.accentText
                                 )
                             }
                         }
@@ -437,7 +438,7 @@ fun HomeScreen(
                                 text = "Kantong Finansial",
                                 style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.Bold,
-                                color = Color(0xFF0F172A)
+                                color = MaterialTheme.colorScheme.onSurface
                             )
                             TextButton(
                                 onClick = {
@@ -446,7 +447,7 @@ fun HomeScreen(
                             ) {
                                 Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(16.dp))
                                 Spacer(modifier = Modifier.width(4.dp))
-                                Text("Buat Kantong", fontWeight = FontWeight.Bold, color = Color(0xFF047857))
+                                Text("Buat Kantong", fontWeight = FontWeight.Bold, color = PocketTheme.colors.accentText)
                             }
                         }
 
@@ -476,7 +477,7 @@ fun HomeScreen(
                             text = "Mutasi Transaksi",
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFF0F172A)
+                            color = MaterialTheme.colorScheme.onSurface
                         )
 
                         OutlinedTextField(
@@ -494,8 +495,8 @@ fun HomeScreen(
                             singleLine = true,
                             shape = RoundedCornerShape(14.dp),
                             colors = OutlinedTextFieldDefaults.colors(
-                                focusedContainerColor = Color.White,
-                                unfocusedContainerColor = Color.White
+                                focusedContainerColor = MaterialTheme.colorScheme.surface,
+                                unfocusedContainerColor = MaterialTheme.colorScheme.surface
                             ),
                             modifier = Modifier.fillMaxWidth()
                         )

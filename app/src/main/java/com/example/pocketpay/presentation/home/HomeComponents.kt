@@ -1,5 +1,6 @@
 package com.example.pocketpay.presentation.home
 
+import com.example.pocketpay.ui.theme.PocketTheme
 import android.content.Intent
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
@@ -95,7 +96,7 @@ fun PocketCardItem(
             .clickable { onClick() },
         shape = RoundedCornerShape(18.dp),
         colors = CardDefaults.cardColors(
-            containerColor = if (isLocked) Color(0xFFFFF7ED) else Color(0xFFECFDF5)
+            containerColor = if (isLocked) PocketTheme.colors.warnContainer else MaterialTheme.colorScheme.primaryContainer
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
@@ -114,7 +115,7 @@ fun PocketCardItem(
                     modifier = Modifier
                         .size(32.dp)
                         .background(
-                            color = if (isLocked) Color(0xFFFFEDD5) else Color(0xFFD1FAE5),
+                            color = if (isLocked) PocketTheme.colors.warnChip else MaterialTheme.colorScheme.secondaryContainer,
                             shape = CircleShape
                         ),
                     contentAlignment = Alignment.Center
@@ -122,7 +123,7 @@ fun PocketCardItem(
                     Icon(
                         imageVector = if (isLocked) Icons.Default.Lock else Icons.Default.Savings,
                         contentDescription = null,
-                        tint = if (isLocked) Color(0xFFC2410C) else Color(0xFF047857),
+                        tint = if (isLocked) PocketTheme.colors.warnText else PocketTheme.colors.accentText,
                         modifier = Modifier.size(18.dp)
                     )
                 }
@@ -130,7 +131,7 @@ fun PocketCardItem(
                     text = "${pocket.interestRatePercent}% p.a.",
                     fontSize = 11.sp,
                     fontWeight = FontWeight.Bold,
-                    color = if (isLocked) Color(0xFFC2410C) else Color(0xFF047857)
+                    color = if (isLocked) PocketTheme.colors.warnText else PocketTheme.colors.accentText
                 )
             }
 
@@ -140,14 +141,14 @@ fun PocketCardItem(
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.SemiBold,
                     maxLines = 1,
-                    color = Color(0xFF0F172A)
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 Spacer(modifier = Modifier.height(2.dp))
                 Text(
                     text = formatAmount(pocket.balance, isHidden),
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.ExtraBold,
-                    color = Color(0xFF0F172A)
+                    color = MaterialTheme.colorScheme.onSurface
                 )
 
                 pocket.targetAmount?.let { target ->
@@ -156,15 +157,15 @@ fun PocketCardItem(
                     LinearProgressIndicator(
                         progress = { progress },
                         modifier = Modifier.fillMaxWidth().height(6.dp),
-                        color = Color(0xFF059669),
-                        trackColor = Color(0xFFD1FAE5)
+                        color = PocketTheme.colors.accent,
+                        trackColor = MaterialTheme.colorScheme.secondaryContainer
                     )
                     Text(
                         text = if (pocket.balance >= target) "Target tercapai \u2713"
                         else if (isHidden) "Target ••••"
                         else "${(progress * 100).toInt()}% dari ${target.toRupiah()}",
                         fontSize = 10.sp,
-                        color = Color(0xFF047857)
+                        color = PocketTheme.colors.accentText
                     )
                 }
 
@@ -173,7 +174,7 @@ fun PocketCardItem(
                     Text(
                         text = if (isMatured) "Jatuh Tempo" else "s/d ${pocket.maturityDate.toDateFormatted()}",
                         fontSize = 10.sp,
-                        color = if (isMatured) Color(0xFF15803D) else Color(0xFFC2410C)
+                        color = if (isMatured) PocketTheme.colors.successText else PocketTheme.colors.warnText
                     )
                 }
             }
@@ -193,7 +194,7 @@ fun TransactionItemRow(
             .clickable { onClick() },
         shape = RoundedCornerShape(14.dp),
         colors = CardDefaults.cardColors(
-            containerColor = Color.White
+            containerColor = MaterialTheme.colorScheme.surface
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
@@ -208,9 +209,9 @@ fun TransactionItemRow(
                     .size(42.dp)
                     .background(
                         color = when (tx.type) {
-                            TxType.DEBIT -> Color(0xFFFEE2E2)
-                            TxType.CREDIT -> Color(0xFFD1FAE5)
-                            TxType.REALLOCATION -> Color(0xFFECFDF5)
+                            TxType.DEBIT -> PocketTheme.colors.dangerContainer
+                            TxType.CREDIT -> MaterialTheme.colorScheme.secondaryContainer
+                            TxType.REALLOCATION -> MaterialTheme.colorScheme.primaryContainer
                         },
                         shape = CircleShape
                     ),
@@ -224,9 +225,9 @@ fun TransactionItemRow(
                     },
                     contentDescription = null,
                     tint = when (tx.type) {
-                        TxType.DEBIT -> Color(0xFFDC2626)
-                        TxType.CREDIT -> Color(0xFF059669)
-                        TxType.REALLOCATION -> Color(0xFF064E3B)
+                        TxType.DEBIT -> PocketTheme.colors.danger
+                        TxType.CREDIT -> PocketTheme.colors.accent
+                        TxType.REALLOCATION -> PocketTheme.colors.brandText
                     },
                     modifier = Modifier.size(20.dp)
                 )
@@ -239,12 +240,12 @@ fun TransactionItemRow(
                     text = tx.title,
                     fontWeight = FontWeight.Bold,
                     style = MaterialTheme.typography.bodyMedium,
-                    color = Color(0xFF0F172A)
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
                     text = "Sumber: ${tx.sourceOfFund}",
                     style = MaterialTheme.typography.bodySmall,
-                    color = Color(0xFF64748B)
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
 
@@ -257,9 +258,9 @@ fun TransactionItemRow(
                 text = if (isHidden) "Rp ••••••" else "$prefix${tx.amount.toRupiah()}",
                 fontWeight = FontWeight.ExtraBold,
                 color = when (tx.type) {
-                    TxType.DEBIT -> Color(0xFFDC2626)
-                    TxType.CREDIT -> Color(0xFF059669)
-                    TxType.REALLOCATION -> Color(0xFF0F172A)
+                    TxType.DEBIT -> PocketTheme.colors.danger
+                    TxType.CREDIT -> PocketTheme.colors.accent
+                    TxType.REALLOCATION -> MaterialTheme.colorScheme.onSurface
                 }
             )
         }

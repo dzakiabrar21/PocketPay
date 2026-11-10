@@ -1,5 +1,6 @@
 package com.example.pocketpay.presentation.home
 
+import com.example.pocketpay.ui.theme.PocketTheme
 import android.content.Intent
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
@@ -114,10 +115,10 @@ fun AccountProfileScreen(
                         Icon(Icons.Default.ArrowBack, contentDescription = "Kembali")
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White)
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface)
             )
         },
-        containerColor = Color(0xFFF8FAFC)
+        containerColor = MaterialTheme.colorScheme.background
     ) { innerPadding ->
         LazyColumn(
             modifier = Modifier
@@ -185,7 +186,7 @@ fun AccountProfileScreen(
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color.White)
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
                 ) {
                     Column(
                         modifier = Modifier.padding(16.dp),
@@ -195,7 +196,7 @@ fun AccountProfileScreen(
                             text = "Informasi Diri & Kontak",
                             style = MaterialTheme.typography.titleSmall,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFF064E3B)
+                            color = PocketTheme.colors.brandText
                         )
 
                         OutlinedTextField(
@@ -230,7 +231,7 @@ fun AccountProfileScreen(
                                     onSave(name, phone, email)
                                 }
                             },
-                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF064E3B)),
+                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                             shape = RoundedCornerShape(12.dp),
                             modifier = Modifier.fillMaxWidth()
                         ) {
@@ -245,7 +246,7 @@ fun AccountProfileScreen(
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color.White)
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
                 ) {
                     Column(
                         modifier = Modifier.padding(16.dp),
@@ -255,7 +256,7 @@ fun AccountProfileScreen(
                             text = "Status Keamanan & Proteksi",
                             style = MaterialTheme.typography.titleSmall,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFF064E3B)
+                            color = PocketTheme.colors.brandText
                         )
 
                         SecurityStatusRow(label = "PIN Transaksi", value = "6-Digit PIN Transaksi (Aktif)")
@@ -281,16 +282,16 @@ fun AccountProfileScreen(
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFFECFDF5))
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
                 ) {
                     Column(
                         modifier = Modifier.padding(16.dp),
                         verticalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
-                        Text("Informasi Rekening Perbankan", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold, color = Color(0xFF064E3B))
-                        Text("• No. Rekening Utama: $accountNumber", style = MaterialTheme.typography.bodySmall, color = Color(0xFF047857))
-                        Text("• Tipe Rekening: Super Deposito PocketPay", style = MaterialTheme.typography.bodySmall, color = Color(0xFF047857))
-                        Text("• Status Rekening: Aktif & Terverifikasi", style = MaterialTheme.typography.bodySmall, color = Color(0xFF047857), fontWeight = FontWeight.Bold)
+                        Text("Informasi Rekening Perbankan", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold, color = PocketTheme.colors.brandText)
+                        Text("• No. Rekening Utama: $accountNumber", style = MaterialTheme.typography.bodySmall, color = PocketTheme.colors.accentText)
+                        Text("• Tipe Rekening: Super Deposito PocketPay", style = MaterialTheme.typography.bodySmall, color = PocketTheme.colors.accentText)
+                        Text("• Status Rekening: Aktif & Terverifikasi", style = MaterialTheme.typography.bodySmall, color = PocketTheme.colors.accentText, fontWeight = FontWeight.Bold)
                     }
                 }
             }
@@ -306,11 +307,11 @@ fun SecurityStatusRow(label: String, value: String) {
         verticalAlignment = Alignment.CenterVertically
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Icon(Icons.Default.Shield, contentDescription = null, tint = Color(0xFF059669), modifier = Modifier.size(16.dp))
+            Icon(Icons.Default.Shield, contentDescription = null, tint = PocketTheme.colors.accent, modifier = Modifier.size(16.dp))
             Spacer(modifier = Modifier.width(6.dp))
-            Text(label, style = MaterialTheme.typography.bodySmall, color = Color(0xFF64748B))
+            Text(label, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
-        Text(value, style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Bold, color = Color(0xFF064E3B))
+        Text(value, style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Bold, color = PocketTheme.colors.brandText)
     }
 }
 

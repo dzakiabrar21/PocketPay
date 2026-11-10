@@ -1,5 +1,6 @@
 package com.example.pocketpay.presentation.home
 
+import com.example.pocketpay.ui.theme.PocketTheme
 import android.content.Intent
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
@@ -120,7 +121,7 @@ fun PaymentQrisDialog(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(Color(0xFFECFDF5), RoundedCornerShape(12.dp))
+                        .background(MaterialTheme.colorScheme.primaryContainer, RoundedCornerShape(12.dp))
                         .padding(10.dp)
                 ) {
                     Column(modifier = Modifier.weight(1f)) {
@@ -128,13 +129,13 @@ fun PaymentQrisDialog(
                             text = "Celengan Receh (Round-Up)",
                             style = MaterialTheme.typography.labelMedium,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFF064E3B)
+                            color = PocketTheme.colors.brandText
                         )
                         Text(
                             text = if (roundUpDiff > 0) "Bulatkan Rp 5.000 (+ ${roundUpDiff.toRupiah()})" else "Nominal kelipatan Rp 5.000",
                             style = MaterialTheme.typography.bodySmall,
                             fontSize = 11.sp,
-                            color = Color(0xFF047857)
+                            color = PocketTheme.colors.accentText
                         )
                     }
 
@@ -149,7 +150,7 @@ fun PaymentQrisDialog(
                     val deficit = amount - targetP.balance
                     Card(
                         colors = CardDefaults.cardColors(
-                            containerColor = Color(0xFFFEF3C7)
+                            containerColor = PocketTheme.colors.amberContainer
                         ),
                         shape = RoundedCornerShape(12.dp),
                         modifier = Modifier.fillMaxWidth()
@@ -161,7 +162,7 @@ fun PaymentQrisDialog(
                             Icon(
                                 imageVector = Icons.Default.SwapHoriz,
                                 contentDescription = null,
-                                tint = Color(0xFFD97706),
+                                tint = PocketTheme.colors.amberIcon,
                                 modifier = Modifier.size(20.dp)
                             )
                             Spacer(modifier = Modifier.width(8.dp))
@@ -170,13 +171,13 @@ fun PaymentQrisDialog(
                                     text = "Smart Cascading Active",
                                     style = MaterialTheme.typography.labelMedium,
                                     fontWeight = FontWeight.Bold,
-                                    color = Color(0xFF92400E)
+                                    color = PocketTheme.colors.amberText
                                 )
                                 Text(
                                     text = "Saldo ${targetP.name} kurang ${deficit.toRupiah()}. Sisa ${deficit.toRupiah()} ditalangi dari Rekening Utama.",
                                     style = MaterialTheme.typography.bodySmall,
                                     fontSize = 11.sp,
-                                    color = Color(0xFF92400E)
+                                    color = PocketTheme.colors.amberText
                                 )
                             }
                         }
@@ -221,7 +222,7 @@ fun PaymentQrisDialog(
                         onConfirmPayment(merchant, amount, selectedPocketId, isRoundUpEnabled)
                     }
                 },
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF064E3B))
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
             ) {
                 Text("Konfirmasi & Bayar")
             }
@@ -303,7 +304,7 @@ fun TransactionPinDialog(
                     }
                 },
                 enabled = pin.length == 6,
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF064E3B))
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
             ) {
                 Text("Konfirmasi PIN")
             }
@@ -355,7 +356,7 @@ fun ReceiveQrDialog(
                     modifier = Modifier
                         .size(200.dp)
                         .background(Color.White, RoundedCornerShape(16.dp))
-                        .border(2.dp, Color(0xFF064E3B), RoundedCornerShape(16.dp))
+                        .border(2.dp, PocketTheme.colors.brandText, RoundedCornerShape(16.dp))
                         .padding(16.dp),
                     contentAlignment = Alignment.Center
                 ) {
@@ -372,7 +373,7 @@ fun ReceiveQrDialog(
                     Text(
                         text = "Nominal: ${enteredAmount.toRupiah()}",
                         style = MaterialTheme.typography.titleSmall,
-                        color = Color(0xFF064E3B),
+                        color = PocketTheme.colors.brandText,
                         fontWeight = FontWeight.Bold
                     )
                 }
@@ -402,7 +403,7 @@ fun ReceiveQrDialog(
                     }
                     context.startActivity(Intent.createChooser(sendIntent, "Bagikan Informasi Transfer"))
                 },
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF064E3B))
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
             ) {
                 Icon(Icons.Default.Share, contentDescription = null, modifier = Modifier.size(16.dp))
                 Spacer(modifier = Modifier.width(6.dp))

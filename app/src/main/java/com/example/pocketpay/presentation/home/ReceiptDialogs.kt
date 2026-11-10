@@ -1,5 +1,6 @@
 package com.example.pocketpay.presentation.home
 
+import com.example.pocketpay.ui.theme.PocketTheme
 import android.content.Intent
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
@@ -94,14 +95,14 @@ fun AnimatedSuccessPaymentDialog(
                 Box(
                     modifier = Modifier
                         .size(72.dp)
-                        .background(Color(0xFFD1FAE5), CircleShape)
+                        .background(MaterialTheme.colorScheme.secondaryContainer, CircleShape)
                         .border(3.dp, Color(0xFF10B981), CircleShape),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
                         imageVector = Icons.Default.CheckCircle,
                         contentDescription = null,
-                        tint = Color(0xFF059669),
+                        tint = PocketTheme.colors.accent,
                         modifier = Modifier.size(44.dp)
                     )
                 }
@@ -113,7 +114,7 @@ fun AnimatedSuccessPaymentDialog(
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center,
-                color = Color(0xFF064E3B)
+                color = PocketTheme.colors.brandText
             )
         },
         text = {
@@ -121,7 +122,7 @@ fun AnimatedSuccessPaymentDialog(
                 text = message,
                 style = MaterialTheme.typography.bodyMedium,
                 textAlign = TextAlign.Center,
-                color = Color(0xFF334155),
+                color = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.fillMaxWidth()
             )
         },
@@ -129,7 +130,7 @@ fun AnimatedSuccessPaymentDialog(
             Button(
                 onClick = onDismiss,
                 modifier = Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF064E3B)),
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                 shape = RoundedCornerShape(12.dp)
             ) {
                 Text("Mantap! OK", fontWeight = FontWeight.Bold)
@@ -172,7 +173,7 @@ fun EStatementPdfDialog(
                 Icon(
                     imageVector = Icons.Default.PictureAsPdf,
                     contentDescription = null,
-                    tint = Color(0xFF064E3B)
+                    tint = PocketTheme.colors.brandText
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
@@ -215,18 +216,18 @@ fun EStatementPdfDialog(
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     colors = CardDefaults.cardColors(
-                        containerColor = Color(0xFFECFDF5)
+                        containerColor = MaterialTheme.colorScheme.primaryContainer
                     )
                 ) {
                     Column(
                         modifier = Modifier.padding(12.dp),
                         verticalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
-                        Text(text = "Ringkasan Dokumen:", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold, color = Color(0xFF064E3B))
-                        Text(text = "• No. Rekening: $accountNumber", style = MaterialTheme.typography.bodySmall, color = Color(0xFF047857))
-                        Text(text = "• Periode: ${selectedPeriod.label}", style = MaterialTheme.typography.bodySmall, color = Color(0xFF047857))
-                        Text(text = "• Total Transaksi: ${filteredTxs.size} Mutasi", style = MaterialTheme.typography.bodySmall, color = Color(0xFF047857))
-                        Text(text = "• Saldo Akhir: ${currentBalance.toRupiah()}", style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Bold, color = Color(0xFF064E3B))
+                        Text(text = "Ringkasan Dokumen:", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold, color = PocketTheme.colors.brandText)
+                        Text(text = "• No. Rekening: $accountNumber", style = MaterialTheme.typography.bodySmall, color = PocketTheme.colors.accentText)
+                        Text(text = "• Periode: ${selectedPeriod.label}", style = MaterialTheme.typography.bodySmall, color = PocketTheme.colors.accentText)
+                        Text(text = "• Total Transaksi: ${filteredTxs.size} Mutasi", style = MaterialTheme.typography.bodySmall, color = PocketTheme.colors.accentText)
+                        Text(text = "• Saldo Akhir: ${currentBalance.toRupiah()}", style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Bold, color = PocketTheme.colors.brandText)
                     }
                 }
             }
@@ -267,7 +268,7 @@ fun EStatementPdfDialog(
                             Toast.makeText(context, "Gagal membuat PDF", Toast.LENGTH_SHORT).show()
                         }
                     },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF064E3B))
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
                 ) {
                     Icon(Icons.Default.Share, contentDescription = null, modifier = Modifier.size(16.dp))
                     Spacer(modifier = Modifier.width(4.dp))
@@ -315,7 +316,7 @@ fun TransactionDetailReceiptDialog(
                     Icon(
                         imageVector = Icons.Default.ReceiptLong,
                         contentDescription = null,
-                        tint = Color(0xFF064E3B)
+                        tint = PocketTheme.colors.brandText
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
@@ -329,7 +330,7 @@ fun TransactionDetailReceiptDialog(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
                         .background(
-                            color = Color(0xFFD1FAE5),
+                            color = MaterialTheme.colorScheme.secondaryContainer,
                             shape = RoundedCornerShape(12.dp)
                         )
                         .padding(horizontal = 10.dp, vertical = 4.dp)
@@ -337,13 +338,13 @@ fun TransactionDetailReceiptDialog(
                     Icon(
                         imageVector = Icons.Default.CheckCircle,
                         contentDescription = null,
-                        tint = Color(0xFF059669),
+                        tint = PocketTheme.colors.accent,
                         modifier = Modifier.size(16.dp)
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
                         text = transaction.status.name,
-                        color = Color(0xFF059669),
+                        color = PocketTheme.colors.accent,
                         fontWeight = FontWeight.Bold,
                         fontSize = 12.sp
                     )
@@ -355,7 +356,7 @@ fun TransactionDetailReceiptDialog(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp),
                 colors = CardDefaults.cardColors(
-                    containerColor = Color(0xFFF8FAFC)
+                    containerColor = MaterialTheme.colorScheme.background
                 )
             ) {
                 Column(
@@ -368,7 +369,7 @@ fun TransactionDetailReceiptDialog(
                         text = transaction.amount.toRupiah(),
                         style = MaterialTheme.typography.headlineSmall,
                         fontWeight = FontWeight.ExtraBold,
-                        color = Color(0xFF064E3B),
+                        color = PocketTheme.colors.brandText,
                         modifier = Modifier.align(Alignment.CenterHorizontally)
                     )
 
@@ -394,7 +395,7 @@ fun TransactionDetailReceiptDialog(
                     }
                     context.startActivity(Intent.createChooser(sendIntent, "Bagikan Struk Digital"))
                 },
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF064E3B))
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
             ) {
                 Icon(Icons.Default.Share, contentDescription = null, modifier = Modifier.size(16.dp))
                 Spacer(modifier = Modifier.width(6.dp))
@@ -418,7 +419,7 @@ fun ReceiptRowItem(label: String, value: String) {
         Text(
             text = label,
             style = MaterialTheme.typography.bodySmall,
-            color = Color(0xFF64748B)
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         Text(
             text = value,
@@ -426,7 +427,7 @@ fun ReceiptRowItem(label: String, value: String) {
             fontWeight = FontWeight.SemiBold,
             textAlign = TextAlign.End,
             modifier = Modifier.widthIn(max = 180.dp),
-            color = Color(0xFF0F172A)
+            color = MaterialTheme.colorScheme.onSurface
         )
     }
 }

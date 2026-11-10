@@ -161,7 +161,7 @@ fun PocketToPocketTransferDialog(
                             onConfirmTransfer(fromPocketId, toPocketId, amount)
                         }
                     },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF064E3B))
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
                 ) {
                     Text("Transfer Sekarang")
                 }
@@ -255,7 +255,7 @@ fun ManagePocketBalanceDialog(
                         onExecute(amount, selectedAction)
                     }
                 },
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF064E3B))
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
             ) {
                 Text(if (selectedAction == PocketActionType.TOP_UP) "Top-Up Sekarang" else "Tarik Saldo")
             }
@@ -394,7 +394,7 @@ fun CreatePocketDialog(
                         )
                     }
                 },
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF064E3B))
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
             ) {
                 Text("Simpan & Potong Rekening")
             }

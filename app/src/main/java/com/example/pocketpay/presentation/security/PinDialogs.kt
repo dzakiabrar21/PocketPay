@@ -63,7 +63,7 @@ fun PinSetupDialog(onDone: () -> Unit) {
         confirmButton = {
             Button(
                 enabled = pin.length == 6 && confirm.length == 6,
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF064E3B)),
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                 onClick = {
                     if (pin != confirm) {
                         error = "Konfirmasi PIN tidak cocok."
@@ -100,7 +100,7 @@ fun ChangePinDialog(onDismiss: () -> Unit, onChanged: () -> Unit) {
         confirmButton = {
             Button(
                 enabled = oldPin.length == 6 && pin.length == 6 && confirm.length == 6,
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF064E3B)),
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                 onClick = {
                     if (pin != confirm) {
                         error = "Konfirmasi PIN baru tidak cocok."
