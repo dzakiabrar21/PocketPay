@@ -23,6 +23,9 @@ interface BankingRepository {
 
     suspend fun closePocket(pocket: PocketEntity): Result<Unit>
 
+    /** Reverses a recent successful payment and returns the money to the Main Account. */
+    suspend fun refundTransaction(transaction: TransactionEntity): Result<Unit>
+
     /** Credits any interest earned by pockets since the last accrual. Returns pockets credited. */
     suspend fun accrueInterest(): Result<Int>
 }

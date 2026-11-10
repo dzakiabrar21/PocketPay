@@ -154,6 +154,10 @@ class BankingRepositoryImpl @Inject constructor(
         dao.transferBetweenPockets(fromPocket, toPocket, amount)
     }
 
+    override suspend fun refundTransaction(transaction: TransactionEntity): Result<Unit> = runCatching {
+        dao.refundTransaction(transaction.id, System.currentTimeMillis())
+    }
+
     override suspend fun accrueInterest(): Result<Int> = runCatching {
         dao.accrueInterest(System.currentTimeMillis())
     }

@@ -87,6 +87,7 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.test.core)
+    androidTestImplementation(libs.androidx.work.testing)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
     debugImplementation(libs.androidx.compose.ui.tooling)
 
@@ -96,6 +97,9 @@ dependencies {
     implementation(libs.androidx.camera.view)
     implementation(libs.mlkit.barcode.scanning)
     implementation(libs.zxing.core)
+
+    // Background work (daily interest + milestone notifications)
+    implementation(libs.androidx.work.runtime)
 
     // Encrypted database
     implementation(libs.sqlcipher)

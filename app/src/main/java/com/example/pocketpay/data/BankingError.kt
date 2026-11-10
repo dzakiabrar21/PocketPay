@@ -20,7 +20,10 @@ enum class BankingError {
     DEST_LOCKED,
     SAME_POCKET,
     INVALID_SOURCE,
-    DUPLICATE
+    DUPLICATE,
+    TX_NOT_FOUND,
+    NOT_REFUNDABLE,
+    REFUND_EXPIRED
 }
 
 /**

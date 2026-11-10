@@ -182,6 +182,8 @@ class HomeViewModel @Inject constructor(
                 handlePocketAction(intent.pocket, intent.amount, intent.actionType)
             }
 
+            is HomeUiIntent.RefundTransaction -> refund(intent.transaction)
+
             is HomeUiIntent.ClosePocket -> {
                 closePocket(intent.pocket)
             }
@@ -347,6 +349,28 @@ class HomeViewModel @Inject constructor(
                 .onFailure { throwable ->
                     _uiState.update { it.copy(isLoading = false) }
                     _effect.send(HomeUiEffect.ShowToast(throwable.userMessage(appContext, R.string.vm_gagal_mentransfer_saldo)))
+                }
+        }
+    }
+
+    private fun refund(tx: com.example.pocketpay.data.TransactionEntity) {
+        if (_uiState.value.isLoading) return
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true) }
+            repository.refundTransaction(tx)
+                .onSuccess {
+                    val alertData = SuccessAlertData(
+                        title = appContext.getString(R.string.vm_refund_title),
+                        message = appContext.getString(R.string.vm_refund_message, tx.amount.toRupiah())
+                    )
+                    _uiState.update {
+                        it.copy(isLoading = false, selectedTransactionForDetail = null, successAlert = alertData)
+                    }
+                    _effect.send(HomeUiEffect.ShowSuccessAlert(alertData.title, alertData.message))
+                }
+                .onFailure { throwable ->
+                    _uiState.update { it.copy(isLoading = false) }
+                    _effect.send(HomeUiEffect.ShowToast(throwable.userMessage(appContext, R.string.vm_refund_failed)))
                 }
         }
     }

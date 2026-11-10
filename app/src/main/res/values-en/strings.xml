@@ -232,4 +232,28 @@
     <string name="auth_auto">Automatic</string>
     <string name="pay_share_transfer">Transfer to PocketPay Account:\nAccount No.: %1$s</string>
     <string name="receipt_share_text">=== POCKETPAY DIGITAL TRANSACTION RECEIPT ===\nStatus: %1$s\nReference No.: %2$s\nTitle: %3$s\nAmount: %4$s\nType: %5$s\nSource of Funds: %6$s\nTime: %7$s\nAuthentication: %8$s\nIdempotency: %9$s\n=====================================</string>
+    <string name="bank_err_tx_missing">Transaction not found.</string>
+    <string name="bank_err_not_refundable">This transaction cannot be refunded.</string>
+    <string name="bank_err_refund_expired">The 24-hour refund window has passed.</string>
+    <string name="vm_refund_title">Refund Successful</string>
+    <string name="vm_refund_message">%1$s was returned to the Main Account.</string>
+    <string name="vm_refund_failed">Failed to process the refund.</string>
+    <string name="refund_button">Request Refund</string>
+    <string name="refund_confirm_title">Refund this transaction?</string>
+    <string name="refund_confirm_message">%1$s will be returned to the Main Account and the transaction marked as reversed.</string>
+    <string name="refund_confirm_yes">Yes, Refund</string>
+    <string name="status_success">SUCCESS</string>
+    <string name="status_pending">PENDING</string>
+    <string name="status_reversed">REVERSED</string>
+    <string name="notif_channel_name">PocketPay updates</string>
+    <string name="notif_interest_title">Interest credited</string>
+    <string name="notif_matured_title">Deposit matured</string>
+    <string name="notif_matured_text">Pocket %1$s has matured and can be withdrawn.</string>
+    <string name="notif_goal_title">Savings goal reached</string>
+    <string name="notif_goal_text">Congratulations! Pocket %1$s reached its goal.</string>
+    <string name="notif_public_text">You have a new update. Open the app to see it.</string>
+    <plurals name="notif_interest_text">
+        <item quantity="one">Daily interest was credited to %1$d pocket.</item>
+        <item quantity="other">Daily interest was credited to %1$d pockets.</item>
+    </plurals>
 </resources>

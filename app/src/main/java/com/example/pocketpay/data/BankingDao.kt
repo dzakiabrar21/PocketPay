@@ -383,6 +383,40 @@ abstract class BankingDao {
     @Query("SELECT * FROM pockets WHERE id = :id LIMIT 1")
     abstract suspend fun getPocketById(id: String): PocketEntity?
 
+    @Query("UPDATE transactions SET status = :status WHERE id = :id")
+    abstract suspend fun updateTransactionStatus(id: String, status: TxStatus): Int
+
+    /**
+     * Reverses a successful payment: the amount returns to the Main Account, the original becomes
+     * REVERSED and a CREDIT "Refund" entry is recorded. Atomic, and idempotent because the refund
+     * entry has a deterministic id (a second attempt hits the not-refundable check).
+     * The round-up that accompanied the payment is intentionally kept in the savings pocket.
+     */
+    @Transaction
+    open suspend fun refundTransaction(txId: String, now: Long) {
+        val tx = getTransactionById(txId) ?: throw BankingException(BankingError.TX_NOT_FOUND)
+        if (tx.type != TxType.DEBIT || tx.status != TxStatus.SUCCESS) {
+            throw BankingException(BankingError.NOT_REFUNDABLE)
+        }
+        if (now - tx.timestamp > REFUND_WINDOW_MS) throw BankingException(BankingError.REFUND_EXPIRED)
+        val account = getAccountOnce() ?: throw BankingException(BankingError.ACCOUNT_NOT_FOUND)
+
+        updateAccount(account.copy(balance = account.balance + tx.amount))
+        updateTransactionStatus(txId, TxStatus.REVERSED)
+        insertTransaction(
+            TransactionEntity(
+                id = "refund_$txId",
+                title = "Refund: ${tx.title}",
+                amount = tx.amount,
+                sourceOfFund = "Pengembalian ke Rekening Utama",
+                type = TxType.CREDIT,
+                status = TxStatus.SUCCESS,
+                timestamp = now,
+                authMethod = "Otomatis"
+            )
+        )
+    }
+
     @Query("SELECT * FROM transactions WHERE id = :id LIMIT 1")
     abstract suspend fun getTransactionById(id: String): TransactionEntity?
 

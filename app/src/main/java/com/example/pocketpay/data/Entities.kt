@@ -52,6 +52,9 @@ enum class TxStatus {
     REVERSED
 }
 
+/** How long after a payment the customer may still request a refund. */
+const val REFUND_WINDOW_MS = 24L * 60 * 60 * 1000
+
 @Entity(tableName = "transactions")
 data class TransactionEntity(
     @PrimaryKey val id: String, // Unique UUID acting as Idempotency Key
@@ -64,4 +67,8 @@ data class TransactionEntity(
     val referenceNo: String = "REF-${System.currentTimeMillis().toString().takeLast(8)}",
     val authMethod: String = "Biometrik / PIN 6-Digit",
     val idempotencyKey: String = id
-)
+) {
+    /** A successful payment (debit) can be refunded within [REFUND_WINDOW_MS]. */
+    fun isRefundable(now: Long = System.currentTimeMillis()): Boolean =
+        type == TxType.DEBIT && status == TxStatus.SUCCESS && now - timestamp <= REFUND_WINDOW_MS
+}

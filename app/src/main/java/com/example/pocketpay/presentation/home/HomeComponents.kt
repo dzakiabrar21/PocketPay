@@ -1,5 +1,7 @@
 package com.example.pocketpay.presentation.home
 
+import androidx.compose.ui.text.style.TextDecoration
+import com.example.pocketpay.data.TxStatus
 import androidx.compose.ui.res.stringResource
 import com.example.pocketpay.R
 import com.example.pocketpay.ui.theme.PocketTheme
@@ -244,6 +246,14 @@ fun TransactionItemRow(
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurface
                 )
+                if (tx.status != TxStatus.SUCCESS) {
+                    Text(
+                        text = statusLabel(tx.status),
+                        style = MaterialTheme.typography.labelSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = if (tx.status == TxStatus.REVERSED) PocketTheme.colors.warnText else PocketTheme.colors.amberText
+                    )
+                }
                 Text(
                     text = stringResource(R.string.comp_sumber, tx.sourceOfFund),
                     style = MaterialTheme.typography.bodySmall,
@@ -258,6 +268,7 @@ fun TransactionItemRow(
             }
             Text(
                 text = if (isHidden) "Rp ••••••" else "$prefix${tx.amount.toRupiah()}",
+                textDecoration = if (tx.status == TxStatus.REVERSED) TextDecoration.LineThrough else null,
                 fontWeight = FontWeight.ExtraBold,
                 color = when (tx.type) {
                     TxType.DEBIT -> PocketTheme.colors.danger

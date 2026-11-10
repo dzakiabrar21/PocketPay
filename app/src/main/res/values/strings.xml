@@ -233,4 +233,27 @@
     <string name="auth_auto">Otomatis</string>
     <string name="pay_share_transfer">Transfer ke Rekening PocketPay:\nNo. Rekening: %1$s</string>
     <string name="receipt_share_text">=== STRUK MUTASI DIGITAL POCKETPAY ===\nStatus: %1$s\nNo. Referensi: %2$s\nJudul: %3$s\nNominal: %4$s\nTipe: %5$s\nSumber Dana: %6$s\nWaktu: %7$s\nOtentikasi: %8$s\nIdempotency: %9$s\n=====================================</string>
+    <string name="bank_err_tx_missing">Transaksi tidak ditemukan.</string>
+    <string name="bank_err_not_refundable">Transaksi ini tidak dapat direfund.</string>
+    <string name="bank_err_refund_expired">Batas waktu refund 24 jam sudah lewat.</string>
+    <string name="vm_refund_title">Refund Berhasil</string>
+    <string name="vm_refund_message">Dana %1$s dikembalikan ke Rekening Utama.</string>
+    <string name="vm_refund_failed">Gagal memproses refund.</string>
+    <string name="refund_button">Ajukan Refund</string>
+    <string name="refund_confirm_title">Refund transaksi ini?</string>
+    <string name="refund_confirm_message">%1$s akan dikembalikan ke Rekening Utama dan transaksi ditandai dibatalkan.</string>
+    <string name="refund_confirm_yes">Ya, Refund</string>
+    <string name="status_success">BERHASIL</string>
+    <string name="status_pending">DIPROSES</string>
+    <string name="status_reversed">DIBATALKAN</string>
+    <string name="notif_channel_name">Pembaruan PocketPay</string>
+    <string name="notif_interest_title">Bunga dikreditkan</string>
+    <string name="notif_matured_title">Deposito jatuh tempo</string>
+    <string name="notif_matured_text">Kantong %1$s sudah jatuh tempo dan bisa ditarik.</string>
+    <string name="notif_goal_title">Target tabungan tercapai</string>
+    <string name="notif_goal_text">Selamat! Kantong %1$s sudah mencapai targetnya.</string>
+    <string name="notif_public_text">Ada pembaruan baru. Buka aplikasi untuk melihat.</string>
+    <plurals name="notif_interest_text">
+        <item quantity="other">Bunga harian masuk ke %1$d kantong.</item>
+    </plurals>
 </resources>

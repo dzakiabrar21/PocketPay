@@ -276,4 +276,48 @@ class BankingDaoTest {
         // 500_000 * 6% for a full year = 30_000
         assertEquals(530_000L, pocket("p_dep")!!.balance)
     }
+
+    // ---------- Refunds ----------
+
+    private fun payAndGetId(amount: Long = 20_000L): String {
+        pay(null, amount, key = "pay-$amount")
+        return "pay-$amount"
+    }
+
+    @Test
+    fun refund_returnsMoneyMarksReversedAndRecordsCredit() {
+        val id = payAndGetId(20_000L)
+        assertEquals(980_000L, account().balance)
+        runBlocking { dao.refundTransaction(id, System.currentTimeMillis()) }
+        assertEquals(1_000_000L, account().balance)
+        val status = db.query("SELECT status FROM transactions WHERE id = '$id'", null).use { it.moveToFirst(); it.getString(0) }
+        assertEquals("REVERSED", status)
+        val refunds = db.query("SELECT COUNT(*) FROM transactions WHERE id = 'refund_$id' AND type = 'CREDIT'", null)
+            .use { it.moveToFirst(); it.getInt(0) }
+        assertEquals(1, refunds)
+    }
+
+    @Test
+    fun refund_twice_isRejected_andPaysBackOnce() {
+        val id = payAndGetId(20_000L)
+        runBlocking { dao.refundTransaction(id, System.currentTimeMillis()) }
+        expectFailure { dao.refundTransaction(id, System.currentTimeMillis()) }
+        assertEquals(1_000_000L, account().balance)
+    }
+
+    @Test
+    fun refund_afterWindow_isRejected() {
+        val id = payAndGetId(20_000L)
+        expectFailure { dao.refundTransaction(id, System.currentTimeMillis() + 25L * 3_600_000) }
+        assertEquals(980_000L, account().balance)
+    }
+
+    @Test
+    fun refund_ofUnknownOrNonDebit_isRejected() {
+        expectFailure { dao.refundTransaction("nope", System.currentTimeMillis()) }
+        runBlocking { dao.topUpPocket(spending, 1_000L, account()) } // creates a REALLOCATION entry
+        val reallocId = db.query("SELECT id FROM transactions WHERE type = 'REALLOCATION' LIMIT 1", null)
+            .use { it.moveToFirst(); it.getString(0) }
+        expectFailure { dao.refundTransaction(reallocId, System.currentTimeMillis()) }
+    }
 }

@@ -32,5 +32,8 @@ fun Throwable.userMessage(context: Context, @StringRes fallback: Int): String {
         BankingError.SAME_POCKET -> context.getString(R.string.bank_err_same_pocket)
         BankingError.INVALID_SOURCE -> context.getString(R.string.bank_err_invalid_source)
         BankingError.DUPLICATE -> context.getString(R.string.bank_err_duplicate)
+        BankingError.TX_NOT_FOUND -> context.getString(R.string.bank_err_tx_missing)
+        BankingError.NOT_REFUNDABLE -> context.getString(R.string.bank_err_not_refundable)
+        BankingError.REFUND_EXPIRED -> context.getString(R.string.bank_err_refund_expired)
     }
 }

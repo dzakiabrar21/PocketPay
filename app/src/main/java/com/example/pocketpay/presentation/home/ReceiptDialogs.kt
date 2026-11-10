@@ -1,5 +1,8 @@
 package com.example.pocketpay.presentation.home
 
+import androidx.compose.material.icons.filled.Undo
+import androidx.compose.material.icons.filled.Schedule
+import com.example.pocketpay.data.TxStatus
 import androidx.compose.ui.res.stringResource
 import com.example.pocketpay.R
 import com.example.pocketpay.ui.theme.PocketTheme
@@ -289,9 +292,26 @@ fun EStatementPdfDialog(
 @Composable
 fun TransactionDetailReceiptDialog(
     transaction: TransactionEntity,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    onRefund: () -> Unit = {}
 ) {
     val context = LocalContext.current
+    var confirmRefund by remember { mutableStateOf(false) }
+
+    if (confirmRefund) {
+        AlertDialog(
+            onDismissRequest = { confirmRefund = false },
+            title = { Text(stringResource(R.string.refund_confirm_title)) },
+            text = { Text(stringResource(R.string.refund_confirm_message, transaction.amount.toRupiah())) },
+            confirmButton = {
+                Button(
+                    onClick = { confirmRefund = false; onRefund() },
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+                ) { Text(stringResource(R.string.refund_confirm_yes)) }
+            },
+            dismissButton = { TextButton(onClick = { confirmRefund = false }) { Text(stringResource(R.string.pay_batal)) } }
+        )
+    }
 
     val receiptSummary = stringResource(
         R.string.receipt_share_text,
@@ -327,25 +347,39 @@ fun TransactionDetailReceiptDialog(
                     )
                 }
                 Spacer(modifier = Modifier.height(6.dp))
+                val chipBg = when (transaction.status) {
+                    TxStatus.SUCCESS -> MaterialTheme.colorScheme.secondaryContainer
+                    TxStatus.PENDING -> PocketTheme.colors.amberContainer
+                    TxStatus.REVERSED -> PocketTheme.colors.warnChip
+                }
+                val chipFg = when (transaction.status) {
+                    TxStatus.SUCCESS -> PocketTheme.colors.accent
+                    TxStatus.PENDING -> PocketTheme.colors.amberText
+                    TxStatus.REVERSED -> PocketTheme.colors.warnText
+                }
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
                         .background(
-                            color = MaterialTheme.colorScheme.secondaryContainer,
+                            color = chipBg,
                             shape = RoundedCornerShape(12.dp)
                         )
                         .padding(horizontal = 10.dp, vertical = 4.dp)
                 ) {
                     Icon(
-                        imageVector = Icons.Default.CheckCircle,
+                        imageVector = when (transaction.status) {
+                            TxStatus.SUCCESS -> Icons.Default.CheckCircle
+                            TxStatus.PENDING -> Icons.Default.Schedule
+                            TxStatus.REVERSED -> Icons.Default.Undo
+                        },
                         contentDescription = null,
-                        tint = PocketTheme.colors.accent,
+                        tint = chipFg,
                         modifier = Modifier.size(16.dp)
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
-                        text = transaction.status.name,
-                        color = PocketTheme.colors.accent,
+                        text = statusLabel(transaction.status),
+                        color = chipFg,
                         fontWeight = FontWeight.Bold,
                         fontSize = 12.sp
                     )
@@ -383,6 +417,18 @@ fun TransactionDetailReceiptDialog(
                     ReceiptRowItem(label = stringResource(R.string.receipt_waktu), value = transaction.timestamp.toFullDateTimeFormatted())
                     ReceiptRowItem(label = stringResource(R.string.receipt_metode_otentikasi), value = authMethodLabel(transaction.authMethod))
                     ReceiptRowItem(label = stringResource(R.string.receipt_idempotency_key), value = transaction.idempotencyKey.take(12) + "...")
+
+                    if (transaction.isRefundable()) {
+                        OutlinedButton(
+                            onClick = { confirmRefund = true },
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            Icon(Icons.Default.Undo, contentDescription = null, modifier = Modifier.size(16.dp))
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text(stringResource(R.string.refund_button))
+                        }
+                    }
                 }
             }
         },
@@ -441,4 +487,11 @@ fun authMethodLabel(raw: String): String = when (raw) {
     "Biometrik / PIN 6-Digit" -> stringResource(R.string.auth_default)
     "Otomatis" -> stringResource(R.string.auth_auto)
     else -> raw
+}
+
+@Composable
+fun statusLabel(status: TxStatus): String = when (status) {
+    TxStatus.SUCCESS -> stringResource(R.string.status_success)
+    TxStatus.PENDING -> stringResource(R.string.status_pending)
+    TxStatus.REVERSED -> stringResource(R.string.status_reversed)
 }

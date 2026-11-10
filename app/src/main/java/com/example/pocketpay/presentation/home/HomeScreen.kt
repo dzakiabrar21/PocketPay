@@ -152,6 +152,20 @@ fun HomeScreen(
         return
     }
 
+    // 1c. ASK FOR NOTIFICATION PERMISSION ONCE (Android 13+), after the app is unlocked
+    val notificationPermission = androidx.activity.compose.rememberLauncherForActivityResult(
+        androidx.activity.result.contract.ActivityResultContracts.RequestPermission()
+    ) { }
+    LaunchedEffect(uiState.isAppLocked) {
+        if (!uiState.isAppLocked && android.os.Build.VERSION.SDK_INT >= 33) {
+            val prefs = context.getSharedPreferences("pocketpay_notified", android.content.Context.MODE_PRIVATE)
+            if (!prefs.getBoolean("asked", false) && !com.example.pocketpay.work.PocketNotifier(context).canNotify()) {
+                prefs.edit().putBoolean("asked", true).apply()
+                notificationPermission.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+            }
+        }
+    }
+
     // 2. FULL SCREEN KELOLA AKUN (PAGE BARU AKUN NASABAH)
     if (uiState.isAccountProfileOpen) {
         AccountProfileScreen(
@@ -707,6 +721,7 @@ fun HomeScreen(
     uiState.selectedTransactionForDetail?.let { tx ->
         TransactionDetailReceiptDialog(
             transaction = tx,
+            onRefund = { viewModel.processIntent(HomeUiIntent.RefundTransaction(tx)) },
             onDismiss = {
                 viewModel.processIntent(HomeUiIntent.SelectTransactionForDetail(null))
             }

@@ -97,6 +97,7 @@ sealed interface HomeUiIntent {
     data class SetTxTypeFilter(val type: TxType?) : HomeUiIntent
     data class SetSearchQuery(val query: String) : HomeUiIntent
     data class SetDateRangeFilter(val filter: DateRangeFilter) : HomeUiIntent
+    data class RefundTransaction(val transaction: TransactionEntity) : HomeUiIntent
     data object ToggleBalanceVisibility : HomeUiIntent
     data class SetRoundUpEnabled(val isEnabled: Boolean) : HomeUiIntent
     data object LockApp : HomeUiIntent

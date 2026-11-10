@@ -5,6 +5,7 @@
     <!-- Izin dan Fitur Kamera diletakkan di sini -->
     <uses-feature android:name="android.hardware.camera.any" />
     <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
         android:name=".PocketPayApp"
