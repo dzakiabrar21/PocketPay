@@ -232,7 +232,6 @@ export const en: Dict = {
       "No backend or accounts; the device is the only source of truth.",
       "No root/emulator detection (Play Integrity).",
       "PIN-attempt counters live in regular preferences, so a rooted device could reset them.",
-      "The biometric path has not been tested on a phone with an enrolled fingerprint.",
       "QRIS is structurally valid, but PocketPay is not a registered issuer.",
     ],
   },
@@ -314,7 +313,6 @@ export const en: Dict = {
       items: [
         "Transfers to simulated contacts and a `PENDING` → success/fail flow.",
         "Dedicated use cases, ViewModel tests and GitHub Actions CI.",
-        "Test biometrics on a physical device.",
       ],
     },
   },

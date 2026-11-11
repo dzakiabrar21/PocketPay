@@ -235,7 +235,6 @@ export const id: Dict = {
       "Tidak ada backend atau akun; perangkat adalah satu-satunya sumber data.",
       "Tidak ada deteksi root/emulator (Play Integrity).",
       "Penghitung salah-PIN ada di preferensi biasa, jadi bisa direset di perangkat root.",
-      "Jalur biometrik belum diuji di HP dengan sidik jari terdaftar.",
       "QRIS valid secara format, tetapi PocketPay bukan penerbit terdaftar.",
     ],
   },
@@ -317,7 +316,6 @@ export const id: Dict = {
       items: [
         "Transfer ke kontak simulasi dan alur `PENDING` → berhasil/gagal.",
         "Use case terpisah, test ViewModel, dan CI GitHub Actions.",
-        "Uji biometrik di perangkat fisik.",
       ],
     },
   },

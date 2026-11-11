@@ -24,8 +24,6 @@ the device, and — just as importantly — what it does not do.
 * **No backend, no accounts.** The device is the only source of truth, so this cannot protect real funds.
 * **No root, emulator or tamper detection** (no Play Integrity).
 * **Attempt counters** are stored in regular preferences; on a rooted device they could be reset.
-* **Biometric path** was verified by code review and on an emulator without enrolled biometrics, not on a physical device
-  with a fingerprint.
 * **QRIS** payloads are structurally valid but PocketPay is not a registered issuer.
 * Stored transaction titles are in Indonesian regardless of the UI language.
 
