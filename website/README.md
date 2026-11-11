@@ -15,7 +15,7 @@ both implement the `Dict` type, so a missing translation is a compile error.
 ```bash
 cd website
 npm install
-npm run dev        # http://localhost:3000
+npm run dev        # http://localhost:3100 (3000 is often taken, e.g. by Grafana)
 npm run typecheck
 npm run build && npm start
 ```
