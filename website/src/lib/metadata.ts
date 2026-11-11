@@ -4,12 +4,12 @@ import type { Dict } from "@/content/types";
 /** Public origin of the deployed site. Set NEXT_PUBLIC_SITE_URL in Vercel once the final domain is known. */
 export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://pocketpay.vercel.app";
 
-export function buildMetadata(dict: Dict, path: "/" | "/en"): Metadata {
+export function buildMetadata(dict: Dict, path: "/" | "/id"): Metadata {
   return {
     metadataBase: new URL(SITE_URL),
     title: dict.meta.title,
     description: dict.meta.description,
-    alternates: { canonical: path, languages: { id: "/", en: "/en", "x-default": "/" } },
+    alternates: { canonical: path, languages: { en: "/", id: "/id", "x-default": "/" } },
     openGraph: {
       title: dict.meta.ogTitle,
       description: dict.meta.ogDescription,

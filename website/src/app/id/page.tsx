@@ -1,9 +1,9 @@
 import Landing from "@/components/Landing";
-import { en } from "@/content/en";
+import { id } from "@/content/id";
 import { buildMetadata } from "@/lib/metadata";
 
-export const metadata = buildMetadata(en, "/en");
+export const metadata = buildMetadata(id, "/id");
 
 export default function Page() {
-  return <Landing dict={en} />;
+  return <Landing dict={id} />;
 }

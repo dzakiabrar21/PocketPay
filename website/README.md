@@ -4,8 +4,8 @@ Bilingual landing page for the [PocketPay](../README.md) Android project, built 
 
 | Route | Language |
 |---|---|
-| `/` | Indonesian (default) |
-| `/en` | English |
+| `/` | English (default) |
+| `/id` | Indonesian |
 
 Both routes are statically generated. Content lives in typed dictionaries (`src/content/id.ts`, `src/content/en.ts`);
 both implement the `Dict` type, so a missing translation is a compile error.

@@ -7,8 +7,8 @@ export const id: Dict = {
   meta: {
     title: "PocketPay — Receh kecil, tabungan besar (dompet digital Android)",
     description:
-      "PocketPay: aplikasi dompet digital Android yang menabung receh otomatis. Bayar QRIS, kantong berbunga, refund 24 jam, statistik, dan keamanan berlapis. Proyek portofolio dengan data simulasi.",
-    ogTitle: "PocketPay — Dompet digital yang menabung receh untukmu",
+      "PocketPay adalah proyek portofolio aplikasi Android: dompet digital dengan pembayaran QRIS, tabungan pembulatan, kantong berbunga, refund 24 jam, statistik, dan keamanan berlapis. Data simulasi, bukan produk keuangan sungguhan.",
+    ogTitle: "PocketPay — Aplikasi dompet Android (proyek portofolio)",
     ogDescription:
       "Pembayaran QRIS, tabungan pembulatan, kantong berbunga, refund, dan aplikasi terenkripsi berkunci PIN. Proyek portofolio Kotlin + Jetpack Compose.",
   },
@@ -27,7 +27,7 @@ export const id: Dict = {
     titleBefore: "Receh kecil, ",
     titleEm: "tabungan",
     titleAfter: " besar.",
-    lead: "PocketPay adalah dompet digital Android yang membulatkan setiap pembayaran QRIS dan menabung selisihnya untukmu. Ada kantong berbunga, refund 24 jam, statistik, dan database terenkripsi.",
+    lead: "Proyek portofolio: aplikasi dompet Android yang membulatkan setiap pembayaran QRIS menjadi tabungan. Ada juga kantong berbunga, refund 24 jam, statistik, dan database terenkripsi.",
     ctaStory: "Lihat ceritanya",
     ctaSource: "Kode sumber",
     facts: [
@@ -62,7 +62,7 @@ export const id: Dict = {
         no: "02",
         shot: "pockets",
         title: "Receh jadi tabungan",
-        text: "Nominal dibulatkan ke atas ke kelipatan Rp 5.000 dan selisihnya masuk ke Celengan Receh. Kantong lain menumbuhkan uangmu dengan bunga.",
+        text: "Nominal dibulatkan ke atas ke kelipatan Rp 5.000 dan selisihnya masuk ke Celengan Receh. Kantong lain menumbuhkan saldonya dengan bunga.",
         bullets: [
           "Kantong belanja 3,5% p.a. dengan target dan progres.",
           "Deposito 6% p.a. terkunci sampai jatuh tempo.",

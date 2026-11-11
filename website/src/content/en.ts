@@ -7,8 +7,8 @@ export const en: Dict = {
   meta: {
     title: "PocketPay — Small change, big savings (Android wallet)",
     description:
-      "PocketPay is an Android wallet that saves your spare change. Pay with QRIS, interest-bearing pockets, 24-hour refunds, statistics and layered security. A portfolio project with simulated data.",
-    ogTitle: "PocketPay — A wallet that saves your spare change",
+      "PocketPay is a portfolio Android app: a digital wallet with QRIS payments, round-up savings, interest-bearing pockets, 24-hour refunds, statistics and layered security. Simulated data, not a real financial product.",
+    ogTitle: "PocketPay — Android wallet app (portfolio project)",
     ogDescription:
       "QRIS payments, round-up savings, interest-bearing pockets, refunds and an encrypted, PIN-locked app. A Kotlin + Jetpack Compose portfolio project.",
   },
@@ -27,7 +27,7 @@ export const en: Dict = {
     titleBefore: "Small change, ",
     titleEm: "big",
     titleAfter: " savings.",
-    lead: "PocketPay is an Android wallet that rounds up every QRIS payment and saves the difference for you. It adds interest-bearing pockets, 24-hour refunds, statistics and an encrypted database.",
+    lead: "A portfolio project: an Android wallet app that rounds up every QRIS payment into a savings pocket. It also features interest-bearing pockets, 24-hour refunds, statistics and an encrypted database.",
     ctaStory: "See the story",
     ctaSource: "Source code",
     facts: [
@@ -62,7 +62,7 @@ export const en: Dict = {
         no: "02",
         shot: "pockets",
         title: "Spare change becomes savings",
-        text: "The amount is rounded up to the next Rp 5,000 and the difference goes to the Spare Change Jar. Other pockets grow your money with interest.",
+        text: "The amount is rounded up to the next Rp 5,000 and the difference goes to the Spare Change Jar. Other pockets grow their balance with interest.",
         bullets: [
           "Spending pockets at 3.5% p.a. with goals and progress.",
           "Deposits at 6% p.a. locked until maturity.",

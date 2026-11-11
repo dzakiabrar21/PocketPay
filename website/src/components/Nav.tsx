@@ -3,7 +3,7 @@ import type { Dict } from "@/content/types";
 
 export const REPO_URL = "https://github.com/dzakiabrar21/PocketPay";
 
-/** Floating pill navigation. The language switch is a pair of links: `/` (Indonesian) and `/en`. */
+/** Floating pill navigation. The language switch is a pair of links: `/` (English) and `/id`. */
 export default function Nav({ dict }: { dict: Dict }) {
   const links: [string, string][] = [
     ["#cerita", dict.nav.story],
@@ -28,11 +28,11 @@ export default function Nav({ dict }: { dict: Dict }) {
           ))}
         </nav>
         <div className="seg" role="group" aria-label={dict.nav.langAria}>
-          <Link href="/" hrefLang="id" aria-current={dict.lang === "id" ? "true" : undefined} prefetch={false}>
-            ID
-          </Link>
-          <Link href="/en" hrefLang="en" aria-current={dict.lang === "en" ? "true" : undefined} prefetch={false}>
+          <Link href="/" hrefLang="en" aria-current={dict.lang === "en" ? "true" : undefined} prefetch={false}>
             EN
+          </Link>
+          <Link href="/id" hrefLang="id" aria-current={dict.lang === "id" ? "true" : undefined} prefetch={false}>
+            ID
           </Link>
         </div>
         <a className="btn btn-ink btn-sm" href={REPO_URL} target="_blank" rel="noopener noreferrer" style={{ marginLeft: 6 }}>

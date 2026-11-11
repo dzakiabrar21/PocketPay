@@ -240,3 +240,8 @@
 
   .reveal.noscript-fix{opacity:1}
   .phone img{display:block}
+
+/* Desktop is rendered at 90% so the layout feels a little tighter; phones keep their natural size. */
+@media (min-width: 900px) {
+  html { zoom: 0.9; }
+}
