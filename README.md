@@ -10,14 +10,14 @@
 
 > **Not for real funds.** QRIS codes are structurally valid but PocketPay is not a registered QRIS issuer.
 
-📖 **Landing page & docs:** [`docs/index.html`](docs/index.html) · [Architecture](docs/ARCHITECTURE.md) · [Features & rules](docs/FEATURES.md) · [Security notes](docs/SECURITY.md) · [Testing](docs/TESTING.md)
+📖 **Landing page:** [`website/`](website/) (Next.js, deploy to Vercel with Root Directory `website`) · **Docs:** [Architecture](docs/ARCHITECTURE.md) · [Features & rules](docs/FEATURES.md) · [Security notes](docs/SECURITY.md) · [Testing](docs/TESTING.md)
 
 <p align="center">
-  <img src="docs/assets/screens/home-en-light.webp" width="19%" alt="Home">
-  <img src="docs/assets/screens/pay-en-light.webp" width="19%" alt="QRIS payment">
-  <img src="docs/assets/screens/success-en-light.webp" width="19%" alt="Payment success">
-  <img src="docs/assets/screens/stats-en-light.webp" width="19%" alt="Statistics">
-  <img src="docs/assets/screens/home-en-dark.webp" width="19%" alt="Dark mode">
+  <img src="website/public/screens/home-en-light.webp" width="19%" alt="Home">
+  <img src="website/public/screens/pay-en-light.webp" width="19%" alt="QRIS payment">
+  <img src="website/public/screens/success-en-light.webp" width="19%" alt="Payment success">
+  <img src="website/public/screens/stats-en-light.webp" width="19%" alt="Statistics">
+  <img src="website/public/screens/home-en-dark.webp" width="19%" alt="Dark mode">
 </p>
 
 ---

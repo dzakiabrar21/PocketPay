@@ -29,4 +29,4 @@
 ### Why a screenshot test?
 
 The app window uses `FLAG_SECURE`, so system screenshots are black. The harness captures each composable directly,
-which sidesteps `FLAG_SECURE` and gives reproducible screenshots for design review (and for the landing page).
+which sidesteps `FLAG_SECURE` and gives reproducible screenshots for design review (and for the landing page in `website/public/screens`).
